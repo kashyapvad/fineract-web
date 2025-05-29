@@ -3,6 +3,8 @@
   "Logged in as": "Collegato come",
   "Remember me": "Ricordati di me",
   "errors": {
+    "Capitalized Income amount adjusted already adjusted": "Importo del reddito capitalizzato rettificato già rettificato",
+    "Capitalized Income Adjustment amount must be lower or equal to": "L'importo dell'adeguamento del reddito capitalizzato deve essere inferiore o uguale a",
     "Email not valid": "E-mail non valida",
     "Filling Details": "Fare clic per iniziare a compilare i dettagli. *I campi contrassegnati sono obbligatori. Per maggiori dettagli clicca:",
     "Password is required": "E 'richiesta la password",
@@ -536,6 +538,8 @@
       "Inactive": "Inattivo",
       "Loans": "Prestiti",
       "CENTER": "CENTRO",
+      "Capitalized Income": "Reddito capitalizzato",
+      "Capitalized Income Adjustment": "Adeguamento del reddito capitalizzato",
       "Client": "Cliente",
       "cash_mgmt": "cash_mgmt",
       "collection_sheet": "foglio_raccolta",

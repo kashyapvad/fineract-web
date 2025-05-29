@@ -3,6 +3,8 @@
   "Logged in as": "को रूपमा लग इन गरियो",
   "Remember me": "मलाई सम्झनुहोस्",
   "errors": {
+    "Capitalized Income amount adjusted already adjusted": "क्यापिटलाइज्ड आय रकम पहिले नै समायोजन गरिएको छ",
+    "Capitalized Income Adjustment amount must be lower or equal to": "पूंजीकृत आय समायोजन रकम कम वा बराबर हुनुपर्छ",
     "Email not valid": "इमेल मान्य छैन",
     "Filling Details": "विवरणहरू भर्न सुरु गर्न क्लिक गर्नुहोस्। * मार्क क्षेत्रहरू आवश्यक छन्। थप विवरणहरूको लागि क्लिक गर्नुहोस्:",
     "Password is required": "पासवर्ड आवश्यक छ",
@@ -536,6 +538,8 @@
       "Inactive": "निष्क्रिय",
       "Loans": "ऋण",
       "CENTER": "केन्द्र",
+      "Capitalized Income": "पुँजीगत आय",
+      "Capitalized Income Adjustment": "पूंजीकृत आय समायोजन",
       "Client": "ग्राहक",
       "cash_mgmt": "cash_mgmt",
       "collection_sheet": "संग्रह_पाना",

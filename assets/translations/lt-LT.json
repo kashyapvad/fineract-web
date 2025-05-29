@@ -3,6 +3,8 @@
   "Logged in as": "prisijungęs kaip",
   "Remember me": "Prisimink mane",
   "errors": {
+    "Capitalized Income amount adjusted already adjusted": "Kapitalizuotų pajamų suma pakoreguota jau pakoreguota",
+    "Capitalized Income Adjustment amount must be lower or equal to": "Kapitalizuotų pajamų koregavimo suma turi būti mažesnė arba lygi",
     "Email not valid": "El. pašto adresas negalioja",
     "Filling Details": "Spustelėkite norėdami pradėti pildyti išsamią informaciją. * žymėjimo laukai yra būtini. Norėdami gauti daugiau informacijos, spustelėkite:",
     "Password is required": "reikalingas slaptazodis",
@@ -536,6 +538,8 @@
       "Inactive": "Neaktyvus",
       "Loans": "Paskolos",
       "CENTER": "CENTRAS",
+      "Capitalized Income": "Kapitalizuotos pajamos",
+      "Capitalized Income Adjustment": "Kapitalizuotų pajamų koregavimas",
       "Client": "Klientas",
       "cash_mgmt": "cash_mgmt",
       "collection_sheet": "kolekcijos_lapas",

@@ -3,6 +3,8 @@
   "Logged in as": "Imeingia kama",
   "Remember me": "Nikumbuke",
   "errors": {
+    "Capitalized Income amount adjusted already adjusted": "Kiasi cha Mapato ya Mtaji kilichorekebishwa tayari kimerekebishwa",
+    "Capitalized Income Adjustment amount must be lower or equal to": "Kiasi cha Marekebisho ya Mapato ya Mtaji lazima kiwe chini au sawa na",
     "Email not valid": "Barua pepe si halali",
     "Filling Details": "Bofya ili kuanza kujaza maelezo. * maeneo ya alama ni muhimu. Kwa maelezo zaidi bofya:",
     "Password is required": "Nenosiri linahitajika",
@@ -536,6 +538,8 @@
       "Inactive": "Isiyotumika",
       "Loans": "Mikopo",
       "CENTER": "KITUO",
+      "Capitalized Income": "Mapato ya Mtaji",
+      "Capitalized Income Adjustment": "Marekebisho ya Mapato ya Mtaji",
       "Client": "Mteja",
       "cash_mgmt": "cash_mgmt",
       "collection_sheet": "laha_ya_mkusanyo",

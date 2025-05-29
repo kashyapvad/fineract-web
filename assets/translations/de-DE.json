@@ -3,6 +3,8 @@
   "Logged in as": "Angemeldet als",
   "Remember me": "Erinnere dich an mich",
   "errors": {
+    "Capitalized Income amount adjusted already adjusted": "Kapitalisiertes Einkommen Betrag angepasst bereits angepasst",
+    "Capitalized Income Adjustment amount must be lower or equal to": "Der Betrag der kapitalisierten Einkommensanpassung muss kleiner oder gleich sein",
     "Email not valid": "E-Mail ungültig",
     "Filling Details": "Klicken Sie hier, um mit dem Ausfüllen der Details zu beginnen. * Markierungsfelder sind erforderlich. Für weitere Details klicken Sie:",
     "Password is required": "Passwort wird benötigt",
@@ -536,6 +538,8 @@
       "Inactive": "Inaktiv",
       "Loans": "Kredite",
       "CENTER": "CENTER",
+      "Capitalized Income": "Kapitalisiertes Einkommen",
+      "Capitalized Income Adjustment": "Anpassung des kapitalisierten Einkommens",
       "Client": "Klient",
       "cash_mgmt": "cash_mgmt",
       "collection_sheet": "Sammlungsblatt",

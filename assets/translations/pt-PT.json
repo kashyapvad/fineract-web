@@ -3,6 +3,8 @@
   "Logged in as": "logado como",
   "Remember me": "Lembre de mim",
   "errors": {
+    "Capitalized Income amount adjusted already adjusted": "Valor da Renda Capitalizada ajustado já ajustado",
+    "Capitalized Income Adjustment amount must be lower or equal to": "O valor do ajuste de renda capitalizada deve ser menor ou igual a",
     "Email not valid": "E-mail não válido",
     "Filling Details": "Clique para começar a preencher os dados. * os campos de marcação são necessários. Para mais detalhes clique:",
     "Password is required": "Senha requerida",
@@ -536,6 +538,8 @@
       "Inactive": "Inativo",
       "Loans": "Empréstimos",
       "CENTER": "CENTRO",
+      "Capitalized Income": "Renda Capitalizada",
+      "Capitalized Income Adjustment": "Ajuste de Renda Capitalizada",
       "Client": "Cliente",
       "cash_mgmt": "dinheiro_mgmt",
       "collection_sheet": "planilha_de_coleção",

@@ -3,6 +3,8 @@
   "Logged in as": "Conectado como",
   "Remember me": "Recordar me",
   "errors": {
+    "Capitalized Income amount adjusted already adjusted": "Monto de Ingreso Capitalizado ajustado ya ajustado",
+    "Capitalized Income Adjustment amount must be lower or equal to": "El monto del Ajuste de Ingreso Capitalizado debe ser menor o igual a",
     "Email not valid": "Correo electrónico no válido",
     "Filling Details": "Haga clic para comenzar a completar los detalles. * Los campos de marca son necesarios. Para más detalles haga clic en:",
     "Password is required": "se requiere contraseña",
@@ -536,6 +538,8 @@
       "Inactive": "Inactivo",
       "Loans": "Préstamos",
       "CENTER": "CENTRO",
+      "Capitalized Income": "Ingresos capitalizados",
+      "Capitalized Income Adjustment": "Ajuste de ingresos capitalizados",
       "Client": "Cliente",
       "cash_mgmt": "gestión_efectivo",
       "collection_sheet": "hoja_coleccion",

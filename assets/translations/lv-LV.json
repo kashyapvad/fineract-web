@@ -3,6 +3,8 @@
   "Logged in as": "ielogojies Kā",
   "Remember me": "Atceries mani",
   "errors": {
+    "Capitalized Income amount adjusted already adjusted": "Kapitalizēto ienākumu summa jau koriģēta",
+    "Capitalized Income Adjustment amount must be lower or equal to": "Kapitalizēto ienākumu korekcijas summai ir jābūt mazākai vai vienādai ar",
     "Email not valid": "E-pasts nav derīgs",
     "Filling Details": "Noklikšķiniet, lai sāktu aizpildīt informāciju. * ir nepieciešami atzīmju lauki. Lai iegūtu sīkāku informāciju, noklikšķiniet:",
     "Password is required": "nepieciešama parole",
@@ -536,6 +538,8 @@
       "Inactive": "Neaktīvs",
       "Loans": "Aizdevumi",
       "CENTER": "CENTRS",
+      "Capitalized Income": "Kapitalizētie ienākumi",
+      "Capitalized Income Adjustment": "Kapitalizēto ienākumu korekcija",
       "Client": "Klients",
       "cash_mgmt": "naudas_mgmt",
       "collection_sheet": "kolekcijas_lapa",

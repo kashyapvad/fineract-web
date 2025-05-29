@@ -3,6 +3,8 @@
   "Logged in as": "Přihlášen jako",
   "Remember me": "Zapamatuj si mě",
   "errors": {
+    "Capitalized Income amount adjusted already adjusted": "Výše kapitalizovaného příjmu již upravená",
+    "Capitalized Income Adjustment amount must be lower or equal to": "Částka úpravy kapitalizovaného příjmu musí být nižší nebo rovna",
     "Email not valid": "Email není platný",
     "Filling Details": "Kliknutím začněte vyplňovat podrobnosti. * pole označení jsou nezbytná. Pro více podrobností klikněte na:",
     "Password is required": "Je vyžadováno heslo",
@@ -536,6 +538,8 @@
       "Inactive": "Inactive",
       "Loans": "Loans",
       "CENTER": "CENTRUM",
+      "Capitalized Income": "Kapitalizovaný příjem",
+      "Capitalized Income Adjustment": "Úprava kapitalizovaného příjmu",
       "Client": "Client",
       "cash_mgmt": "cash_mgmt",
       "collection_sheet": "kolekce_list",
