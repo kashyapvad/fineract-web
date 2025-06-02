@@ -70,7 +70,7 @@ export class WorkflowDiagramComponent implements OnInit {
       nodeCounter++;
     }
     // trigger center
-    this.center$.next();
+    this.center$.next(undefined);
   }
 
   public getStyles(node: Node): any {

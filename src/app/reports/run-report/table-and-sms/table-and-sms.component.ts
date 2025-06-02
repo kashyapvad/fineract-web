@@ -14,7 +14,7 @@ import { FormDialogComponent } from 'app/shared/form-dialog/form-dialog.componen
 import { environment } from 'environments/environment';
 import { ProgressBarService } from 'app/core/progress-bar/progress-bar.service';
 
-import * as XLSX from 'xlsx';
+import * as ExcelJS from 'exceljs';
 
 /**
  * Table and SMS Component
@@ -149,10 +149,27 @@ export class TableAndSmsComponent implements OnChanges {
       }
       return row;
     });
-    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data, { header: this.displayedColumns });
-    const wb: XLSX.WorkBook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Report');
-    XLSX.writeFile(wb, fileName);
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Report');
+
+    // Add header row
+    worksheet.addRow(this.displayedColumns);
+
+    // Add data rows
+    data.forEach((rowObj: any) => {
+      worksheet.addRow(this.displayedColumns.map((col) => rowObj[col]));
+    });
+
+    workbook.xlsx.writeBuffer().then((buffer: any) => {
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'filename.xlsx';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
   }
 
   /**
