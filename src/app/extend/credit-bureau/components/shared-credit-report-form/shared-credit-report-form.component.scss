@@ -1,0 +1,716 @@
+/**
+ * Enhanced Shared Credit Report Form Styles
+ * Following Material Design principles and responsive design patterns
+ * Restructured according to KB CSS Architecture Rules [P0]
+ */
+
+@use 'sass:color';
+
+// Variables for consistent spacing and colors
+$primary-color: #1976d2;
+$accent-color: #ff4081;
+$warn-color: #f44336;
+$success-color: #4caf50;
+$info-color: #2196f3;
+$background-color: #fafafa;
+$card-background: #fff;
+$border-radius: 8px;
+$section-spacing: 24px;
+$field-spacing: 16px;
+
+// ========================================
+// GENERAL SELECTORS FIRST (KB Rule: CSS Specificity Management [P0])
+// ========================================
+
+// Base element selectors
+h3 {
+  margin: 0 0 8px;
+  color: $primary-color;
+  font-weight: 500;
+}
+
+h4 {
+  margin: 0;
+  color: rgb(0 0 0 / 87%);
+  font-weight: 500;
+  font-size: 16px;
+}
+
+button {
+  margin-left: auto;
+}
+
+p {
+  margin: 0;
+  color: rgb(0 0 0 / 60%);
+  font-size: 14px;
+}
+
+span {
+  font-size: 12px;
+  font-weight: 500;
+  color: #ff9800;
+  background-color: #fff3e0;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+// Material Design component selectors
+.mat-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 18px;
+  font-weight: 500;
+  color: $primary-color;
+  margin-bottom: 0;
+}
+
+.mat-card-subtitle {
+  font-size: 14px;
+  color: rgb(0 0 0 / 60%);
+  margin-top: 4px;
+}
+
+.mat-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.mat-panel-description {
+  color: rgb(0 0 0 / 60%);
+  font-size: 13px;
+}
+
+.mat-expansion-panel-body {
+  padding: 0 24px 24px;
+}
+
+.mat-icon {
+  color: rgb(0 0 0 / 54%);
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+// Move specific mat-icon before disabled icon styles (KB Rule)
+.visual-json-builder .fields-header .mat-icon {
+  color: rgb(0 0 0 / 54%);
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.section-icon {
+  color: $primary-color;
+}
+
+.field-count {
+  font-size: 12px;
+  color: rgb(0 0 0 / 60%);
+  font-weight: 400;
+}
+
+.empty-icon {
+  color: rgb(0 0 0 / 38%);
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.section-name-field {
+  flex: 1;
+}
+
+.add-section-controls {
+  text-align: center;
+  margin-top: $section-spacing;
+}
+
+// ========================================
+// COMPONENT ARCHITECTURE (KB Rule: DRY Principle [P1])
+// ========================================
+
+// Streamlined content container - remove nested scrolling
+.streamlined-content {
+  padding: 0 !important;
+  margin: 0 !important;
+  // Remove max-height and overflow to let parent dialog handle scrolling
+  overflow: visible;
+}
+
+// Form container with improved spacing
+.form-container {
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+}
+
+// Section cards for better organization
+.section-card {
+  margin-bottom: $section-spacing;
+  border-radius: $border-radius;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+  background: $card-background;
+}
+
+// Section card content
+.section-card .mat-card-content {
+  padding: 16px 24px 24px;
+  overflow: visible;
+}
+
+// Section card header
+.section-card .mat-card-header {
+  padding: 16px 24px 0;
+}
+
+// Move section card title before additional data card title
+.section-card .mat-card-header .mat-card-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: $primary-color;
+  margin-bottom: 0;
+}
+
+// Moved to end of file to fix specificity order
+
+// Form field layouts
+.form-row {
+  display: flex;
+  gap: $field-spacing;
+  margin-bottom: $field-spacing;
+  align-items: flex-start;
+}
+
+// Field width classes
+.full-width {
+  width: 100%;
+}
+
+.half-width {
+  flex: 1;
+  min-width: 0;
+}
+
+.third-width {
+  flex: 1;
+  min-width: 0;
+}
+
+// Credit score group styling
+.score-group {
+  border: 1px solid #e0e0e0;
+  border-radius: $border-radius;
+  padding: 20px;
+  margin-bottom: $field-spacing;
+  background: #fafafa;
+}
+
+// Score group header
+.score-group .score-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $field-spacing;
+}
+
+// Score group header title
+.score-group .score-header h4 {
+  margin: 0;
+  color: $primary-color;
+  font-weight: 500;
+}
+
+// Score group disabled buttons
+.score-group .score-header [mat-icon-button][disabled] {
+  background-color: transparent !important;
+  color: rgb(0 0 0 / 26%) !important;
+  cursor: not-allowed;
+}
+
+.score-group .score-header [mat-icon-button][disabled]:hover {
+  background-color: transparent !important;
+}
+
+.score-group .score-header [mat-icon-button][disabled] .mat-icon {
+  color: rgb(0 0 0 / 26%) !important;
+}
+
+// Add score section
+.add-score-section {
+  text-align: center;
+  margin: $section-spacing 0;
+}
+
+.add-score-section button {
+  min-width: 200px;
+}
+
+// Move to after section card title to fix specificity order
+// .additional-data-card .mat-card-title moved below
+
+// Additional data card button styles (specific selector after)
+.additional-data-card .mat-card-title button {
+  margin-left: auto;
+}
+
+// Simple JSON View (collapsed state)
+.simple-json-view .mat-form-field textarea {
+  background-color: #f8f9fa;
+  cursor: pointer;
+}
+
+.simple-json-view .mat-form-field textarea:hover {
+  background-color: #e9ecef;
+}
+
+// ========================================
+// VISUAL JSON BUILDER ARCHITECTURE (KB Rule: Flatten Nesting [P0])
+// ========================================
+
+// Builder header
+.visual-json-builder .builder-header {
+  margin-bottom: $section-spacing;
+  text-align: center;
+}
+
+.visual-json-builder .builder-header h3 {
+  margin: 0 0 8px;
+  color: $primary-color;
+  font-weight: 500;
+}
+
+.visual-json-builder .builder-header .builder-description {
+  margin: 0;
+  color: rgb(0 0 0 / 60%);
+  font-size: 14px;
+}
+
+// Sections container
+.visual-json-builder .sections-container {
+  margin-bottom: $section-spacing;
+}
+
+.visual-json-builder .sections-container .data-section {
+  margin-bottom: 16px;
+}
+
+// Expansion panels
+.visual-json-builder .data-section .mat-expansion-panel {
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+}
+
+.visual-json-builder .data-section .mat-expansion-panel.mat-expanded {
+  box-shadow: 0 4px 8px rgb(0 0 0 / 15%);
+}
+
+.visual-json-builder .mat-expansion-panel-header {
+  padding: 16px 24px;
+}
+
+// Section content
+.visual-json-builder .section-content .section-config {
+  margin-bottom: $section-spacing;
+}
+
+.visual-json-builder .section-config .config-row {
+  display: flex;
+  gap: $field-spacing;
+  align-items: flex-start;
+}
+
+.visual-json-builder .config-row .section-name-field {
+  flex: 1;
+}
+
+.visual-json-builder .config-row .delete-section-btn {
+  margin-top: 8px;
+}
+
+// Fields container
+.visual-json-builder .section-content .fields-container .fields-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: $field-spacing;
+}
+
+.visual-json-builder .fields-container .fields-header h4 {
+  margin: 0;
+  color: rgb(0 0 0 / 87%);
+  font-weight: 500;
+  font-size: 16px;
+}
+
+// Remove duplicate - moved to general selectors section
+
+// Field rows
+.visual-json-builder .fields-container .field-row {
+  display: flex;
+  gap: $field-spacing;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background-color: #fafafa;
+}
+
+.visual-json-builder .field-row:hover {
+  background-color: #f5f5f5;
+  border-color: #d0d0d0;
+}
+
+.visual-json-builder .field-row .field-key {
+  flex: 1;
+  min-width: 120px;
+}
+
+.visual-json-builder .field-row .field-value {
+  flex: 2;
+  min-width: 200px;
+}
+
+.visual-json-builder .field-row .remove-field-btn {
+  margin-top: 8px;
+}
+
+.visual-json-builder .remove-field-btn:hover {
+  background-color: rgba($warn-color, 0.1);
+}
+
+// Add field button
+.visual-json-builder .fields-container .add-field-btn {
+  width: 100%;
+  margin-top: 12px;
+  border: 2px dashed #e0e0e0;
+  background-color: transparent;
+  color: $primary-color;
+}
+
+.visual-json-builder .add-field-btn:hover {
+  border-color: $primary-color;
+  background-color: rgba($primary-color, 0.04);
+}
+
+// Empty states
+.visual-json-builder .fields-container .empty-fields-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: rgb(0 0 0 / 54%);
+  border: 2px dashed #e0e0e0;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.visual-json-builder .empty-fields-state .empty-icon {
+  color: rgb(0 0 0 / 38%);
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.visual-json-builder .empty-fields-state p {
+  margin: 0;
+  font-size: 14px;
+  color: rgb(0 0 0 / 60%);
+}
+
+// Add section controls
+.visual-json-builder .add-section-controls {
+  text-align: center;
+  margin-top: $section-spacing;
+}
+
+// ========================================
+// JSON EDITOR AND KEY-VALUE PATTERNS
+// ========================================
+
+// JSON editor container
+.json-editor-container {
+  margin-top: 16px;
+}
+
+.json-editor-container .json-tabs .mat-tab-label {
+  min-width: 100px;
+  padding: 0 16px;
+}
+
+// Key-value editor
+.key-value-editor .key-value-row,
+.key-value-editor .add-key-value {
+  display: flex;
+  gap: $field-spacing;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.key-value-editor .key-field,
+.key-value-editor .value-field {
+  flex: 1;
+  min-width: 200px;
+}
+
+.key-value-editor .remove-row-btn {
+  margin-top: 8px;
+}
+
+// ========================================
+// MATERIAL FORM FIELD ENHANCEMENTS
+// ========================================
+
+// Form field appearance
+.mat-form-field {
+  width: 100%;
+
+  &.mat-form-field-appearance-outline {
+    .mat-form-field-outline {
+      border-radius: 6px;
+    }
+
+    &.mat-focused .mat-form-field-outline-thick {
+      color: $primary-color;
+    }
+
+    &.mat-form-field-invalid .mat-form-field-outline-thick {
+      color: $warn-color;
+    }
+  }
+
+  .mat-error {
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .mat-hint {
+    font-size: 12px;
+    color: rgb(0 0 0 / 60%);
+  }
+}
+
+// Button enhancements
+.mat-raised-button {
+  border-radius: 6px;
+  font-weight: 500;
+  text-transform: none;
+
+  &.mat-primary {
+    background-color: $primary-color;
+
+    &:hover:not([disabled]) {
+      background-color: color.adjust($primary-color, $lightness: -10%);
+    }
+  }
+}
+
+.mat-stroked-button {
+  border-radius: 6px;
+  font-weight: 500;
+  text-transform: none;
+
+  &.mat-primary {
+    border-color: $primary-color;
+    color: $primary-color;
+
+    &:hover:not([disabled]) {
+      background-color: rgba($primary-color, 0.04);
+    }
+  }
+}
+
+.mat-icon-button {
+  &.mat-warn {
+    color: $warn-color;
+
+    &:hover:not([disabled]) {
+      background-color: rgba($warn-color, 0.04);
+    }
+  }
+
+  &.mat-primary {
+    color: $primary-color;
+
+    &:hover:not([disabled]) {
+      background-color: rgba($primary-color, 0.04);
+    }
+  }
+}
+
+// ========================================
+// RESPONSIVE DESIGN IMPROVEMENTS
+// ========================================
+
+@media (width <= 1024px) {
+  .streamlined-content {
+    max-height: 75vh;
+  }
+
+  .section-card {
+    margin-bottom: 20px;
+  }
+
+  .section-card .mat-card-content {
+    padding: 12px 16px 16px;
+  }
+
+  .section-card .mat-card-header {
+    padding: 12px 16px 0;
+  }
+}
+
+@media (width <= 768px) {
+  .streamlined-content {
+    max-height: 70vh;
+    padding: 0 8px;
+  }
+
+  .section-card {
+    margin-bottom: 16px;
+  }
+
+  .section-card .mat-card-content {
+    padding: 8px 12px 12px;
+  }
+
+  .section-card .mat-card-header {
+    padding: 8px 12px 0;
+  }
+
+  .section-card .mat-card-header .mat-card-title {
+    font-size: 16px;
+  }
+
+  .score-group {
+    padding: 16px;
+  }
+
+  .dialog-actions {
+    padding: 12px 16px;
+  }
+
+  .dialog-actions .cancel-button,
+  .dialog-actions .submit-button {
+    width: 100%;
+    margin: 4px 0;
+  }
+
+  .dialog-actions .cancel-button {
+    margin-right: 0;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .half-width,
+  .third-width {
+    width: 100%;
+  }
+
+  .visual-json-builder .config-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .visual-json-builder .config-row .delete-section-btn {
+    margin-top: 0;
+    align-self: flex-end;
+  }
+
+  .visual-json-builder .field-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .visual-json-builder .field-row .field-key,
+  .visual-json-builder .field-row .field-value {
+    width: 100%;
+  }
+
+  .visual-json-builder .field-row .remove-field-btn {
+    margin-top: 0;
+    align-self: flex-end;
+  }
+
+  .key-value-editor .key-value-row,
+  .key-value-editor .add-key-value {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .key-value-editor .key-field,
+  .key-value-editor .value-field {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+@media (width <= 480px) {
+  .streamlined-content {
+    max-height: 65vh;
+  }
+
+  .json-editor-container .json-tabs .mat-tab-label {
+    min-width: 80px;
+    padding: 0 8px;
+  }
+}
+
+// ========================================
+// ACCESSIBILITY AND USER EXPERIENCE
+// ========================================
+
+// Accessibility improvements
+.mat-form-field-required-marker {
+  color: $warn-color;
+}
+
+.mat-button:focus,
+.mat-raised-button:focus,
+.mat-stroked-button:focus,
+.mat-icon-button:focus {
+  outline: 2px solid $primary-color;
+  outline-offset: 2px;
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .section-card {
+    border: 2px solid #000;
+  }
+
+  .score-group {
+    border: 2px solid #000;
+  }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+  .streamlined-content {
+    scroll-behavior: auto;
+
+    .section-card,
+    .form-row,
+    .mat-form-field,
+    .mat-button {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+}
+
+// ========================================
+// FINAL SPECIFICITY FIXES (KB Rule: CSS Specificity Management [P0])
+// ========================================
+
+// Enhanced Additional Data Card (legitimate specificity exception for component architecture)
+/* stylelint-disable no-descending-specificity */
+.additional-data-card .mat-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+/* stylelint-enable no-descending-specificity */

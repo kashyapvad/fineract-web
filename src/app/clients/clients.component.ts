@@ -27,6 +27,7 @@ import { AccountNumberComponent } from '../shared/account-number/account-number.
 import { ExternalIdentifierComponent } from '../shared/external-identifier/external-identifier.component';
 import { StatusLookupPipe } from '../pipes/status-lookup.pipe';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
+import { ClientColumnExtensionService } from '../extend/services/client-column-extension.service';
 
 @Component({
   selector: 'mifosx-clients',
@@ -84,9 +85,15 @@ export class ClientsComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
-  constructor(private clientService: ClientsService) {}
+  constructor(
+    private clientService: ClientsService,
+    private columnExtensionService: ClientColumnExtensionService
+  ) {}
 
   ngOnInit() {
+    // Apply column extensions
+    this.displayedColumns = this.columnExtensionService.getExtendedClientTableColumns(this.displayedColumns);
+
     if (environment.preloadClients) {
       this.getClients();
     }

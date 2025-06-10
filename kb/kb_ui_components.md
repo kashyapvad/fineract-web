@@ -132,6 +132,32 @@ FAIL IF:
   VERIFICATION: Check financial input implementations and calculation accuracy
   REFERENCES: Financial formatting patterns, precision handling, currency formatting
 
+### RULE: Standardized Date Formatting with Angular Pipes [P1]
+
+CONTEXT: Date display must be consistent across the application using Angular's built-in date handling capabilities
+REQUIREMENT: All date fields must use Angular DatePipe or custom date pipes instead of manual string formatting or JavaScript date methods
+FAIL IF:
+
+- Date formatting performed using JavaScript Date methods in components
+- Inconsistent date formats across different views and components
+- Manual date string manipulation instead of using Angular pipes
+- Date display not respecting user locale and timezone settings
+- Custom date formatting logic scattered across multiple components
+  VERIFICATION: Check for consistent date pipe usage and eliminate manual date formatting
+  REFERENCES:
+  - PATTERN_EXAMPLE: `{{ reportGeneratedDate | date:'mediumDate' }}` in templates
+  - PATTERN_EXAMPLE: `{{ verificationDate | date:'short' }}` for datetime display
+  - PATTERN_EXAMPLE: `{{ clientCreatedDate | date:'dd/MM/yyyy' }}` for custom format
+  - PIPE_USAGE: `| date:'format'` in all template date bindings
+  - LOCALE_SUPPORT: Date pipes respecting Angular locale configuration
+  - CUSTOM_PIPES: `@Pipe({ name: 'financialDate' })` for specialized financial date formats
+  - SERVICE_FORMATTING: DatePipe injection in services for programmatic formatting
+  - VERIFICATION_CMD: `grep -rn "new Date\|toDateString\|toLocaleDateString" src/app/ --exclude-dir=test`
+  - VERIFICATION_CMD: `grep -rn "| date" src/app/ | wc -l` (should show extensive usage)
+  - PREFERRED_APPROACH: Template: `{{ date | date:'format' }}`, Service: `this.datePipe.transform(date, 'format')`
+  - ANTI_PATTERN: `new Date(dateString).toLocaleDateString()` in component methods
+  - ANTI_PATTERN: Manual date string concatenation or manipulation
+
 ### RULE: Accessibility in Forms
 
 CONTEXT: Forms must be accessible to users with disabilities for regulatory compliance

@@ -6,6 +6,58 @@ You are a powerful agentic AI coding assistant working on the **Fineract Web App
 
 **CRITICAL**: This is a **FORKED PROJECT** (OpenMF Web App). Never modify upstream core components unless absolutely necessary. All new development must be in **separate feature modules** that extend the application without breaking existing financial workflows.
 
+## PROJECT STRUCTURE - CRITICAL FOR NAVIGATION
+
+### TWO SEPARATE CODEBASES
+
+This project consists of **TWO COMPLETELY SEPARATE CODEBASES** that must be handled differently: **ALWAYS USE ABSOLUTE PATHS WHEN READING< EDITING OR CREATING FILES**
+
+#### 🎨 FRONTEND CODEBASE (Angular/TypeScript) - THIS CODEBASE
+
+- **Location**: `/Users/kash/Documents/GitHub/fineract-web/` (current working directory)
+- **Technology**: Angular 14+, TypeScript, Material UI, SCSS, RxJS
+- **File Types**: `.ts`, `.html`, `.scss`, `.json`, `package.json`
+- **Structure**: Standard Angular CLI project with:
+  - `src/app/` - Angular components and services
+  - `src/app/extend/` - Custom frontend modules
+  - `kb/` - Frontend knowledge base documentation
+  - Root level has `package.json`, `angular.json`, etc.
+
+#### 🔧 BACKEND CODEBASE (Java/Spring Boot) - SEPARATE CODEBASE
+
+- **Location**: `/Users/kash/Documents/GitHub/fineract/` (separate directory!)
+- **Technology**: Java 21, Spring Boot 3.x, PostgreSQL, Gradle
+- **File Types**: `.java`, `.xml`, `.sql`, `.properties`, `.gradle`
+- **Structure**: Multi-module Gradle project with modules like:
+  - `fineract-provider/` - Main Spring Boot application
+  - `fineract-core/extend` - Custom backend services and modules
+  - `kb/` - Backend knowledge base documentation
+
+### NAVIGATION RULES
+
+- **For Frontend Changes**: Stay in `/fineract-web/` directory
+- **For Backend Changes**: Navigate to `/fineract/` directory
+- **For Build Tools**: Use `npm`/`ng` (frontend) or `gradle` (backend)
+- **For Dependencies**: `package.json` (frontend) or `build.gradle` (backend)
+- **For Formatting**: Use Prettier from current directory for `.ts`, `.html`, `.scss` files
+
+### COMMON CONFUSION POINTS
+
+❌ **DON'T**: Look for Java files in the `/fineract-web/` directory
+❌ **DON'T**: Look for Angular files in the `/fineract/` directory
+❌ **DON'T**: Run `gradle` commands from the frontend directory
+❌ **DON'T**: Run `npm` commands from the backend directory
+✅ **DO**: Check file extensions to determine which codebase you're working with
+✅ **DO**: Navigate to the correct directory before running build tools
+✅ **DO**: Use absolute paths when referencing files across codebases
+
+### API INTEGRATION
+
+- **Backend API**: REST endpoints served from `/fineract/` Spring Boot application
+- **Frontend Consumption**: Angular services in `/fineract-web/` consume backend APIs
+- **Development**: Backend runs on different port (typically 8080), frontend on 4200
+- **Authentication**: Frontend handles OAuth2/JWT tokens from backend authentication
+
 ## CORE KNOWLEDGE BASE PROTOCOL
 
 ### 1. MANDATORY INITIALIZATION
@@ -13,8 +65,9 @@ You are a powerful agentic AI coding assistant working on the **Fineract Web App
 **ALWAYS start by internalizing these files in order:**
 
 1. **`kb/kb_critical.md`** - Essential Angular architectural guardrails (16 rules) - NON-NEGOTIABLE
-2. **`kb/kb_index.md`** - Knowledge base navigation and web development contexts
-3. **Task-specific KB files** as determined by kb_index.md
+2. **`kb/kb_development_workflow.md`** - Mandatory linting, formatting, and styling rules enforced by the pre-commit verification process failing these checks will block commits. - NON-NEGOTIABLE
+3. **`kb/kb_index.md`** - Knowledge base navigation and web development contexts
+4. **Task-specific KB files** as determined by kb_index.md
 
 ### 2. DOMAIN-SPECIFIC KNOWLEDGE BASE
 

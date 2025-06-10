@@ -13,6 +13,7 @@ import { PopoverService } from '../../../configuration-wizard/popover/popover.se
 import { ConfigurationWizardService } from '../../../configuration-wizard/configuration-wizard.service';
 import { TranslateService } from '@ngx-translate/core';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
+import { BreadcrumbUrlProcessorService } from '../../../extend/services/breadcrumb-url-processor.service';
 
 /**
  * Route data property to generate breadcrumb using a static string.
@@ -68,13 +69,15 @@ export class BreadcrumbComponent implements AfterViewInit {
    * @param {Router} router Router for navigation.
    * @param {ConfigurationWizardService} configurationWizardService ConfigurationWizard Service.
    * @param {PopoverService} popoverService PopoverService.
+   * @param {BreadcrumbUrlProcessorService} urlProcessor URL Processor Service.
    */
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private configurationWizardService: ConfigurationWizardService,
     private popoverService: PopoverService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private urlProcessor: BreadcrumbUrlProcessorService
   ) {
     this.generateBreadcrumbs();
   }
@@ -191,6 +194,8 @@ export class BreadcrumbComponent implements AfterViewInit {
               currentUrlTemp = currentUrlTemp.replace(replaceDoubleSlash, `/general`);
               url = currentUrlTemp;
             }
+            // Extension point: Post-process URL through extension service
+            url = this.urlProcessor.processUrl(url, route.snapshot.data, breadcrumbLabel);
           }
 
           const breadcrumb: Breadcrumb = {

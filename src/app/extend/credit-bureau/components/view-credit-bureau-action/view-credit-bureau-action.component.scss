@@ -1,0 +1,164 @@
+/**
+ * Credit Bureau Management Component Styles
+ */
+
+.container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-section {
+  margin-bottom: 32px;
+
+  .page-title {
+    font-size: 28px;
+    font-weight: 500;
+    margin: 0 0 8px;
+    color: #1976d2;
+  }
+
+  .page-subtitle {
+    font-size: 16px;
+    color: #666;
+    margin: 0;
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px;
+
+  p {
+    margin-top: 16px;
+    color: #666;
+  }
+}
+
+.action-buttons {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+
+  button {
+    min-width: 160px;
+  }
+}
+
+.reports-card {
+  margin-bottom: 24px;
+
+  .loading-reports {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    gap: 16px;
+
+    span {
+      color: #666;
+    }
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+
+  .reports-table {
+    width: 100%;
+
+    th {
+      font-weight: 600;
+      color: #333;
+    }
+
+    td {
+      padding: 12px 8px;
+    }
+  }
+}
+
+// Status badges
+mat-chip {
+  &.status-success {
+    background-color: #4caf50;
+    color: white;
+  }
+
+  &.status-error {
+    background-color: #f44336;
+    color: white;
+  }
+
+  &.status-pending {
+    background-color: #ff9800;
+    color: white;
+  }
+
+  &.status-unknown {
+    background-color: #9e9e9e;
+    color: white;
+  }
+}
+
+// Credit score styling
+.rating-excellent {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.rating-good {
+  color: #8bc34a;
+  font-weight: 600;
+}
+
+.rating-fair {
+  color: #ff9800;
+  font-weight: 600;
+}
+
+.rating-poor {
+  color: #ff5722;
+  font-weight: 600;
+}
+
+.rating-very-poor {
+  color: #f44336;
+  font-weight: 600;
+}
+
+.rating-unknown {
+  color: #9e9e9e;
+}
+
+.no-data {
+  color: #9e9e9e;
+  font-style: italic;
+}
+
+.no-data-message {
+  text-align: center;
+  padding: 64px 32px;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #ccc;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    margin: 0 0 8px;
+    color: #666;
+  }
+
+  p {
+    margin: 0 0 24px;
+    color: #999;
+  }
+}
