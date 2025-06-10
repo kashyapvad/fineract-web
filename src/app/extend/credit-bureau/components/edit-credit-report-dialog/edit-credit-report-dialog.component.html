@@ -1,0 +1,32 @@
+<h2 mat-dialog-title>Edit Credit Report</h2>
+
+<mat-dialog-content>
+  <mifosx-shared-credit-report-form
+    #creditReportForm
+    mode="edit"
+    [clientId]="data.clientId"
+    [clientData]="data.clientData"
+    [clientIdentifiers]="data.clientIdentifiers"
+    [clientKycData]="data.clientKycData"
+    [clientAddresses]="data.clientAddresses"
+    [initialReport]="data.report"
+    (formSubmit)="onSubmit($event)"
+    (formCancel)="onCancel()"
+  >
+  </mifosx-shared-credit-report-form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button type="button" mat-button (click)="onCancel()" class="cancel-button">Cancel</button>
+  <button
+    type="button"
+    mat-raised-button
+    color="primary"
+    [disabled]="!creditReportForm?.form?.valid || !creditReportForm?.areAllSectionNamesValid() || isSubmitting"
+    (click)="onSubmitClick()"
+    class="submit-button"
+  >
+    <mat-icon *ngIf="isSubmitting">hourglass_empty</mat-icon>
+    {{ isSubmitting ? 'Saving...' : 'Update Report' }}
+  </button>
+</mat-dialog-actions>

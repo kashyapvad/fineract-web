@@ -4,11 +4,56 @@
 
 This Knowledge Base provides architectural guardrails and development guidelines for the Fineract Web Application - a modern Angular-based single-page application (SPA) built for financial inclusion, serving the Mifos user community with comprehensive core banking functionality.
 
+## PROJECT STRUCTURE - CRITICAL FOR NAVIGATION
+
+### TWO SEPARATE CODEBASES
+
+This project consists of **TWO COMPLETELY SEPARATE CODEBASES** that must be handled differently:
+
+#### 🎨 FRONTEND CODEBASE (Angular/TypeScript) - THIS CODEBASE
+
+- **Location**: `/Users/kash/Documents/GitHub/fineract-web/` (main working directory)
+- **Technology**: Angular 14+, TypeScript, Material UI, SCSS, RxJS
+- **File Types**: `.ts`, `.html`, `.scss`, `.json`, `package.json`
+- **Key Directories**:
+  - `src/app/` - Angular components and services
+  - `src/app/extend/` - Custom frontend modules
+  - `src/app/custom/` - Fork-specific features
+  - `kb/` - Frontend knowledge base documentation (this directory)
+  - Root level has `package.json`, `angular.json`, etc.
+
+#### 🔧 BACKEND CODEBASE (Java/Spring Boot) - SEPARATE CODEBASE
+
+- **Location**: `/Users/kash/Documents/GitHub/fineract/` (separate directory!)
+- **Technology**: Java 21, Spring Boot 3.x, PostgreSQL, Gradle
+- **File Types**: `.java`, `.xml`, `.sql`, `.properties`, `.gradle`
+- **Key Directories**:
+  - `fineract-provider/` - Main Spring Boot application
+  - `fineract-core/` - Core domain models
+  - `fineract-loan/`, `fineract-savings/` - Feature modules
+  - `kb/` - Backend knowledge base documentation
+
+### NAVIGATION RULES FOR AI ASSISTANTS
+
+- **Frontend Tasks**: Stay in `/fineract-web/` directory, use `npm`/`ng` commands
+- **Backend Tasks**: Navigate to `/fineract/` directory, use `gradle` commands
+- **File Identification**: Check file extensions (`.ts` = frontend, `.java` = backend)
+- **Build Tools**: Never mix npm (frontend) with Gradle (backend)
+- **Formatting**: Use Prettier from current directory for TypeScript/Angular files
+
+### API INTEGRATION CONTEXT
+
+- **Backend API**: REST endpoints from separate Spring Boot application
+- **Frontend Services**: Angular HTTP services consume backend APIs
+- **Development**: Frontend (port 4200) ↔ Backend (port 8080)
+- **Authentication**: Angular handles OAuth2/JWT tokens from backend
+
 ## Priority-Based Quick Start
 
 - **P0 (Critical)**: [kb_critical.md](./kb_critical.md) - Security, authentication, data integrity
 - **P1 (Important)**: [kb_angular_architecture.md](./kb_angular_architecture.md) - Feature modules, service patterns
 - **P2 (Recommended)**: [kb_customization.md](./kb_customization.md) - Theming, i18n, optimization
+- **P1 (Important)**: [kb_development_workflow.md](./kb_development_workflow.md) - Linting, formatting, quality assurance
 
 ## Cross-Project Integration
 
@@ -18,21 +63,24 @@ For multi-project tasks: **[../fineract/kb/kb_cross_project.md](../fineract/kb/k
 
 ### 🎯 Core Architecture [P0]
 
-- **[kb_critical.md](./kb_critical.md)** (16 rules)
+- **[kb_critical.md](./kb_critical.md)** (17 rules)
   - Essential Angular architectural guardrails
   - Feature module organization patterns
   - Service layer and dependency injection
   - State management and data flow principles
+  - Extension URL processing patterns
   - **Use when**: Starting new features, architectural decisions, code reviews
 
 ### 🅰️ Angular Architecture Patterns
 
-- **[kb_angular_architecture.md](./kb_angular_architecture.md)** (18 rules)
+- **[kb_angular_architecture.md](./kb_angular_architecture.md)** (20 rules)
   - Feature module design and lazy loading
   - Core/Shared module organization
   - Service layer patterns and HTTP interceptors
   - Routing and navigation strategies
   - Component lifecycle management
+  - Validation service pattern implementation
+  - Form autofill service pattern
   - **Use when**: Module design, service implementation, routing setup
 
 ### 🎨 UI Components & Design System

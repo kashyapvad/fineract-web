@@ -1,0 +1,36 @@
+<div class="kyc-badge-container">
+  <!-- Chip variant -->
+  <mat-chip
+    *ngIf="showChipVariant"
+    [class]="badgeClass"
+    [class.clickable]="clickable"
+    [matTooltip]="clickable ? tooltipText + ' (Click to view details)' : tooltipText"
+    matTooltipPosition="above"
+    [tabindex]="clickable ? 0 : -1"
+    [attr.role]="clickable ? 'button' : null"
+    [attr.aria-label]="clickable ? badgeText + '. Click to view KYC details' : badgeText"
+    (click)="navigateToKyc()"
+    (keydown)="onKeyDown($event)"
+  >
+    <mat-icon matChipLeading [class.spinning]="isLoading">{{ badgeIcon }}</mat-icon>
+    {{ badgeText }}
+  </mat-chip>
+
+  <!-- Simple variant -->
+  <div
+    *ngIf="showSimpleVariant"
+    class="kyc-simple-badge"
+    [class]="badgeClass"
+    [class.clickable]="clickable"
+    [matTooltip]="clickable ? tooltipText + ' (Click to view details)' : tooltipText"
+    matTooltipPosition="above"
+    [tabindex]="clickable ? 0 : -1"
+    [attr.role]="clickable ? 'button' : null"
+    [attr.aria-label]="clickable ? badgeText + '. Click to view KYC details' : badgeText"
+    (click)="navigateToKyc()"
+    (keydown)="onKeyDown($event)"
+  >
+    <mat-icon [class.spinning]="isLoading">{{ badgeIcon }}</mat-icon>
+    <span>{{ badgeText }}</span>
+  </div>
+</div>

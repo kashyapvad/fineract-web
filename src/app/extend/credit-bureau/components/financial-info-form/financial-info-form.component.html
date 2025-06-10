@@ -1,0 +1,79 @@
+<!-- Financial Information Section -->
+<mat-card class="section-card">
+  <mat-card-header>
+    <mat-card-title>Financial Information</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div [formGroup]="parentForm">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="third-width">
+          <mat-label>Total Accounts</mat-label>
+          <input matInput type="number" formControlName="totalAccounts" min="0" />
+          <mat-error *ngIf="parentForm.get('totalAccounts')?.hasError('min')">
+            {{ getErrorMessage('totalAccounts') }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="third-width">
+          <mat-label>Active Accounts</mat-label>
+          <input matInput type="number" formControlName="activeAccounts" min="0" />
+          <mat-error *ngIf="parentForm.get('activeAccounts')?.hasError('min')">
+            {{ getErrorMessage('activeAccounts') }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="third-width">
+          <mat-label>Closed Accounts</mat-label>
+          <input matInput type="number" formControlName="closedAccounts" min="0" />
+          <mat-error *ngIf="parentForm.get('closedAccounts')?.hasError('min')">
+            {{ getErrorMessage('closedAccounts') }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Overdue Accounts</mat-label>
+          <input matInput type="number" formControlName="overdueAccounts" min="0" />
+          <mat-error *ngIf="parentForm.get('overdueAccounts')?.hasError('min')">
+            {{ getErrorMessage('overdueAccounts') }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Total Credit Limit</mat-label>
+          <input matInput type="number" formControlName="totalCreditLimit" min="0" />
+          <mat-error *ngIf="parentForm.get('totalCreditLimit')?.hasError('min')">
+            {{ getErrorMessage('totalCreditLimit') }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="third-width">
+          <mat-label>Total Outstanding</mat-label>
+          <input matInput type="number" formControlName="totalOutstandingAmount" min="0" />
+          <mat-error *ngIf="parentForm.get('totalOutstandingAmount')?.hasError('min')">
+            {{ getErrorMessage('totalOutstandingAmount') }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="third-width">
+          <mat-label>Total Overdue Amount</mat-label>
+          <input matInput type="number" formControlName="totalOverdueAmount" min="0" />
+          <mat-error *ngIf="parentForm.get('totalOverdueAmount')?.hasError('min')">
+            {{ getErrorMessage('totalOverdueAmount') }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="third-width">
+          <mat-label>Highest Credit Amount</mat-label>
+          <input matInput type="number" formControlName="highestCreditAmount" min="0" />
+          <mat-error *ngIf="parentForm.get('highestCreditAmount')?.hasError('min')">
+            {{ getErrorMessage('highestCreditAmount') }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
