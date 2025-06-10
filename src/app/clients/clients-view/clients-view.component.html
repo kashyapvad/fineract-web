@@ -43,7 +43,12 @@
       </div>
 
       <div class="mat-typography account-card-title">
-        <mat-card-title fxLayout="row wrap" class="content">
+        <mat-card-title
+          fxLayout="row wrap"
+          class="content"
+          [mifosxClientExtension]="'infoBar'"
+          [clientData]="clientViewData"
+        >
           <h3 fxFlex="95%">
             <i
               class="fa fa-stop"
@@ -275,7 +280,7 @@
         >
       </mat-menu>
 
-      <mat-menu #More="matMenu">
+      <mat-menu #More="matMenu" mifosxClientExtendMenu [clientData]="clientViewData">
         <button mat-menu-item (click)="doAction('Add Charge')" *mifosxHasPermission="'CREATE_CLIENTCHARGE'">
           {{ 'labels.buttons.Add Charge' | translate }}
         </button>

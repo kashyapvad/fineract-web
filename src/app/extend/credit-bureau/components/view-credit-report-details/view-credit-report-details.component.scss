@@ -1,0 +1,830 @@
+/**
+ * View Credit Report Details Component Styles
+ * Restructured according to KB CSS Architecture Rules [P0]
+ * Following Material Design principles with flattened architecture
+ */
+
+// ========================================
+// GENERAL SELECTORS FIRST (KB Rule: CSS Specificity Management [P0])
+// ========================================
+
+// Base element selectors
+h4 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+p {
+  color: #666;
+  line-height: 1.5;
+}
+
+// Move specific note section p before more specific score reason p
+.notes-content .note-section p {
+  color: #666;
+  line-height: 1.5;
+}
+
+span {
+  font-weight: 500;
+}
+
+// Material Design component selectors
+mat-icon {
+  font-size: 20px;
+}
+
+// Additional data error mat-icon (specific override)
+.additional-data-error mat-icon {
+  font-size: 20px;
+}
+
+// Additional data error span (specific override)
+.additional-data-error span {
+  font-weight: 500;
+}
+
+// Move general expansion panel focus before specific one
+.mat-expansion-panel-header:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+mat-chip {
+  &.status-success {
+    background-color: #4caf50;
+    color: white;
+  }
+
+  &.status-error {
+    background-color: #f44336;
+    color: white;
+  }
+
+  &.status-pending {
+    background-color: #ff9800;
+    color: white;
+  }
+
+  &.status-unknown {
+    background-color: #9e9e9e;
+    color: white;
+  }
+
+  &.type-full_report {
+    background-color: #2196f3;
+    color: white;
+  }
+
+  &.type-credit_score {
+    background-color: #9c27b0;
+    color: white;
+  }
+
+  &.type-data_pull {
+    background-color: #ff5722;
+    color: white;
+  }
+
+  &.type-manual_entry {
+    background-color: #607d8b;
+    color: white;
+  }
+
+  &.section-count {
+    background-color: #1976d2;
+    color: white;
+    font-weight: 500;
+  }
+
+  &.field-type {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    font-size: 11px;
+    font-weight: 500;
+    height: 20px;
+    line-height: 20px;
+  }
+}
+
+// Generic class selectors
+.label {
+  font-weight: 600 !important;
+  color: #333 !important;
+  flex-shrink: 0 !important;
+  font-size: 14px !important;
+}
+
+.section-icon {
+  color: #1976d2;
+  font-size: 20px;
+}
+
+.data-field {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 16px;
+  background-color: #fafafa;
+}
+
+.field-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.field-key {
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.field-value {
+  color: #666;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 14px;
+  word-break: break-word;
+}
+
+.simple-value {
+  color: #666;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 14px;
+  word-break: break-word;
+}
+
+.array-value {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.array-header {
+  margin-bottom: 8px;
+}
+
+.array-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 16px;
+  border-left: 2px solid #ff9800;
+}
+
+.array-item {
+  padding: 8px 12px;
+  background-color: #fff3e0;
+  border-radius: 4px;
+  border: 1px solid #ffcc02;
+}
+
+.item-index {
+  font-size: 11px;
+  font-weight: 600;
+  color: #ff9800;
+  margin-bottom: 4px;
+}
+
+.item-value {
+  color: #333;
+  font-size: 13px;
+}
+
+.complex-value {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.object-header {
+  margin-bottom: 8px;
+}
+
+.object-properties {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 16px;
+  border-left: 2px solid #2196f3;
+}
+
+.object-property {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #e3f2fd;
+  border-radius: 4px;
+  border: 1px solid #90caf9;
+}
+
+.property-key {
+  font-weight: 600;
+  color: #1976d2;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.property-value {
+  color: #333;
+  font-size: 13px;
+  word-break: break-word;
+  flex: 1;
+}
+
+// ========================================
+// COMPONENT STRUCTURE (KB Rule: DRY Principle [P1])
+// ========================================
+
+// View container
+.view-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// Header section
+.report-header {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.report-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.report-title h2 {
+  margin: 0;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.report-status {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+// Info grid layout
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 300px));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-item .label {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.info-item .value {
+  color: #666;
+  font-size: 14px;
+  word-break: break-word;
+}
+
+// Info card styles
+.info-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.info-card h3 {
+  margin: 0 0 16px;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+// Basic info section
+.basic-info-section {
+  margin-bottom: 32px;
+}
+
+.basic-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 250px));
+  gap: 16px;
+}
+
+// Overview section
+.overview-section {
+  margin-bottom: 32px;
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 200px));
+  gap: 16px;
+}
+
+.overview-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 4px solid #1976d2;
+}
+
+.overview-item .label {
+  font-weight: 600;
+  color: #333;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.overview-item span:not(.label) {
+  font-size: 18px;
+  font-weight: 500;
+  color: #1976d2;
+}
+
+// Credit scores section
+.credit-scores-section {
+  margin-bottom: 32px;
+}
+
+.credit-scores-detailed {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.credit-scores-detailed .score-detail-item {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+  padding: 20px;
+  border-left: 4px solid #4caf50;
+}
+
+.credit-scores-detailed .score-detail-item .score-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.credit-scores-detailed .score-detail-item .score-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.credit-scores-detailed .score-details .score-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 200px));
+  gap: 12px;
+}
+
+.credit-scores-detailed .score-info-grid .score-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.credit-scores-detailed .score-info-grid .score-info-item .label {
+  font-weight: 600;
+  color: #333;
+  font-size: 13px;
+}
+
+.credit-scores-detailed .score-info-grid .score-info-item span:not(.label) {
+  font-size: 15px;
+  font-weight: 500;
+  color: #666;
+}
+
+.credit-scores-detailed .score-detail-item .score-details .score-reason {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 6px;
+  border-left: 3px solid #ff9800;
+}
+
+.credit-scores-detailed .score-detail-item .score-details .score-reason p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+// Additional data section
+.additional-data-section {
+  margin-bottom: 32px;
+}
+
+.additional-data-expanded {
+  margin-top: 16px;
+}
+
+.additional-data-expanded .additional-data-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.additional-data-expanded .additional-data-accordion .section-panel {
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+}
+
+.additional-data-expanded .additional-data-accordion .section-panel:last-child {
+  margin-bottom: 0;
+}
+
+.additional-data-expanded .section-panel .mat-expansion-panel-header {
+  padding: 16px 20px;
+}
+
+.additional-data-expanded .section-panel .section-content {
+  padding: 0 20px 20px;
+}
+
+.additional-data-expanded .section-panel .section-content .data-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.additional-data-expanded .section-panel .section-content .empty-section {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+}
+
+.additional-data-expanded .section-content .empty-section mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #ccc;
+  margin-bottom: 16px;
+}
+
+// Flattened data field architecture
+.additional-data-expanded .data-fields .data-field {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 16px;
+  background-color: #fafafa;
+}
+
+.additional-data-expanded .data-field.complex-field {
+  border-left: 4px solid #2196f3;
+}
+
+.additional-data-expanded .data-field.array-field {
+  border-left: 4px solid #ff9800;
+}
+
+.additional-data-expanded .data-field .field-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.additional-data-expanded .data-field .field-value {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.additional-data-expanded .field-value .array-value .array-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 16px;
+  border-left: 2px solid #ff9800;
+}
+
+.additional-data-expanded .field-value .complex-value .object-properties {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 16px;
+  border-left: 2px solid #2196f3;
+}
+
+.additional-data-expanded .object-properties .object-property {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #e3f2fd;
+  border-radius: 4px;
+  border: 1px solid #90caf9;
+}
+
+.additional-data-expanded .object-property .property-key {
+  font-weight: 600;
+  color: #1976d2;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+// Compact data display
+.compact-additional-data {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.compact-additional-data .compact-section {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 16px;
+  border-left: 4px solid #1976d2;
+}
+
+.compact-additional-data .compact-section h4 {
+  margin: 0 0 12px;
+  color: #1976d2;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.compact-additional-data .compact-section .section-icon {
+  color: #1976d2;
+  font-size: 18px;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.compact-additional-data .compact-section .data-field {
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 12px;
+  background-color: white;
+  margin-bottom: 8px;
+}
+
+.compact-additional-data .compact-section .data-field:last-child {
+  margin-bottom: 0;
+}
+
+.compact-additional-data .data-field .field-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.compact-additional-data .data-field .field-value {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.compact-additional-data .field-value .array-value .array-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 12px;
+  border-left: 2px solid #ff9800;
+}
+
+.compact-additional-data .field-value .complex-value .object-properties {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 12px;
+  border-left: 2px solid #2196f3;
+}
+
+.compact-additional-data .object-properties .object-property {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 6px 8px;
+  background-color: #e3f2fd;
+  border-radius: 3px;
+  border: 1px solid #90caf9;
+}
+
+.compact-additional-data .object-property .property-key {
+  font-weight: 600;
+  color: #1976d2;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+// ========================================
+// CREDIT RATING CLASSES (KB Rule: Consolidation [P1])
+// ========================================
+
+.rating-excellent {
+  color: #4caf50 !important; // Green
+}
+
+.rating-good {
+  color: #8bc34a !important; // Light Green
+}
+
+.rating-fair {
+  color: #ff9800 !important; // Orange
+}
+
+.rating-poor {
+  color: #ff5722 !important; // Deep Orange
+}
+
+.rating-very-poor {
+  color: #f44336 !important; // Red
+}
+
+.rating-unknown {
+  color: #9e9e9e !important; // Grey
+}
+
+.no-data {
+  color: #9e9e9e;
+  font-style: italic;
+}
+
+// ========================================
+// ADDITIONAL SECTIONS
+// ========================================
+
+// Remove duplicate - moved to general selectors section
+
+.notes-content .note-section {
+  margin-bottom: 16px;
+}
+
+.notes-content .note-section:last-child {
+  margin-bottom: 0;
+}
+
+.notes-content .note-section h4 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+.additional-data-card .additional-data-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.additional-data-card .additional-data-header button {
+  margin-left: auto;
+}
+
+.additional-data-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: #ffebee;
+  border-radius: 6px;
+  color: #f44336;
+}
+
+.additional-data-summary {
+  padding: 16px 0;
+}
+
+.additional-data-summary .summary-stats {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.additional-data-summary .summary-stats .summary-text {
+  color: #666;
+  font-size: 14px;
+}
+
+// ========================================
+// SPECIFIC OVERRIDES FOR INFO CARD
+// ========================================
+
+.info-card .additional-data-section .section-header {
+  margin-bottom: 16px;
+}
+
+.info-card .additional-data-section .section-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #1976d2;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 8px;
+}
+
+.info-card .additional-data-section .section-divider {
+  margin: 24px 0;
+}
+
+.info-card .additional-data-section .info-grid {
+  display: block !important;
+  flex-wrap: nowrap !important;
+}
+
+.info-card .additional-data-section .info-grid .info-item {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 8px !important;
+  margin-bottom: 8px !important;
+  flex: none !important;
+  min-width: auto !important;
+}
+
+.info-card .additional-data-section .info-item .label {
+  font-weight: 600 !important;
+  color: #333 !important;
+  flex-shrink: 0 !important;
+  font-size: 14px !important;
+}
+
+.info-card .additional-data-section .info-item .value {
+  word-break: break-word !important;
+  white-space: pre-wrap !important;
+  color: #666 !important;
+  flex: 1 !important;
+  font-size: 14px !important;
+}
+
+// ========================================
+// FOCUS STATES AND ACCESSIBILITY
+// ========================================
+
+// Remove duplicate - moved to general selectors section
+
+// Specific focus override for additional data sections
+.additional-data-expanded .additional-data-accordion .section-panel .mat-expansion-panel-header:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+// ========================================
+// RESPONSIVE DESIGN
+// ========================================
+
+@media (width <= 768px) {
+  .view-container {
+    padding: 16px;
+  }
+
+  .info-grid {
+    grid-template-columns: 100%;
+    gap: 16px;
+  }
+
+  .basic-info-grid {
+    grid-template-columns: 100%;
+  }
+
+  .overview-grid {
+    grid-template-columns: repeat(2, 50%);
+  }
+
+  .credit-scores-detailed .score-info-grid {
+    grid-template-columns: 100%;
+  }
+
+  .report-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+@media (width <= 480px) {
+  .overview-grid {
+    grid-template-columns: 100%;
+  }
+
+  .report-title h2 {
+    font-size: 20px;
+  }
+
+  .info-card {
+    padding: 16px;
+  }
+}

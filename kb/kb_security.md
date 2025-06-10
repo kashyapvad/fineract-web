@@ -164,17 +164,17 @@ FAIL IF:
 
 ### RULE: Cross-Site Scripting (XSS) Prevention
 
-CONTEXT: XSS attacks can compromise financial data and user sessions
-REQUIREMENT: Application must implement comprehensive XSS prevention measures
+CONTEXT: Application must prevent XSS attacks through proper data handling and sanitization
+REQUIREMENT: All dynamic content must be properly sanitized and rendered safely
 FAIL IF:
 
-- User-generated content displayed without proper sanitization
-- Dynamic HTML content not properly escaped
-- innerHTML used for user content instead of safe Angular binding
+- User-generated content displayed without sanitization
+- innerHTML used for dynamic content instead of Angular binding
+- External content embedded without proper security checks
+- Template injection vulnerabilities present
 - Content Security Policy not properly configured
-- Third-party content not properly sandboxed
-  VERIFICATION: Check XSS prevention implementation and content sanitization
-  REFERENCES: XSS prevention patterns, content sanitization, CSP configuration
+  VERIFICATION: Check dynamic content rendering and sanitization practices
+  REFERENCES: XSS prevention patterns, content sanitization, security configurations
 
 ### RULE: Content Security Policy Implementation
 
@@ -233,6 +233,20 @@ FAIL IF:
 - Compliance reporting not supported by audit data
   VERIFICATION: Check audit logging implementation and compliance features
   REFERENCES: Audit logging patterns, compliance requirements, security monitoring
+
+### RULE: Financial Data Security
+
+CONTEXT: Financial data must be handled with appropriate security measures for compliance
+REQUIREMENT: Sensitive financial data must be encrypted in transit and properly protected in memory
+FAIL IF:
+
+- Financial data transmitted without HTTPS encryption
+- Sensitive data logged in browser console or application logs
+- Financial calculations performed without proper precision handling
+- Data masking not applied for sensitive information display
+- Financial transactions not properly audited
+  VERIFICATION: Check financial data handling and security implementations
+  REFERENCES: Financial data protection patterns, encryption implementations, audit trail requirements
 
 ## Network Security
 
