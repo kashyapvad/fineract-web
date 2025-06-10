@@ -47,6 +47,9 @@ import { ClientTransactionPayResolver } from './common-resolvers/client-transact
 import { ClientDataAndTemplateResolver } from './common-resolvers/client-and-template.resolver';
 import { ClientCollateralResolver } from './common-resolvers/client-collateral.resolver';
 
+/** Custom Extensions */
+import { clientExtensionsRoutes } from '../extend/client-extensions-routing.module';
+
 const routes: Routes = [
   Route.withShell([
     {
@@ -271,7 +274,9 @@ const routes: Routes = [
               path: 'standing-instructions',
               loadChildren: () =>
                 import('../account-transfers/account-transfers.module').then((m) => m.AccountTransfersModule)
-            }
+            },
+            // Custom client extensions
+            ...clientExtensionsRoutes
           ]
         }
       ]

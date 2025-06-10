@@ -33,6 +33,7 @@ import { RouteReusableStrategy } from './route/route-reusable-strategy';
 
 /** Custom Modules */
 import { SharedModule } from '../shared/shared.module';
+import { ExtendSharedModule } from '../extend/extend-shared.module';
 
 /** Custom Components */
 import { ShellComponent } from './shell/shell.component';
@@ -59,6 +60,7 @@ import { ContentComponent } from './shell/content/content.component';
 
   ],
   imports: [
+    ExtendSharedModule,
     SharedModule,
     TranslateModule,
     RouterModule

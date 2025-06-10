@@ -1,0 +1,47 @@
+// Financial Info Form Component Styles
+// Following UI Components KB: Material Design Integration
+
+.section-card {
+  margin-bottom: 24px;
+
+  mat-card-header {
+    margin-bottom: 16px;
+
+    mat-card-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #333;
+    }
+  }
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.half-width {
+  flex: 1;
+}
+
+.third-width {
+  flex: 1;
+}
+
+// Responsive design
+@media (width <= 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .half-width,
+  .third-width {
+    width: 100%;
+  }
+}

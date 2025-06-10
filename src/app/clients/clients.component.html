@@ -34,7 +34,13 @@
     <div *ngIf="isLoading">
       <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     </div>
-    <table mat-table [dataSource]="dataSource" matSort (matSortChange)="sortChanged($event)">
+    <table
+      mat-table
+      [dataSource]="dataSource"
+      matSort
+      (matSortChange)="sortChanged($event)"
+      [mifosxClientExtension]="'table'"
+    >
       <!-- Name Column -->
       <ng-container matColumnDef="displayName">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'labels.inputs.name' | translate }}</th>

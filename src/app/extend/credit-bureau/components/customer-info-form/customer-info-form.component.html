@@ -1,0 +1,64 @@
+<!-- Customer Information Section -->
+<mat-card class="section-card">
+  <mat-card-header>
+    <mat-card-title>Customer Information</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div [formGroup]="parentForm">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Customer Name</mat-label>
+        <input matInput formControlName="customerName" />
+      </mat-form-field>
+
+      <!-- Personal Identifiers -->
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>PAN Number</mat-label>
+          <input matInput formControlName="customerPan" placeholder="ABCDE1234F" />
+          <mat-error *ngIf="parentForm.get('customerPan')?.hasError('pattern')">
+            {{ getErrorMessage('customerPan') }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Aadhaar Number</mat-label>
+          <input matInput formControlName="customerAadhaar" placeholder="123456789012" />
+          <mat-error *ngIf="parentForm.get('customerAadhaar')?.hasError('pattern')">
+            {{ getErrorMessage('customerAadhaar') }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Mobile Number</mat-label>
+          <input matInput formControlName="customerMobile" placeholder="9876543210" />
+          <mat-error *ngIf="parentForm.get('customerMobile')?.hasError('pattern')">
+            {{ getErrorMessage('customerMobile') }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Date of Birth</mat-label>
+          <input matInput type="date" formControlName="dateOfBirth" />
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Gender</mat-label>
+          <mat-select formControlName="gender">
+            <mat-option *ngFor="let option of genderOptions" [value]="option.code">
+              {{ option.description }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Customer Address</mat-label>
+        <textarea matInput formControlName="customerAddress" rows="2" placeholder="Complete address"></textarea>
+      </mat-form-field>
+    </div>
+  </mat-card-content>
+</mat-card>

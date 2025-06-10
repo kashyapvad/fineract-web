@@ -1,0 +1,366 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements. See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership. The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied. See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<div class="container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <button mat-icon-button (click)="goBack()" class="back-button" matTooltip="Back to Reports">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-text">
+        <h1 class="page-title">Credit Report Details</h1>
+        <p class="page-subtitle">Detailed view of credit report information</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading credit report details...</p>
+  </div>
+
+  <!-- Report Details Content -->
+  <div *ngIf="!isLoading && report" class="report-content">
+    <!-- Report Overview Card -->
+    <mat-card class="overview-card">
+      <mat-card-header>
+        <mat-card-title>Report Overview</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="overview-grid">
+          <div class="overview-item">
+            <span class="label">Report Type:</span>
+            <mat-chip [ngClass]="'type-' + report.reportType?.toLowerCase()">
+              {{ getReportTypeDisplay(report.reportType) }}
+            </mat-chip>
+          </div>
+          <div class="overview-item">
+            <span class="label">Status:</span>
+            <mat-chip [ngClass]="getStatusBadgeClass(report.reportStatus)">
+              {{ getReportStatusDisplay(report.reportStatus) }}
+            </mat-chip>
+          </div>
+          <div class="overview-item">
+            <span class="label">Credit Scores:</span>
+            <div
+              *ngIf="report.creditScores && report.creditScores.length > 0; else noScores"
+              class="credit-scores-list"
+            >
+              <div *ngFor="let score of report.creditScores; let i = index" class="credit-score-item">
+                <span [ngClass]="getCreditRatingClass(score.creditScore)" class="credit-score">
+                  {{ score.creditScore }}
+                </span>
+                <span class="score-model">({{ score.scoreModel }})</span>
+              </div>
+            </div>
+            <ng-template #noScores>
+              <span class="no-data">-</span>
+            </ng-template>
+          </div>
+          <div class="overview-item">
+            <span class="label">Provider:</span>
+            <span>{{ report.creditBureauProvider || '-' }}</span>
+          </div>
+          <div class="overview-item">
+            <span class="label">Generated On:</span>
+            <span>{{ formatDate(report.reportGeneratedOn) }}</span>
+          </div>
+          <div class="overview-item">
+            <span class="label">Requested On:</span>
+            <span>{{ formatDate(report.requestedOn) }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Credit Scores Card -->
+    <mat-card class="info-card" *ngIf="report.creditScores && report.creditScores.length > 0">
+      <mat-card-header>
+        <mat-card-title>Credit Scores</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="credit-scores-detailed">
+          <div *ngFor="let score of report.creditScores; let i = index" class="score-detail-item">
+            <div class="score-header">
+              <span class="score-number" [ngClass]="getCreditRatingClass(score.creditScore)">
+                {{ score.creditScore }}
+              </span>
+              <span class="score-model-badge">{{ score.scoreModel }}</span>
+            </div>
+            <div
+              class="score-details"
+              *ngIf="score.scoreVersion || score.scoreName || score.scoreReason || score.scorePercentile"
+            >
+              <div class="score-info-grid">
+                <div class="score-info-item" *ngIf="score.scoreVersion">
+                  <span class="label">Version:</span>
+                  <span>{{ score.scoreVersion }}</span>
+                </div>
+                <div class="score-info-item" *ngIf="score.scoreName">
+                  <span class="label">Name:</span>
+                  <span>{{ score.scoreName }}</span>
+                </div>
+                <div class="score-info-item" *ngIf="score.scorePercentile">
+                  <span class="label">Percentile:</span>
+                  <span>{{ score.scorePercentile }}%</span>
+                </div>
+              </div>
+              <div class="score-reason" *ngIf="score.scoreReason">
+                <span class="label">Reason/Notes:</span>
+                <p>{{ score.scoreReason }}</p>
+              </div>
+            </div>
+            <mat-divider *ngIf="i < report.creditScores.length - 1" class="score-divider"></mat-divider>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Customer Information Card -->
+    <mat-card
+      class="info-card"
+      *ngIf="
+        report.customerName ||
+        report.customerPan ||
+        report.customerAadhaar ||
+        report.customerMobile ||
+        report.dateOfBirth ||
+        report.gender ||
+        report.customerAddress
+      "
+    >
+      <mat-card-header>
+        <mat-card-title>Customer Information</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item" *ngIf="report.customerName">
+            <span class="label">Name:</span>
+            <span>{{ report.customerName }}</span>
+          </div>
+          <div class="info-item" *ngIf="report.customerPan">
+            <span class="label">PAN:</span>
+            <span>{{ report.customerPan }}</span>
+          </div>
+          <div class="info-item" *ngIf="report.customerAadhaar">
+            <span class="label">Aadhaar:</span>
+            <span>{{ report.customerAadhaar }}</span>
+          </div>
+          <div class="info-item" *ngIf="report.customerMobile">
+            <span class="label">Mobile:</span>
+            <span>{{ report.customerMobile }}</span>
+          </div>
+          <div class="info-item" *ngIf="report.dateOfBirth">
+            <span class="label">Date of Birth:</span>
+            <span>{{ formatDate(report.dateOfBirth) }}</span>
+          </div>
+          <div class="info-item" *ngIf="report.gender">
+            <span class="label">Gender:</span>
+            <span>{{ report.gender }}</span>
+          </div>
+          <div class="info-item" *ngIf="report.customerAddress">
+            <span class="label">Address:</span>
+            <span class="address-text">{{ report.customerAddress }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Account Information Card -->
+    <mat-card
+      class="info-card"
+      *ngIf="
+        report.totalAccounts !== undefined ||
+        report.activeAccounts !== undefined ||
+        report.closedAccounts !== undefined ||
+        report.overdueAccounts !== undefined
+      "
+    >
+      <mat-card-header>
+        <mat-card-title>Account Information</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item" *ngIf="report.totalAccounts !== undefined">
+            <span class="label">Total Accounts:</span>
+            <span>{{ report.totalAccounts }}</span>
+          </div>
+          <div class="info-item" *ngIf="report.activeAccounts !== undefined">
+            <span class="label">Active Accounts:</span>
+            <span>{{ report.activeAccounts }}</span>
+          </div>
+          <div class="info-item" *ngIf="report.closedAccounts !== undefined">
+            <span class="label">Closed Accounts:</span>
+            <span>{{ report.closedAccounts }}</span>
+          </div>
+          <div class="info-item" *ngIf="report.overdueAccounts !== undefined">
+            <span class="label">Overdue Accounts:</span>
+            <span>{{ report.overdueAccounts }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Financial Information Card -->
+    <mat-card
+      class="info-card"
+      *ngIf="
+        report.totalCreditLimit ||
+        report.totalOutstandingAmount ||
+        report.totalOverdueAmount ||
+        report.highestCreditAmount
+      "
+    >
+      <mat-card-header>
+        <mat-card-title>Financial Information</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item" *ngIf="report.totalCreditLimit">
+            <span class="label">Total Credit Limit:</span>
+            <span>{{ formatCurrency(report.totalCreditLimit) }}</span>
+          </div>
+          <div class="info-item" *ngIf="report.totalOutstandingAmount">
+            <span class="label">Total Outstanding:</span>
+            <span>{{ formatCurrency(report.totalOutstandingAmount) }}</span>
+          </div>
+          <div class="info-item" *ngIf="report.totalOverdueAmount">
+            <span class="label">Total Overdue:</span>
+            <span>{{ formatCurrency(report.totalOverdueAmount) }}</span>
+          </div>
+          <div class="info-item" *ngIf="report.highestCreditAmount">
+            <span class="label">Highest Credit:</span>
+            <span>{{ formatCurrency(report.highestCreditAmount) }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Delinquency Information Card -->
+    <mat-card
+      class="info-card"
+      *ngIf="report.daysPastDue !== undefined || report.worstStatus12Months || report.worstStatus24Months"
+    >
+      <mat-card-header>
+        <mat-card-title>Delinquency Information</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item" *ngIf="report.daysPastDue !== undefined">
+            <span class="label">Days Past Due:</span>
+            <span>{{ report.daysPastDue }}</span>
+          </div>
+          <div class="info-item" *ngIf="report.worstStatus12Months">
+            <span class="label">Worst Status (12 Months):</span>
+            <span>{{ report.worstStatus12Months }}</span>
+          </div>
+          <div class="info-item" *ngIf="report.worstStatus24Months">
+            <span class="label">Worst Status (24 Months):</span>
+            <span>{{ report.worstStatus24Months }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Credit Enquiries Card -->
+    <mat-card
+      class="info-card"
+      *ngIf="
+        report.enquiriesLast30Days !== undefined ||
+        report.enquiriesLast90Days !== undefined ||
+        report.enquiriesLast12Months !== undefined
+      "
+    >
+      <mat-card-header>
+        <mat-card-title>Credit Enquiries</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item" *ngIf="report.enquiriesLast30Days !== undefined">
+            <span class="label">Last 30 Days:</span>
+            <span>{{ report.enquiriesLast30Days }}</span>
+          </div>
+          <div class="info-item" *ngIf="report.enquiriesLast90Days !== undefined">
+            <span class="label">Last 90 Days:</span>
+            <span>{{ report.enquiriesLast90Days }}</span>
+          </div>
+          <div class="info-item" *ngIf="report.enquiriesLast12Months !== undefined">
+            <span class="label">Last 12 Months:</span>
+            <span>{{ report.enquiriesLast12Months }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Report Notes Card -->
+    <mat-card class="info-card" *ngIf="report.reportSummary || report.reportNotes">
+      <mat-card-header>
+        <mat-card-title>Report Notes</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="notes-content">
+          <div class="note-section" *ngIf="report.reportSummary">
+            <h4>Summary:</h4>
+            <p>{{ report.reportSummary }}</p>
+          </div>
+          <div class="note-section" *ngIf="report.reportNotes">
+            <h4>Notes:</h4>
+            <p>{{ report.reportNotes }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Additional Data Card -->
+    <mat-card class="info-card" *ngIf="hasAdditionalData">
+      <mat-card-header>
+        <mat-card-title>Additional Data</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <!-- Additional Data Sections -->
+        <div *ngFor="let section of additionalDataSections; let isLast = last" class="additional-data-section">
+          <!-- Always show section name as smaller heading -->
+          <div class="section-header">
+            <h4>{{ section.name }}</h4>
+          </div>
+
+          <div class="info-grid">
+            <div *ngFor="let key of getObjectKeys(section.data)" class="info-item">
+              <span class="label">{{ formatFieldLabel(key) }}:</span>
+              <span class="value">{{ formatJsonValue(section.data[key]) }}</span>
+            </div>
+          </div>
+
+          <!-- Section separator (except for last section) -->
+          <mat-divider *ngIf="!isLast && additionalDataSections.length > 1" class="section-divider"></mat-divider>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoading && !report" class="error-state">
+    <mat-icon>error_outline</mat-icon>
+    <h3>Report Not Found</h3>
+    <p>The requested credit report could not be found.</p>
+    <button mat-raised-button color="primary" (click)="goBack()">Back to Reports</button>
+  </div>
+</div>

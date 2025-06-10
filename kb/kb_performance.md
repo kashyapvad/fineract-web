@@ -150,17 +150,31 @@ FAIL IF:
 
 ### RULE: Change Detection Optimization
 
-CONTEXT: Efficient change detection is critical for responsive financial interfaces
-REQUIREMENT: Change detection must be optimized through OnPush strategy and proper binding
+CONTEXT: Angular change detection must be optimized for financial application performance requirements
+REQUIREMENT: Components must use appropriate change detection strategies for optimal performance
 FAIL IF:
 
-- Default change detection used for all components
+- Default change detection used for components with complex data
 - OnPush strategy not implemented where appropriate
-- Function calls used in template bindings
-- Complex expressions evaluated in templates
-- Change detection not optimized for large data sets
-  VERIFICATION: Check change detection strategy and template optimization
-  REFERENCES: OnPush strategy implementation, template optimization, change detection profiling
+- Unnecessary change detection cycles triggered by improper binding
+- Large datasets rendered without virtual scrolling
+- Change detection not optimized for real-time data updates
+  VERIFICATION: Check change detection strategy usage and performance profiling
+  REFERENCES: Change detection optimization, OnPush strategy implementation, virtual scrolling patterns
+
+### RULE: Bundle Size Management
+
+CONTEXT: Application bundle size must be optimized for web performance and user experience
+REQUIREMENT: Bundle size must be minimized through proper code splitting and tree shaking
+FAIL IF:
+
+- Bundle size exceeds performance budgets
+- Unused code not eliminated through tree shaking
+- Third-party libraries not properly analyzed for size impact
+- Code splitting not implemented effectively
+- Bundle analysis not performed regularly
+  VERIFICATION: Check bundle analysis reports and size optimization
+  REFERENCES: Bundle optimization techniques, code splitting strategies, performance budgets
 
 ### RULE: Memory Management and Leak Prevention
 

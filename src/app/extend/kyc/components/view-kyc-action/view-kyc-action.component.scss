@@ -1,0 +1,441 @@
+/* stylelint-disable no-descending-specificity, unit-allowed-list */
+
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+// General element styles - MUST come before more specific selectors
+div {
+  // Base div styles that can be overridden by specific contexts
+}
+
+mat-icon {
+  // Base mat-icon styles that can be overridden by specific contexts
+}
+
+.mat-stroked-button {
+  // Base button styles that can be overridden by specific contexts
+}
+
+.mat-stroked-button:focus {
+  outline: 2px solid var(--mat-color-primary);
+  outline-offset: 2px;
+}
+
+// Component-specific styles
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header-section {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--mat-color-primary);
+  margin-bottom: 8px;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: var(--mat-color-on-surface-variant);
+  margin-bottom: 16px;
+}
+
+// Status indicators
+.status-section {
+  margin-bottom: 16px;
+}
+
+.overall-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.progress-section {
+  margin-bottom: 16px;
+}
+
+.progress-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--mat-color-on-surface-variant);
+  margin-bottom: 8px;
+}
+
+// Document sections
+.document-section {
+  margin-bottom: 16px;
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 500;
+    }
+  }
+}
+
+.document-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.document-status-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--mat-color-outline-variant);
+
+  .document-number {
+    flex: 1;
+    font-weight: 500;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .document-name {
+    flex: 2;
+    margin: 0 16px;
+  }
+
+  .status-badge {
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+}
+
+.verification-metadata {
+  background-color: var(--mat-color-surface-variant);
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--mat-color-on-surface-variant);
+
+  .metadata-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .metadata-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .label {
+    font-weight: 500;
+    color: var(--mat-color-on-surface);
+  }
+
+  div:last-child {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--mat-color-outline-variant);
+  }
+}
+
+// No data message styles
+.no-data-message {
+  padding: 32px 16px;
+
+  .large-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    opacity: 0.6;
+  }
+
+  p {
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+// Document display styles
+.document-row {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--mat-color-outline-variant);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .document-label {
+    font-weight: 500;
+    color: var(--mat-color-on-surface);
+  }
+
+  .document-value {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 14px;
+    color: var(--mat-color-on-surface-variant);
+    margin-right: 8px;
+
+    // Empty value styling
+    &.empty-value {
+      color: var(--mat-color-on-surface-variant);
+      opacity: 0.6;
+      font-style: italic;
+    }
+  }
+}
+
+// Status summary styles
+.status-summary {
+  padding: 12px 0;
+
+  .status-verified {
+    background-color: var(--mat-color-success-container);
+    color: var(--mat-color-on-success-container);
+  }
+
+  .status-pending {
+    background-color: var(--mat-color-warning-container);
+    color: var(--mat-color-on-warning-container);
+  }
+}
+
+// Verification notes styles
+.notes-label {
+  font-weight: 500;
+  color: var(--mat-color-on-surface);
+  margin-bottom: 4px;
+}
+
+.notes-content {
+  color: var(--mat-color-on-surface-variant);
+  font-style: italic;
+  margin: 0;
+  padding: 8px 12px;
+  background-color: var(--mat-color-surface-variant);
+  border-radius: 4px;
+}
+
+// Icon styles
+.verified-icon {
+  color: var(--mat-color-success);
+}
+
+.unverified-icon {
+  color: var(--mat-color-error);
+}
+
+.text-muted {
+  color: var(--mat-color-on-surface-variant);
+}
+
+// KYC stats styles
+.kyc-stats {
+  font-size: 14px;
+
+  div {
+    padding: 4px 0;
+  }
+
+  .stat-value {
+    font-weight: 500;
+    color: var(--mat-color-primary);
+  }
+}
+
+// Form field customizations
+.mat-form-field {
+  width: 100%;
+
+  .mat-form-field-infix {
+    width: auto;
+  }
+
+  // Read-only field styling
+  &.mat-form-field-readonly {
+    .mat-form-field-underline {
+      background-color: transparent;
+    }
+
+    input {
+      color: rgb(0 0 0 / 60%);
+    }
+  }
+}
+
+// Card customizations
+.mat-card {
+  margin-bottom: 0;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
+
+  .mat-card-header {
+    padding-bottom: 8px;
+
+    .mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+
+      mat-icon {
+        color: var(--mat-color-primary);
+      }
+    }
+
+    .mat-card-subtitle {
+      margin-top: 4px;
+      font-size: 13px;
+    }
+  }
+
+  .mat-card-content {
+    padding-top: 16px;
+  }
+}
+
+// Button styles
+.mat-stroked-button,
+.mat-raised-button {
+  border-radius: 8px;
+  font-weight: 500;
+
+  mat-icon {
+    margin-right: 8px;
+  }
+}
+
+// Action buttons in verification card
+.mat-card .mat-stroked-button {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+  padding: 12px 16px;
+  height: auto;
+  line-height: 1.4;
+
+  &:hover {
+    background-color: rgb(0 0 0 / 4%);
+  }
+
+  &[color='primary']:hover {
+    background-color: rgba(var(--mat-color-primary-rgb), 0.1);
+  }
+
+  &[color='accent']:hover {
+    background-color: rgba(var(--mat-color-accent-rgb), 0.1);
+  }
+
+  &[color='warn']:hover {
+    background-color: rgba(var(--mat-color-warn-rgb), 0.1);
+  }
+}
+
+// Progress bar
+.mat-progress-bar {
+  height: 3px;
+  border-radius: 2px;
+}
+
+// Responsive design
+@media (width <= 768px) {
+  .container {
+    padding: 16px;
+  }
+
+  .document-status-row {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 4px;
+
+    .document-number {
+      max-width: none;
+    }
+  }
+
+  .mat-card .mat-stroked-button {
+    padding: 8px 12px;
+    font-size: 13px;
+
+    mat-icon {
+      margin-right: 4px;
+    }
+  }
+
+  .verification-metadata {
+    font-size: 12px;
+  }
+}
+
+// Accessibility improvements
+.mat-button:focus,
+.mat-raised-button:focus {
+  outline: 2px solid var(--mat-color-primary);
+  outline-offset: 2px;
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+  .document-status-row {
+    border-bottom-color: #000;
+  }
+
+  .verification-metadata {
+    background-color: rgb(0 0 0 / 10%);
+    border: 1px solid rgb(0 0 0 / 30%);
+  }
+
+  .text-muted {
+    color: rgb(0 0 0 / 80%);
+  }
+}
+
+// Print styles
+@media print {
+  .container {
+    padding: 0;
+  }
+
+  .mat-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    page-break-inside: avoid;
+  }
+
+  button {
+    display: none;
+  }
+
+  .mat-progress-bar {
+    display: none;
+  }
+}

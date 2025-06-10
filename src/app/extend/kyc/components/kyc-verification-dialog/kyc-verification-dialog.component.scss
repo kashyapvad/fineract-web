@@ -1,0 +1,248 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+/* Dialog Container */
+.dialog-header {
+  margin-bottom: 16px;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-weight: 500;
+  }
+}
+
+.dialog-form {
+  padding: 16px 0;
+  min-width: 500px;
+  max-width: 600px;
+}
+
+/* Section Headers */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 12px;
+  font-weight: 500;
+  color: rgb(0 0 0 / 87%);
+}
+
+/* Document Selection */
+.document-selection {
+  padding: 8px 0;
+}
+
+.document-item {
+  padding: 8px 12px;
+  border: 1px solid rgb(0 0 0 / 12%);
+  border-radius: 4px;
+  background-color: #fafafa;
+  transition: background-color 0.2s ease;
+  animation: fade-in 0.3s ease-in-out;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+
+  .mat-checkbox {
+    width: 100%;
+
+    .mat-checkbox-layout {
+      width: 100%;
+    }
+  }
+
+  .document-label {
+    font-weight: 500;
+    color: rgb(0 0 0 / 87%);
+  }
+
+  .document-value {
+    font-family: 'Roboto Mono', monospace;
+    background-color: rgb(0 0 0 / 4%);
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-size: 0.875rem;
+  }
+
+  .document-status {
+    font-style: italic;
+
+    &.status-verified {
+      color: #4caf50;
+    }
+
+    &.status-unverified {
+      color: #ff9800;
+    }
+  }
+}
+
+/* Messages */
+.warning-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  color: #856404;
+  margin-top: 16px;
+
+  .warning-icon {
+    color: #ffc107;
+  }
+}
+
+.no-documents-message {
+  padding: 32px 16px;
+  text-align: center;
+
+  .large-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+
+  h4 {
+    margin: 8px 0;
+    color: rgb(0 0 0 / 60%);
+  }
+
+  p {
+    color: rgb(0 0 0 / 54%);
+  }
+}
+
+/* Summary Section */
+.summary-section {
+  margin-top: 24px;
+
+  .summary-content {
+    padding: 12px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border-left: 4px solid #2196f3;
+  }
+}
+
+.document-list {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+
+    &.selected {
+      font-weight: 500;
+
+      .selected-icon {
+        color: #4caf50;
+      }
+    }
+
+    &.not-selected {
+      opacity: 0.6;
+
+      .unselected-icon {
+        color: rgb(0 0 0 / 38%);
+      }
+    }
+  }
+}
+
+/* Form Fields */
+.mat-form-field {
+  width: 100%;
+
+  .mat-form-field-wrapper {
+    margin-bottom: 8px;
+  }
+}
+
+/* Text Utilities */
+.text-muted {
+  color: rgb(0 0 0 / 54%) !important;
+}
+
+/* Dialog Actions */
+.mat-dialog-actions {
+  padding: 16px 0 8px;
+  margin: 0;
+
+  button {
+    margin-left: 8px;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
+
+/* Responsive Design */
+@media (width <= 768px) {
+  .dialog-form {
+    min-width: 300px;
+    max-width: 400px;
+  }
+
+  .document-selection {
+    .document-item {
+      padding: 12px 8px;
+    }
+  }
+
+  .summary-section {
+    .summary-content {
+      padding: 8px;
+    }
+  }
+}
+
+/* Accessibility Enhancements */
+.mat-checkbox:focus {
+  outline: 2px solid #2196f3;
+  outline-offset: 2px;
+}
+
+.document-item:focus-within {
+  background-color: #e3f2fd;
+  border-color: #2196f3;
+}
+
+/* Animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

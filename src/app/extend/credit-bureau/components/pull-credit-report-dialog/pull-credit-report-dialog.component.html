@@ -1,0 +1,61 @@
+<h2 mat-dialog-title>Pull Credit Report</h2>
+
+<form [formGroup]="pullForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content>
+    <div class="form-container">
+      <!-- Report Type -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Report Type</mat-label>
+        <mat-select formControlName="reportType" required>
+          <mat-option *ngFor="let type of reportTypes" [value]="type.code">
+            {{ type.description }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="pullForm.get('reportType')?.hasError('required')"> Report type is required </mat-error>
+      </mat-form-field>
+
+      <!-- Provider -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Provider</mat-label>
+        <mat-select formControlName="provider">
+          <mat-option *ngFor="let provider of providers" [value]="provider.code">
+            {{ provider.description }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- PAN Number -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>PAN Number (Optional)</mat-label>
+        <input matInput formControlName="panNumber" placeholder="ABCDE1234F" />
+        <mat-error *ngIf="pullForm.get('panNumber')?.hasError('pattern')">
+          {{ getErrorMessage('panNumber') }}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Aadhaar Number -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Aadhaar Number (Optional)</mat-label>
+        <input matInput formControlName="aadhaarNumber" placeholder="123456789012" />
+        <mat-error *ngIf="pullForm.get('aadhaarNumber')?.hasError('pattern')">
+          {{ getErrorMessage('aadhaarNumber') }}
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Notes -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Notes</mat-label>
+        <textarea matInput formControlName="notes" rows="3" placeholder="Optional notes about this request"></textarea>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="onCancel()" [disabled]="isSubmitting">Cancel</button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="pullForm.invalid || isSubmitting">
+      <mat-spinner *ngIf="isSubmitting" diameter="20"></mat-spinner>
+      <span *ngIf="!isSubmitting">Pull Report</span>
+      <span *ngIf="isSubmitting">Pulling...</span>
+    </button>
+  </mat-dialog-actions>
+</form>

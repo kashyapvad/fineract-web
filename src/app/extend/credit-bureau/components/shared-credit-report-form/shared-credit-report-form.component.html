@@ -1,0 +1,294 @@
+<ng-container>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <mat-dialog-content class="streamlined-content">
+      <div class="form-container">
+        <!-- Credit Scores Section - Using Focused Component -->
+        <mifosx-credit-scores-form
+          [parentForm]="form"
+          [initialScores]="initialReport?.creditScores || []"
+          (scoresChange)="onScoresChange($event)"
+        >
+        </mifosx-credit-scores-form>
+
+        <!-- Customer Information Section - Using Focused Component -->
+        <mifosx-customer-info-form [parentForm]="form"></mifosx-customer-info-form>
+
+        <!-- Financial Information Section - Using Focused Component -->
+        <mifosx-financial-info-form [parentForm]="form"></mifosx-financial-info-form>
+
+        <!-- Delinquency Information Section -->
+        <mat-card class="section-card">
+          <mat-card-header>
+            <mat-card-title>Delinquency Information</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Days Past Due</mat-label>
+                <input matInput type="number" formControlName="daysPastDue" min="0" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Worst Status (12 Months)</mat-label>
+                <input matInput formControlName="worstStatus12Months" placeholder="e.g., 30, 60, 90+" />
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Worst Status (24 Months)</mat-label>
+              <input matInput formControlName="worstStatus24Months" placeholder="e.g., 30, 60, 90+" />
+            </mat-form-field>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Enquiry Information Section -->
+        <mat-card class="section-card">
+          <mat-card-header>
+            <mat-card-title>Credit Enquiries</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="third-width">
+                <mat-label>Last 30 Days</mat-label>
+                <input matInput type="number" formControlName="enquiriesLast30Days" min="0" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="third-width">
+                <mat-label>Last 90 Days</mat-label>
+                <input matInput type="number" formControlName="enquiriesLast90Days" min="0" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="third-width">
+                <mat-label>Last 12 Months</mat-label>
+                <input matInput type="number" formControlName="enquiriesLast12Months" min="0" />
+              </mat-form-field>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Report Notes Section -->
+        <mat-card class="section-card">
+          <mat-card-header>
+            <mat-card-title>Report Details</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Report Summary</mat-label>
+              <textarea
+                matInput
+                formControlName="reportSummary"
+                rows="3"
+                placeholder="Summary of the credit report"
+              ></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Report Notes</mat-label>
+              <textarea
+                matInput
+                formControlName="reportNotes"
+                rows="3"
+                placeholder="Additional notes and observations"
+              ></textarea>
+            </mat-form-field>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Enhanced Additional Data Section with Intuitive JSON Builder -->
+        <mat-card class="section-card additional-data-card">
+          <mat-card-header>
+            <mat-card-title>Additional Data</mat-card-title>
+            <mat-card-subtitle>Build custom data sections with key-value pairs</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <!-- Enhanced Visual JSON Builder (Always visible) -->
+            <div class="visual-json-builder">
+              <div class="builder-header">
+                <h3>Data Builder</h3>
+                <p class="builder-description">
+                  Create organized sections with key-value pairs. Each section can contain multiple data fields.
+                </p>
+              </div>
+
+              <!-- Sections List -->
+              <div class="sections-container">
+                <div *ngFor="let section of jsonSections; let i = index" class="data-section">
+                  <mat-expansion-panel [expanded]="i === activeJsonTab" (opened)="activeJsonTab = i">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        <mat-icon class="section-icon">folder</mat-icon>
+                        {{ section.name || 'Unnamed Section' }}
+                        <span class="field-count">({{ getFieldCount(section) }} fields)</span>
+                        <mat-icon *ngIf="!isSectionNameValid(section)" class="error-icon" color="warn">error</mat-icon>
+                      </mat-panel-title>
+                    </mat-expansion-panel-header>
+
+                    <div class="section-content">
+                      <!-- Section Configuration -->
+                      <div class="section-config">
+                        <div class="config-row">
+                          <mat-form-field appearance="outline" class="section-name-field">
+                            <mat-label>Section Name *</mat-label>
+                            <input
+                              matInput
+                              [(ngModel)]="section.name"
+                              [ngModelOptions]="{ standalone: true }"
+                              (blur)="syncJsonToForm()"
+                              placeholder="e.g., Personal Details, Financial Info"
+                              required
+                            />
+                            <mat-error *ngIf="!isSectionNameValid(section)"> Section name is required </mat-error>
+                          </mat-form-field>
+
+                          <button
+                            type="button"
+                            mat-icon-button
+                            color="warn"
+                            (click)="removeJsonSection(i)"
+                            [disabled]="!section.isEditable"
+                            matTooltip="Delete section"
+                            class="delete-section-btn"
+                          >
+                            <mat-icon>delete</mat-icon>
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Key-Value Pairs -->
+                      <div class="fields-container">
+                        <div class="fields-header">
+                          <h4>Data Fields</h4>
+                          <mat-icon matTooltip="Add key-value pairs to store custom data">info_outline</mat-icon>
+                        </div>
+
+                        <!-- Existing Fields -->
+                        <div *ngFor="let item of section.data | keyvalue; let j = index" class="field-row">
+                          <mat-form-field appearance="outline" class="field-key">
+                            <mat-label>Field Name</mat-label>
+                            <input
+                              matInput
+                              [value]="item.key"
+                              (blur)="renameJsonKey(i, item.key, $event.target.value)"
+                              placeholder="e.g., income, address"
+                            />
+                          </mat-form-field>
+
+                          <mat-form-field appearance="outline" class="field-value">
+                            <mat-label>Field Value</mat-label>
+                            <input
+                              matInput
+                              [value]="item.value"
+                              (blur)="updateJsonSection(i, item.key, $event.target.value)"
+                              placeholder="Enter the value"
+                            />
+                          </mat-form-field>
+
+                          <button
+                            type="button"
+                            mat-icon-button
+                            color="warn"
+                            (click)="removeJsonKey(i, item.key)"
+                            matTooltip="Remove field"
+                            class="remove-field-btn"
+                          >
+                            <mat-icon>remove_circle_outline</mat-icon>
+                          </button>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div *ngIf="getFieldCount(section) === 0" class="empty-fields-state">
+                          <mat-icon class="empty-icon">add_circle_outline</mat-icon>
+                          <p>No fields added yet</p>
+                          <p class="empty-hint">Use the form below to add your first field</p>
+                        </div>
+
+                        <!-- Add New Field -->
+                        <div class="add-field-form">
+                          <mat-form-field appearance="outline" class="field-key">
+                            <mat-label>New Field Name</mat-label>
+                            <input
+                              matInput
+                              #newKey
+                              placeholder="e.g., income, address"
+                              (keyup.enter)="addNewField(i, newKey, newValue)"
+                            />
+                          </mat-form-field>
+
+                          <mat-form-field appearance="outline" class="field-value">
+                            <mat-label>Field Value</mat-label>
+                            <input
+                              matInput
+                              #newValue
+                              placeholder="Enter the value"
+                              (keyup.enter)="addNewField(i, newKey, newValue)"
+                            />
+                          </mat-form-field>
+
+                          <button
+                            type="button"
+                            mat-raised-button
+                            color="primary"
+                            (click)="addNewField(i, newKey, newValue)"
+                            [disabled]="!newKey.value || !newValue.value"
+                            matTooltip="Add field"
+                            class="add-field-btn"
+                          >
+                            <mat-icon>add</mat-icon>
+                            Add Field
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </mat-expansion-panel>
+                </div>
+
+                <!-- Empty State for Sections -->
+                <div *ngIf="jsonSections.length === 0" class="empty-sections-state">
+                  <mat-icon class="empty-icon">folder_open</mat-icon>
+                  <h4>No data sections created</h4>
+                  <p>Create your first section to organize custom data</p>
+                </div>
+              </div>
+
+              <!-- Add New Section -->
+              <div class="add-section-controls">
+                <button
+                  type="button"
+                  mat-stroked-button
+                  color="primary"
+                  (click)="addJsonSection()"
+                  class="add-section-btn"
+                >
+                  <mat-icon>create_new_folder</mat-icon>
+                  Add New Section
+                </button>
+
+                <button type="button" mat-button (click)="toggleJsonPreview()" class="preview-btn">
+                  <mat-icon>{{ showJsonPreview ? 'visibility_off' : 'visibility' }}</mat-icon>
+                  {{ showJsonPreview ? 'Hide JSON' : 'Preview JSON' }}
+                </button>
+              </div>
+
+              <!-- JSON Preview (if requested) -->
+              <div *ngIf="showJsonPreview" class="json-preview">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Generated JSON</mat-label>
+                  <textarea matInput [value]="getJsonPreview()" rows="6" readonly></textarea>
+                  <mat-hint>This is the JSON that will be saved with your report</mat-hint>
+                </mat-form-field>
+              </div>
+
+              <!-- Hidden JSON field for form submission -->
+              <mat-form-field appearance="outline" class="full-width" style="display: none">
+                <textarea matInput formControlName="additionalData"></textarea>
+              </mat-form-field>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </mat-dialog-content>
+
+    <!-- Dialog actions removed - handled by parent dialog wrapper -->
+  </form>
+</ng-container>

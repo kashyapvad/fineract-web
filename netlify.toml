@@ -1,19 +1,14 @@
 [build]
   command = "npm run build:netlify"
-  publish = "dist/web-app"
+  publish = "dist/web-app/browser"
 
 [build.environment]
   NODE_OPTIONS = "--max-old-space-size=8192"
   NODE_VERSION = "18"
   NPM_FLAGS = "--production=false"
 
-# Redirect root to login page (since app uses hash routing)
-[[redirects]]
-  from = "/"
-  to = "/#/login"
-  status = 302
-
-# SPA redirect - all routes should serve index.html
+# For Angular apps with hash routing, we only need to serve index.html for all routes
+# The Angular router will handle the actual routing on the client side
 [[redirects]]
   from = "/*"
   to = "/index.html"

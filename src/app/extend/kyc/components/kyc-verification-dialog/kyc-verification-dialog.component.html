@@ -1,0 +1,164 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements. See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership. The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied. See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<div mat-dialog-content>
+  <!-- Dialog Header -->
+  <div class="dialog-header" fxLayout="column" fxLayoutGap="8px">
+    <h2 mat-dialog-title>
+      <mat-icon>{{ isVerificationMode ? 'verified' : 'gpp_maybe' }}</mat-icon>
+      {{ isVerificationMode ? 'Manual KYC Verification' : 'Manual KYC Unverification' }}
+    </h2>
+    <p class="mat-body-2 text-muted">
+      {{
+        isVerificationMode
+          ? 'Select KYC documents to verify manually. Please provide verification notes if necessary.'
+          : 'Select KYC documents to unverify. Please provide a reason for unverification.'
+      }}
+    </p>
+    <p class="mat-body-2"><strong>Client:</strong> {{ data.clientName }}</p>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <!-- Dialog Content -->
+  <form [formGroup]="verificationForm" fxLayout="column" fxLayoutGap="16px" class="dialog-form">
+    <!-- Document Selection -->
+    <div *ngIf="getEligibleDocuments().length > 0; else noEligibleDocuments">
+      <h4 class="section-header">
+        <mat-icon>assignment_ind</mat-icon>
+        Select Documents to {{ isVerificationMode ? 'Verify' : 'Unverify' }}
+      </h4>
+
+      <div class="document-selection" fxLayout="column" fxLayoutGap="12px">
+        <div *ngFor="let docType of getEligibleDocuments()" class="document-item">
+          <mat-checkbox [formControlName]="docType.key" [color]="isVerificationMode ? 'primary' : 'warn'">
+            <div fxLayout="column" fxLayoutGap="4px">
+              <span class="document-label">{{ docType.label }}</span>
+              <span class="document-value mat-body-2 text-muted">
+                {{ getDocumentValue(docType) }}
+              </span>
+              <span
+                class="document-status mat-caption"
+                [class]="isDocumentVerified(docType) ? 'status-verified' : 'status-unverified'"
+              >
+                {{ isDocumentVerified(docType) ? 'Currently Verified' : 'Currently Unverified' }}
+              </span>
+            </div>
+          </mat-checkbox>
+        </div>
+      </div>
+
+      <!-- No Selection Warning -->
+      <div *ngIf="!hasSelectedDocuments()" class="warning-message">
+        <mat-icon class="warning-icon">warning</mat-icon>
+        <span>Please select at least one document to {{ isVerificationMode ? 'verify' : 'unverify' }}.</span>
+      </div>
+    </div>
+
+    <!-- No Eligible Documents -->
+    <ng-template #noEligibleDocuments>
+      <div class="no-documents-message" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="16px">
+        <mat-icon class="large-icon text-muted">info</mat-icon>
+        <h4>No Documents Available</h4>
+        <p class="mat-body-1 text-center">
+          {{
+            isVerificationMode
+              ? 'All available documents are already verified.'
+              : 'No verified documents available for unverification.'
+          }}
+        </p>
+      </div>
+    </ng-template>
+
+    <!-- Notes Field -->
+    <mat-form-field appearance="outline">
+      <mat-label>
+        {{ isVerificationMode ? 'Verification Notes (Optional)' : 'Unverification Notes *' }}
+      </mat-label>
+      <textarea
+        matInput
+        formControlName="notes"
+        rows="4"
+        [placeholder]="
+          isVerificationMode
+            ? 'Enter verification notes or observations (optional)'
+            : 'Enter reason and details for unverifying documents (e.g., Document found to be expired, Invalid document detected)'
+        "
+        maxlength="1000"
+      >
+      </textarea>
+      <mat-icon matSuffix>note</mat-icon>
+      <mat-hint>
+        {{
+          isVerificationMode
+            ? 'Optional - Add any observations during verification'
+            : 'Required - Explain why documents are being unverified'
+        }}
+      </mat-hint>
+      <mat-error *ngIf="hasFieldError('notes')">{{ getFieldErrorMessage('notes') }}</mat-error>
+    </mat-form-field>
+
+    <!-- Document Summary -->
+    <div *ngIf="getEligibleDocuments().length > 0" class="summary-section">
+      <mat-divider></mat-divider>
+      <h4 class="section-header">
+        <mat-icon>summarize</mat-icon>
+        Action Summary
+      </h4>
+      <div class="summary-content">
+        <p class="mat-body-2">
+          <strong>Action:</strong>
+          {{ isVerificationMode ? 'Manual Verification' : 'Manual Unverification' }}
+        </p>
+        <p class="mat-body-2">
+          <strong>Selected Documents:</strong>
+          {{ hasSelectedDocuments() ? 'Yes' : 'None selected' }}
+        </p>
+        <div *ngIf="hasSelectedDocuments()" class="selected-documents">
+          <ul class="document-list">
+            <li
+              *ngFor="let docType of getEligibleDocuments()"
+              [class]="verificationForm.get(docType.key)?.value ? 'selected' : 'not-selected'"
+            >
+              <mat-icon [class]="verificationForm.get(docType.key)?.value ? 'selected-icon' : 'unselected-icon'">
+                {{ verificationForm.get(docType.key)?.value ? 'check_circle' : 'radio_button_unchecked' }}
+              </mat-icon>
+              {{ docType.label }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Dialog Actions -->
+<div mat-dialog-actions align="end" fxLayoutGap="8px">
+  <button mat-button (click)="cancel()" type="button">Cancel</button>
+  <button
+    mat-raised-button
+    [color]="isVerificationMode ? 'primary' : 'warn'"
+    (click)="confirm()"
+    [disabled]="verificationForm.invalid || !hasSelectedDocuments()"
+    type="button"
+  >
+    <mat-icon>{{ isVerificationMode ? 'verified' : 'gpp_maybe' }}</mat-icon>
+    {{ isVerificationMode ? 'Verify Selected' : 'Unverify Selected' }}
+  </button>
+</div>
