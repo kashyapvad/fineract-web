@@ -1,0 +1,81 @@
+// Customer Info Form Component Styles
+// Following UI Components KB: Material Design Integration
+
+.section-card {
+  margin-bottom: 24px;
+
+  mat-card-header {
+    margin-bottom: 16px;
+
+    mat-card-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #333;
+    }
+  }
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.half-width {
+  flex: 1;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Date input specific styling for consistency
+mat-form-field [type='date'] {
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.5;
+  padding: 0;
+
+  // Ensure consistent appearance across browsers
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    opacity: 0.6;
+    margin-left: 8px;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  // Remove default browser styling
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+
+  // Ensure consistent height and alignment
+  height: auto;
+  min-height: 24px;
+}
+
+// Responsive design
+@media (width <= 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .half-width {
+    width: 100%;
+  }
+}

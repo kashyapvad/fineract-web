@@ -1,0 +1,87 @@
+// Credit Scores Form Component Styles
+// Following UI Components KB: Material Design Integration
+
+.section-card {
+  margin-bottom: 24px;
+
+  mat-card-header {
+    margin-bottom: 16px;
+
+    mat-card-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #333;
+    }
+  }
+}
+
+.score-group {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: #fafafa;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.score-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+  h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #555;
+  }
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.half-width {
+  flex: 1;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.add-score-section {
+  margin-top: 16px;
+  text-align: center;
+
+  button {
+    min-width: 200px;
+  }
+}
+
+// Responsive design
+@media (width <= 768px) {
+  .form-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .half-width {
+    width: 100%;
+  }
+
+  .score-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

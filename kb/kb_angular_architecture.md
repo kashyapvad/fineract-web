@@ -192,88 +192,315 @@ FAIL IF:
 
 ## Component Architecture Patterns
 
-### RULE: Smart vs Dumb Component Separation
+### RULE: Component Responsibility Separation
 
-CONTEXT: Components must be properly categorized as smart (container) or dumb (presentational)
-REQUIREMENT: Smart components handle business logic while dumb components focus on presentation
+CONTEXT: Components must follow single responsibility principle with clear separation of concerns
+REQUIREMENT: Components must focus on presentation logic while delegating business logic to services
 FAIL IF:
 
-- Presentational components containing business logic or service dependencies
-- Container components not properly delegating presentation to child components
-- Component responsibilities not clearly separated
-- Data flow not properly managed between smart and dumb components
-- Component hierarchy not optimized for reusability
-  VERIFICATION: Check component classification and responsibility separation
-  REFERENCES: Component architecture patterns, smart/dumb component examples, data flow patterns
+- Components containing business logic that belongs in services
+- Data manipulation performed in component methods instead of services
+- Components directly accessing external APIs
+- Complex calculations performed in component templates
+- Component responsibilities overlapping or unclear
+  VERIFICATION: Check component implementation and verify single responsibility adherence
+  REFERENCES: Component implementations, service delegation patterns, template complexity analysis
 
-### RULE: Component Input/Output Design
+### RULE: Component Communication Patterns
 
-CONTEXT: Component communication must use well-designed input/output interfaces
-REQUIREMENT: Component interfaces must be type-safe and follow Angular best practices
+CONTEXT: Components must communicate through well-defined interfaces using Angular's communication patterns
+REQUIREMENT: Parent-child communication must use @Input/@Output patterns and services for sibling communication
 FAIL IF:
 
-- Component inputs not properly typed with interfaces
-- Output events not properly typed with custom event interfaces
-- Component interfaces too complex or tightly coupled
-- Input validation not performed in component logic
-- Change detection not optimized with OnPush where appropriate
-  VERIFICATION: Check component interface design and type safety
-  REFERENCES: Component input/output patterns, interface definitions, change detection optimization
+- Components accessing other components directly through ViewChild without proper interfaces
+- Global variables used for component communication
+- Event emitters not properly typed with custom interfaces
+- Service-based communication not following reactive patterns
+- Component coupling too tight without proper abstractions
+  VERIFICATION: Check component communication patterns and interface definitions
+  REFERENCES: Component communication implementations, @Input/@Output usage, service communication
 
-### RULE: Component Lifecycle Management
+### RULE: Template and Style Organization
 
-CONTEXT: Components must properly implement lifecycle hooks for resource management
-REQUIREMENT: Components must use appropriate lifecycle hooks with proper cleanup and initialization
+CONTEXT: Component templates and styles must be organized consistently for maintainability
+REQUIREMENT: Components must use separate template and style files with proper naming conventions
 FAIL IF:
 
-- OnDestroy not implemented when component has subscriptions or timers
-- Initialization logic not properly placed in appropriate lifecycle hooks
-- Resource cleanup not comprehensive or properly implemented
-- Lifecycle hooks not properly typed with Angular interfaces
-- Memory leaks from improper lifecycle management
-  VERIFICATION: Check lifecycle hook implementation and resource cleanup
-  REFERENCES: Lifecycle hook patterns, subscription cleanup, memory leak prevention
+- Inline templates used for complex components (>10 lines)
+- Inline styles used instead of external stylesheets
+- Template files not following naming conventions
+- Component styles not properly scoped or encapsulated
+- Template complexity not managed with proper structural directives
+  VERIFICATION: Check component file organization and template/style separation
+  REFERENCES: Component file structures, naming conventions, style encapsulation patterns
+
+### RULE: Lifecycle Hook Implementation
+
+CONTEXT: Component lifecycle hooks must be properly implemented for resource management
+REQUIREMENT: Components must implement appropriate lifecycle hooks with proper cleanup
+FAIL IF:
+
+- OnDestroy not implemented when component has subscriptions
+- Lifecycle hooks not properly typed with interfaces
+- Resource cleanup not performed in OnDestroy
+- Initialization logic not properly placed in appropriate hooks
+- Change detection not optimized with OnPush when appropriate
+  VERIFICATION: Check lifecycle hook implementations and resource cleanup
+  REFERENCES: Lifecycle hook patterns, subscription cleanup, change detection strategies
 
 ## Routing and Navigation Architecture
 
-### RULE: Route Configuration Hierarchy
+### RULE: Route Configuration Organization
 
-CONTEXT: Application routing must be organized hierarchically with proper nesting and guards
-REQUIREMENT: Routes must be configured with proper hierarchy, lazy loading, and protection
+CONTEXT: Routing must be organized hierarchically with proper guards and lazy loading
+REQUIREMENT: Routes must be configured with proper hierarchy, guards, and data resolution
 FAIL IF:
 
-- Route hierarchy not reflecting application information architecture
-- Nested routes not properly configured for feature modules
-- Route guards not properly protecting sensitive areas
-- Route data not properly typed and resolved
-- Wildcard and error routes not properly configured
-  VERIFICATION: Check routing configuration and hierarchy organization
-  REFERENCES: Routing module implementations, route guard configurations, route hierarchy
+- Route configuration not following hierarchical structure
+- Route guards not properly implemented for protected routes
+- Route data not properly resolved before component activation
+- Wildcard routes not properly configured for error handling
+- Route parameters not properly typed and validated
+  VERIFICATION: Check routing configuration and guard implementations
+  REFERENCES: Routing module configurations, route guard implementations, resolver patterns
 
-### RULE: Route Guard Implementation
+### RULE: Navigation State Management
 
-CONTEXT: Route guards must protect application areas based on user permissions and authentication
-REQUIREMENT: Route guards must implement proper authorization and authentication checks
+CONTEXT: Navigation state must be properly managed for user experience and browser compatibility
+REQUIREMENT: Navigation must preserve state appropriately and handle browser navigation events
 FAIL IF:
 
-- Protected routes accessible without proper authentication
-- Authorization logic scattered across multiple guard implementations
-- Route guards not properly handling edge cases and error scenarios
-- Guard return types not properly implemented (boolean vs UrlTree)
-- Route guard dependencies not properly injected and managed
-  VERIFICATION: Check route guard implementations and authorization logic
-  REFERENCES: Route guard patterns, authentication checks, authorization implementations
+- Navigation state not preserved during route changes
+- Browser back/forward buttons not working correctly
+- Deep linking not properly supported for all routes
+- Route transitions not providing proper user feedback
+- Navigation guards not handling edge cases properly
+  VERIFICATION: Check navigation implementation and browser compatibility
+  REFERENCES: Navigation patterns, route state management, browser compatibility testing
 
-### RULE: Route Data Resolution
+## Angular Coding Standards
 
-CONTEXT: Route data must be properly resolved before component activation for optimal user experience
-REQUIREMENT: Route resolvers must preload necessary data with proper error handling
+### RULE: Component and Directive Selector Naming [P0]
+
+CONTEXT: Angular components and directives must follow consistent naming conventions for maintainability
+REQUIREMENT: All selectors must use the "mifosx" prefix to maintain namespace consistency
 FAIL IF:
 
-- Components loading data after activation causing loading states
-- Route resolvers not properly handling error scenarios
-- Resolver data not properly typed and passed to components
-- Resolver dependencies not properly managed through dependency injection
-- Data resolution not optimized for performance and user experience
-  VERIFICATION: Check route resolver implementations and data preloading
-  REFERENCES: Route resolver patterns, data preloading, error handling in resolvers
+- Component selectors not starting with "mifosx-" prefix
+- Directive selectors not starting with "mifosx" prefix (e.g., [mifosxDirectiveName])
+- Generic selectors like "app-" used instead of project-specific prefix
+- Inconsistent casing in selector names (must use kebab-case for components)
+- Selector names not descriptive of component/directive purpose
+  VERIFICATION: Check all @Component and @Directive decorators for proper selector naming
+  REFERENCES:
+  - VERIFICATION_CMD: `grep -rn "selector:" src/app/ | grep -v "mifosx"`
+  - PATTERN_EXAMPLE: `selector: 'mifosx-kyc-status-badge'` for components
+  - PATTERN_EXAMPLE: `selector: '[mifosxClientExtension]'` for directives
+  - ANTI_PATTERN: `selector: 'app-component-name'`
+  - ANTI_PATTERN: `selector: '[appDirectiveName]'`
+
+### RULE: Empty Lifecycle Methods Prevention [P0]
+
+CONTEXT: Empty lifecycle methods create unnecessary overhead and indicate incomplete implementation
+REQUIREMENT: Lifecycle methods must contain meaningful implementation or be removed
+FAIL IF:
+
+- ngOnInit, ngOnDestroy, or other lifecycle methods are empty
+- Lifecycle methods contain only comments without implementation
+- Lifecycle interfaces implemented without corresponding method implementation
+- Placeholder lifecycle methods left in production code
+- Lifecycle methods not properly cleaning up resources
+  VERIFICATION: Check for empty lifecycle method implementations
+  REFERENCES:
+  - VERIFICATION_CMD: `grep -A 3 "ngOnInit\|ngOnDestroy\|ngAfterViewInit" src/app/ | grep -B 1 -A 2 "{}"`
+  - PATTERN_EXAMPLE: `ngOnDestroy() { this.cleanup(); }` with actual cleanup logic
+  - ANTI_PATTERN: `ngOnInit(): void {}`
+  - ANTI_PATTERN: `ngOnDestroy(): void { // TODO: cleanup }`
+
+### RULE: Console Logging and Debug Code Removal [P0]
+
+CONTEXT: Production code must not contain debugging artifacts that impact performance and security
+REQUIREMENT: All console logs, debug statements, and development artifacts must be removed from production code
+FAIL IF:
+
+- console.log, console.warn, console.error statements in production code
+- debugger statements left in source code
+- Development-only code blocks not removed
+- Debug flags or development mode checks in production builds
+- Temporary logging added during development not cleaned up
+  VERIFICATION: Check for debugging artifacts in source code
+  REFERENCES:
+  - VERIFICATION_CMD: `grep -rn "console\." src/app/ --exclude-dir=test`
+  - VERIFICATION_CMD: `grep -rn "debugger" src/app/ --exclude-dir=test`
+  - VERIFICATION_CMD: `grep -rn "// TODO\|// FIXME\|// DEBUG" src/app/ --exclude-dir=test`
+  - ANTI_PATTERN: `console.log('Debug info:', data);`
+  - ANTI_PATTERN: `debugger;`
+  - EXCEPTION: Error logging through proper logging service is allowed
+
+### RULE: TypeScript Strict Mode Compliance [P0]
+
+CONTEXT: TypeScript strict mode ensures type safety and prevents runtime errors in financial applications
+REQUIREMENT: All code must comply with TypeScript strict mode settings without type assertions
+FAIL IF:
+
+- Type assertions (as any) used to bypass type checking
+- Non-null assertion operator (!) used without proper null checks
+- Implicit any types not properly typed
+- Optional chaining not used for potentially undefined properties
+- Type guards not implemented for union types
+  VERIFICATION: Check TypeScript compilation with strict mode enabled
+  REFERENCES:
+  - VERIFICATION_CMD: `grep -rn "as any\|!" src/app/ --exclude-dir=test`
+  - VERIFICATION_CMD: `npx tsc --noEmit --strict`
+  - PATTERN_EXAMPLE: `if (data?.property) { ... }` instead of `data!.property`
+  - ANTI_PATTERN: `(response as any).data`
+  - ANTI_PATTERN: `data!.property` without null check
+
+### RULE: Import Organization and Path Management [P0]
+
+CONTEXT: Import statements must be organized consistently for maintainability and build optimization
+REQUIREMENT: Imports must follow consistent ordering and use proper path resolution
+FAIL IF:
+
+- Relative imports used for cross-module dependencies (use absolute paths)
+- Import statements not organized by type (Angular, third-party, local)
+- Unused imports not removed from files
+- Barrel exports not used for module organization
+- Import paths not following established conventions
+  VERIFICATION: Check import statement organization and path usage
+  REFERENCES:
+  - VERIFICATION_CMD: `grep -rn "import.*\.\./\.\." src/app/`
+  - PATTERN_EXAMPLE: `import { Component } from '@angular/core';` (Angular first)
+  - PATTERN_EXAMPLE: `import { Observable } from 'rxjs';` (third-party second)
+  - PATTERN_EXAMPLE: `import { MyService } from 'src/app/services';` (local last)
+  - ANTI_PATTERN: `import { Service } from '../../../services/my.service';`
+
+## Component Size and Complexity Management
+
+### RULE: Component Line Count Limits [P0]
+
+CONTEXT: Large components violate single responsibility principle and become unmaintainable
+REQUIREMENT: Components must stay within reasonable size limits to maintain code quality and readability
+FAIL IF:
+
+- Component TypeScript files exceed 400 lines
+- Component template files exceed 200 lines
+- Component has more than 15 public methods
+- Component constructor has more than 5 dependencies
+- Component manages more than 3 distinct concerns
+  VERIFICATION: Check component file sizes and method counts regularly
+  REFERENCES:
+  - VERIFICATION_CMD: `find src/app -name "*.component.ts" -exec wc -l {} + | awk '$1 > 400 {print $2 " has " $1 " lines"}'`
+  - VERIFICATION_CMD: `find src/app -name "*.component.html" -exec wc -l {} + | awk '$1 > 200 {print $2 " has " $1 " lines"}'`
+  - REFACTOR_TRIGGER: Any component exceeding 400 lines must be decomposed
+  - DECOMPOSITION_STRATEGY: Extract services for business logic, create focused child components
+  - ANTI_PATTERN: Single component handling forms, validation, API calls, and UI logic
+  - SUCCESS_METRIC: No component exceeds 400 lines after refactoring
+
+### RULE: Mandatory Service Extraction for Business Logic [P0]
+
+CONTEXT: Components should focus on presentation logic only, delegating business logic to services
+REQUIREMENT: All business logic, data manipulation, and API interactions must be extracted to dedicated services
+FAIL IF:
+
+- Components contain complex data transformation logic
+- Components directly make HTTP calls without service abstraction
+- Components contain validation logic beyond basic form validation
+- Components handle complex state management internally
+- Components contain utility functions that could be reused
+  VERIFICATION: Check components for business logic patterns
+  REFERENCES:
+  - PATTERN_EXAMPLE: `CreditReportAutofillService` - handles all auto-fill business logic
+  - PATTERN_EXAMPLE: `CreditReportValidationService` - handles validation and form creation
+  - SERVICE_RESPONSIBILITY: Data loading, transformation, validation, API communication
+  - COMPONENT_RESPONSIBILITY: Template binding, user interaction, component communication
+  - VERIFICATION_CMD: `grep -rn "subscribe\|map\|filter\|transform" src/app/components/ --include="*.ts"`
+  - ANTI_PATTERN: Components with complex subscribe chains or data manipulation
+  - REFACTOR_APPROACH: Extract to services with clear interfaces and observables
+
+### RULE: Focused Component Decomposition [P0]
+
+CONTEXT: Large forms and complex UIs must be broken down into focused, reusable components
+REQUIREMENT: Complex components must be decomposed into smaller, single-purpose components
+FAIL IF:
+
+- Single component handles multiple form sections
+- Component template has more than 3 distinct UI sections
+- Component manages multiple unrelated data models
+- Component has more than 10 @Input or @Output properties
+- Component cannot be easily unit tested due to complexity
+  VERIFICATION: Analyze component complexity and decomposition opportunities
+  REFERENCES:
+  - PATTERN_EXAMPLE: `CreditScoresFormComponent` - focused on credit scores only
+  - PATTERN_EXAMPLE: `CustomerInfoFormComponent` - focused on customer data only
+  - PATTERN_EXAMPLE: `FinancialInfoFormComponent` - focused on financial data only
+  - DECOMPOSITION_STRATEGY: Create focused components for each major form section
+  - COMMUNICATION_PATTERN: Parent-child communication via @Input/@Output
+  - SHARED_STATE: Use shared FormGroup for coordinated form management
+  - VERIFICATION_CMD: `grep -c "@Input\|@Output" src/app/components/*.ts | awk -F: '$2 > 10'`
+  - SUCCESS_METRIC: Each component has single, clear responsibility
+
+### RULE: Service-Based Architecture Enforcement [P0]
+
+CONTEXT: Complex applications require proper service layer architecture to prevent code duplication
+REQUIREMENT: All reusable logic must be implemented in services with clear interfaces and dependency injection
+FAIL IF:
+
+- Similar logic duplicated across multiple components
+- Components not using dependency injection for shared functionality
+- Services not following single responsibility principle
+- Service methods not returning observables for async operations
+- Services not properly tested in isolation
+  VERIFICATION: Check service architecture and usage patterns
+  REFERENCES:
+  - ARCHITECTURE_PATTERN: Service layer handles all business logic
+  - INJECTION_PATTERN: Constructor injection with interface abstractions
+  - OBSERVABLE_PATTERN: All async operations return observables
+  - TESTING_PATTERN: Services tested independently of components
+  - REUSABILITY_PATTERN: Services designed for multiple component usage
+  - VERIFICATION_CMD: `grep -rn "new " src/app/components/ --include="*.ts" | grep -v "FormBuilder\|Date"`
+  - ANTI_PATTERN: Components creating instances instead of using DI
+  - SUCCESS_METRIC: All business logic accessible through service layer
+
+### RULE: Template Complexity Management [P0]
+
+CONTEXT: Complex templates become unmaintainable and violate separation of concerns
+REQUIREMENT: Component templates must be kept simple with logic delegated to TypeScript and child components
+FAIL IF:
+
+- Templates contain complex conditional logic (more than 2 levels of nesting)
+- Templates have more than 5 structural directives (*ngFor, *ngIf)
+- Templates contain inline functions or complex expressions
+- Templates exceed 200 lines without decomposition
+- Templates mix multiple concerns (forms, tables, modals) without child components
+  VERIFICATION: Analyze template complexity and structure
+  REFERENCES:
+  - SIMPLIFICATION_STRATEGY: Extract complex sections to child components
+  - LOGIC_DELEGATION: Move complex expressions to component methods
+  - STRUCTURAL_LIMIT: Maximum 2 levels of nested *ngIf/*ngFor
+  - CHILD_COMPONENT_USAGE: Break large templates into focused child components
+  - VERIFICATION_CMD: `find src/app -name "*.component.html" -exec grep -c "\*ng" {} + | awk -F: '$2 > 5'`
+  - ANTI_PATTERN: Templates with deeply nested conditional logic
+  - SUCCESS_METRIC: Templates focus on presentation with minimal logic
+
+### RULE: Proactive Refactoring Triggers [P0]
+
+CONTEXT: Components must be refactored before they become unmaintainable monoliths
+REQUIREMENT: Automatic refactoring must be triggered when components exceed complexity thresholds
+FAIL IF:
+
+- Components allowed to grow beyond 300 lines without review
+- No regular code review for component complexity
+- Refactoring postponed until components become unmaintainable
+- No automated checks for component size and complexity
+- Team not trained on decomposition patterns and techniques
+  VERIFICATION: Implement automated checks and review processes
+  REFERENCES:
+  - AUTOMATED_CHECK: CI/CD pipeline checks for component size limits
+  - REVIEW_TRIGGER: Code review required for components over 250 lines
+  - REFACTORING_SCHEDULE: Regular refactoring sprints for technical debt
+  - TRAINING_REQUIREMENT: Team training on Angular architecture patterns
+  - MONITORING_TOOLS: Static analysis tools for complexity metrics
+  - VERIFICATION_CMD: `npm run lint:complexity` (custom lint rule for component size)
+  - SUCCESS_METRIC: No components exceed size limits in production code
+  - PREVENTION_STRATEGY: Catch complexity early in development cycle
