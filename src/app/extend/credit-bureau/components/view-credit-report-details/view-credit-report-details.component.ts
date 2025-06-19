@@ -18,7 +18,7 @@
  */
 
 /** Angular Imports */
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DatePipe } from '@angular/common';
@@ -91,7 +91,8 @@ export class ViewCreditReportDetailsComponent implements OnInit, OnDestroy {
     private router: Router,
     private creditBureauService: ClientCreditBureauService,
     private snackBar: MatSnackBar,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private changeDetectorRef: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -122,6 +123,7 @@ export class ViewCreditReportDetailsComponent implements OnInit, OnDestroy {
    */
   private loadReportDetails(): void {
     this.isLoading = true;
+    this.changeDetectorRef.detectChanges();
 
     this.creditBureauService
       .getCreditReport(this.clientId, this.reportId)
@@ -129,14 +131,17 @@ export class ViewCreditReportDetailsComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
         finalize(() => {
           this.isLoading = false;
+          this.changeDetectorRef.detectChanges();
         })
       )
       .subscribe({
         next: (report) => {
           this.report = report;
           this.processAdditionalData();
+          this.changeDetectorRef.detectChanges();
         },
         error: (error) => {
+          console.error('Credit report loading error:', error);
           this.showError('Failed to load credit report details');
         }
       });

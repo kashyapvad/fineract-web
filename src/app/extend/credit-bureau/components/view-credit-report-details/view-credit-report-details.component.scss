@@ -1,24 +1,30 @@
 /**
- * View Credit Report Details Component Styles
- * Restructured according to KB CSS Architecture Rules [P0]
- * Following Material Design principles with flattened architecture
+ * Modern Credit Report Details Component Styles
+ * Consistent with KYC component design
  */
 
+/* stylelint-disable font-family-name-quotes, unit-allowed-list, media-feature-range-notation, color-function-notation, alpha-value-notation */
+
 // ========================================
-// GENERAL SELECTORS FIRST (KB Rule: CSS Specificity Management [P0])
+// BASE STYLES AND RESETS
 // ========================================
 
-// Base element selectors
-h4 {
-  margin: 0 0 8px;
-  font-size: 16px;
-  font-weight: 500;
-  color: #333;
+:host {
+  display: block;
+  background-color: #f8fafc;
+  color: #1e293b;
+  font-family: 'Inter', 'Roboto', sans-serif;
 }
 
-p {
-  color: #666;
-  line-height: 1.5;
+// ========================================
+// CONTAINER AND LAYOUT
+// ========================================
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  min-height: 100vh;
 }
 
 // Move specific note section p before more specific score reason p
@@ -331,32 +337,57 @@ mat-chip {
 
 .overview-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 200px));
-  gap: 16px;
+  grid-template-columns: repeat(6, 1fr); /* Force 6 equal columns */
+  gap: 12px; /* Reduced gap for better spacing */
+
+  // Responsive breakpoints
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr); /* 3 columns on medium screens */
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on small screens */
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr; /* Single column on mobile */
+  }
 }
 
 .overview-item {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 16px;
+  padding: 12px; /* Reduced padding for smaller cards */
   background: #f8f9fa;
   border-radius: 6px;
   border-left: 4px solid #1976d2;
+  min-height: 80px; /* Consistent height */
+  justify-content: center; /* Center content vertically */
+  text-align: center; /* Center text */
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #e3f2fd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
 }
 
 .overview-item .label {
   font-weight: 600;
   color: #333;
-  font-size: 12px;
+  font-size: 11px; /* Smaller font for compact cards */
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  margin-bottom: 4px;
 }
 
 .overview-item span:not(.label) {
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 16px; /* Slightly smaller value text */
+  font-weight: 600;
   color: #1976d2;
+  line-height: 1.2;
 }
 
 // Credit scores section

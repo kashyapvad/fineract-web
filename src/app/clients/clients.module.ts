@@ -69,6 +69,7 @@ import { ClientDatatableStepComponent } from './client-stepper/client-datatable-
     ClientsRoutingModule,
     PipesModule,
     DirectivesModule,
+    // Extension Modules
     ExtendSharedModule
   ],
   declarations: [

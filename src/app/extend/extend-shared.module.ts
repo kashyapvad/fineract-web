@@ -14,6 +14,9 @@ import { ClientExtendedMenuComponent } from './components/client-extended-menu.c
 // KYC Module for badge component
 import { ExtendKycModule } from './kyc/kyc.module';
 
+// Loan EIR Module for EIR calculation and KFS generation
+import { LoanEirModule } from './loan-eir/loan-eir.module';
+
 // Services
 import { ClientExtendActionsService } from './services/client-extend-actions.service';
 import {
@@ -41,13 +44,15 @@ import {
     MatMenuModule,
     MatButtonModule,
     MatDividerModule,
-    ExtendKycModule
+    ExtendKycModule,
+    LoanEirModule
   ],
   exports: [
     ClientKycExtensionDirective,
     ClientInfoKycExtensionDirective,
     ClientExtendedMenuComponent,
-    ExtendKycModule
+    ExtendKycModule,
+    LoanEirModule
   ],
   providers: [
     ClientExtendActionsService,

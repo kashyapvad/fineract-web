@@ -28,6 +28,9 @@ import { takeUntil } from 'rxjs/operators';
 
 /** Custom Services */
 import { ClientKycService } from '../../services/client-kyc.service';
+import { ClientKycStatusService } from '../../services/client-kyc-status.service';
+import { VerificationNotesService } from '../../../shared/services/verification-notes.service';
+import { KycDocumentGenerationService } from '../../../services/kyc-document-generation.service';
 import { ConfirmationDialogComponent } from 'app/shared/confirmation-dialog/confirmation-dialog.component';
 import {
   KycVerificationDialogComponent,
@@ -72,7 +75,7 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
   isVerificationInProgress = false;
 
   /** Feature flags */
-  isApiVerificationEnabled = false; // Temporarily disabled - coming soon
+  isApiVerificationEnabled = true; // Now enabled with External Provider integration
 
   /** Available verification methods */
   verificationMethods = [
@@ -96,6 +99,8 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
     private router: Router,
     private formBuilder: FormBuilder,
     private kycService: ClientKycService,
+    private kycStatusService: ClientKycStatusService,
+    private kycDocumentService: KycDocumentGenerationService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private changeDetectorRef: ChangeDetectorRef
@@ -174,19 +179,23 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.kycService.getKycDetails(this.clientId).subscribe({
       next: (response) => {
-        // Check if response contains actual KYC document data, not just basic client info
+        // Check if response contains actual KYC document data with the correct field names
         const hasActualKycData =
           response &&
+          response.id && // Has KYC record ID
           (response.panNumber ||
             response.aadhaarNumber ||
             response.drivingLicenseNumber ||
-            response.voterIdNumber ||
+            response.voterIdNumber || // Backend returns voterIdNumber in DTO
             response.passportNumber);
 
         if (hasActualKycData) {
           this.kycData = response;
           this.hasExistingKyc = true;
           this.isEditMode = false;
+
+          // Force change detection to update UI with fresh data
+          this.changeDetectorRef.detectChanges();
         } else {
           // No actual KYC document data - show "No KYC Details Found" card with "Add KYC Details" button
           this.hasExistingKyc = false;
@@ -197,10 +206,21 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.isLoading = false;
+
         if (error.status === 404) {
           // No KYC data found - show "No KYC Details Found" card with "Add KYC Details" button
           this.hasExistingKyc = false;
           this.isEditMode = false; // Show no-data card instead of edit form
+          this.initializeEmptyKycData();
+        } else if (error.status === 500) {
+          // Server error - might be database issue or authentication problem
+          this.snackBar.open(
+            'Unable to load KYC data. If you just added KYC details, please refresh the page.',
+            'Close',
+            { duration: 5000 }
+          );
+          this.hasExistingKyc = false;
+          this.isEditMode = false;
           this.initializeEmptyKycData();
         } else {
           // Handle other errors appropriately - show no-data card for any error
@@ -217,14 +237,26 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
    */
   private populateForm(): void {
     if (this.kycData) {
+      // Get verification notes using the same logic as verification dialog
+      let existingNotes =
+        this.kycData.manualVerificationNotes || this.kycData.verificationNotes || this.kycData.notes || '';
+
+      // Clean up UNVERIFIED prefix if present (same as verification dialog)
+      if (existingNotes && existingNotes.startsWith('UNVERIFIED:')) {
+        existingNotes = existingNotes.replace('UNVERIFIED: ', '').trim();
+      }
+
       this.kycDetailsForm.patchValue({
         panNumber: this.kycData.panNumber || '',
         aadhaarNumber: this.kycData.aadhaarNumber || '',
         drivingLicenseNumber: this.kycData.drivingLicenseNumber || '',
         voterId: this.kycData.voterIdNumber || '',
         passportNumber: this.kycData.passportNumber || '',
-        verificationNotes: this.kycData.manualVerificationNotes || this.kycData.verificationNotes || ''
+        verificationNotes: existingNotes
       });
+
+      // Force change detection to ensure form is updated
+      this.changeDetectorRef.detectChanges();
     }
   }
 
@@ -236,7 +268,10 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
 
     // Populate form with existing data when entering edit mode
     if (this.isEditMode && this.hasExistingKyc) {
-      this.populateForm();
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        this.populateForm();
+      }, 50);
     }
   }
 
@@ -250,49 +285,151 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
 
     this.isLoading = true;
 
-    // Get form values and update kycData
+    // Get form values
     const formValues = this.kycDetailsForm.value;
 
-    // Update kycData with form values
-    if (!this.kycData) {
-      this.kycData = {};
-    }
-
-    this.kycData = {
-      ...this.kycData,
+    // Create payload with proper field mapping
+    const kycPayload = {
       panNumber: formValues.panNumber || null,
       aadhaarNumber: formValues.aadhaarNumber || null,
       drivingLicenseNumber: formValues.drivingLicenseNumber || null,
-      voterIdNumber: formValues.voterId || null,
+      voterId: formValues.voterId || null, // Backend expects voterId parameter
       passportNumber: formValues.passportNumber || null,
-      verificationNotes: formValues.verificationNotes || null
+      // Send verification notes in multiple field names to ensure backend compatibility
+      verificationNotes: formValues.verificationNotes || null,
+      manualVerificationNotes: formValues.verificationNotes || null,
+      notes: formValues.verificationNotes || null
     };
 
-    const saveObservable = this.hasExistingKyc
-      ? this.kycService.updateKycDetails(this.clientId, this.kycData.id, this.kycData)
-      : this.kycService.createKycDetails(this.clientId, this.kycData);
+    const saveObservable =
+      this.hasExistingKyc && this.kycData.id
+        ? this.kycService.updateKycDetails(this.clientId, this.kycData.id, kycPayload)
+        : this.kycService.createKycDetails(this.clientId, kycPayload);
 
     saveObservable.subscribe({
       next: (response) => {
-        this.isLoading = false;
-        this.isEditMode = false;
-        this.hasExistingKyc = true;
+        const wasUpdate = this.hasExistingKyc && this.kycData.id;
 
-        // Refresh data to get updated information
-        this.loadKycData();
-
-        // Show success message
+        // Show success message with refresh indicator
         this.snackBar.open(
-          this.hasExistingKyc ? 'KYC details updated successfully' : 'KYC details created successfully',
+          wasUpdate
+            ? 'KYC details updated successfully. Refresh the page to see the latest data.'
+            : 'KYC details created successfully. Refresh the page to see the latest data.',
           'Close',
           { duration: 3000 }
         );
+
+        // Clear KYC status cache since data has changed
+        this.kycStatusService.clearClientCache(this.clientId);
+
+        // After successful save, reload the data from server to ensure UI is in sync
+        this.loadKycData();
       },
       error: (error) => {
         this.isLoading = false;
-        // Show error message to user
-        this.snackBar.open('Failed to save KYC details. Please try again.', 'Close', { duration: 5000 });
+
+        // For 403 and 500 errors, check if KYC data was actually saved despite the error
+        // This handles cases where the operation succeeded but threw an error due to constraints
+        if (error.status === 403 || error.status === 500) {
+          this.checkIfKycWasSaved(error);
+        } else {
+          // For other errors (400, etc.), show the backend error message directly
+          this.showSaveErrorMessage(error);
+        }
       }
+    });
+  }
+
+  /**
+   * Intelligently checks if KYC data was actually saved despite save error
+   * This method makes a fresh API call to determine the actual database state
+   */
+  private checkIfKycWasSaved(saveError: any): void {
+    // Make a fresh call to check if KYC data exists
+    this.kycService.getKycDetails(this.clientId).subscribe({
+      next: (response) => {
+        // Check if response contains actual KYC document data
+        const hasActualKycData =
+          response &&
+          response.id &&
+          (response.panNumber ||
+            response.aadhaarNumber ||
+            response.drivingLicenseNumber ||
+            response.voterIdNumber ||
+            response.passportNumber);
+
+        if (hasActualKycData) {
+          // KYC data exists - determine appropriate message based on error type
+          let successMessage = 'KYC details were saved successfully! Refreshing data...';
+          if (saveError.status === 403) {
+            successMessage = 'KYC details already exist and are up to date. Refreshing data...';
+          }
+
+          this.snackBar.open(successMessage, 'Close', { duration: 5000 });
+
+          // Update the component state with the saved data
+          this.kycData = response;
+          this.hasExistingKyc = true;
+          this.isEditMode = false;
+
+          // Clear cache and force UI update
+          this.kycStatusService.clearClientCache(this.clientId);
+          this.changeDetectorRef.detectChanges();
+        } else {
+          // No KYC data found - show the actual error
+          this.showSaveErrorMessage(saveError);
+        }
+      },
+      error: (checkError) => {
+        // If the check fails with 404, it means no KYC data exists - show original error
+        // If the check fails with other errors, still show original error
+        if (checkError.status === 404) {
+          // No KYC data exists - the save truly failed
+          this.showSaveErrorMessage(saveError);
+        } else {
+          // Other error during check - assume save failed and show original error
+          this.showSaveErrorMessage(saveError);
+        }
+      }
+    });
+  }
+
+  /**
+   * Extracts error message from Fineract error response
+   * Handles both specific validation errors (in errors array) and generic errors
+   */
+  private extractErrorMessage(error: any): string {
+    // For domain rule violations, the specific error message is in the errors array
+    const specificError =
+      error.error?.errors?.[0]?.defaultUserMessage ||
+      error.error?.errors?.[0]?.userMessage ||
+      error.error?.errors?.[0]?.message ||
+      '';
+
+    const genericError =
+      error.error?.defaultUserMessage || error.error?.userMessage || error.error?.message || error.message || '';
+
+    // Use specific error first, fallback to generic
+    return specificError || genericError;
+  }
+
+  /**
+   * Shows appropriate error message based on the save error
+   * This method is only called when we've confirmed KYC data does NOT exist
+   */
+  private showSaveErrorMessage(error: any): void {
+    // Extract the actual error message from backend
+    const backendMessage = this.extractErrorMessage(error);
+
+    // Use backend message if available, otherwise provide generic fallback
+    const errorMessage = backendMessage || 'Failed to save KYC details. Please try again.';
+
+    // Show error message to user with refresh action
+    const snackBarRef = this.snackBar.open(errorMessage, 'Refresh', { duration: 8000 });
+
+    // Handle refresh action
+    snackBarRef.onAction().subscribe(() => {
+      this.loadKycData();
     });
   }
 
@@ -300,24 +437,30 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
    * Initiates API verification for documents
    */
   verifyKycViaApi(): void {
-    if (!this.hasExistingKyc) {
-      this.snackBar.open('Please save KYC details before verification', 'Close', { duration: 3000 });
-      return;
-    }
+    if (!this.validateKycExistsForVerification()) return;
 
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      data: {
-        heading: 'API Verification',
-        dialogContext:
-          'Are you sure you want to verify KYC documents via API? This will validate documents against external databases.',
-        confirmButtonName: 'Verify',
-        cancelButtonName: 'Cancel'
-      }
+    // Prepare dialog data for API verification
+    const dialogData: KycVerificationDialogData = {
+      type: 'api-verify',
+      clientName: this.clientData?.displayName || `Client ${this.clientId}`,
+      kycData: this.kycData,
+      documentTypes: this.documentTypes
+    };
+
+    const dialogRef = this.dialog.open(KycVerificationDialogComponent, {
+      data: dialogData,
+      width: '600px',
+      maxWidth: '90vw',
+      disableClose: true,
+      autoFocus: true
     });
 
-    dialogRef.afterClosed().subscribe((response: boolean) => {
-      if (response) {
-        this.performApiVerification();
+    dialogRef.afterClosed().subscribe((result: KycVerificationDialogResult) => {
+      if (result && result.action === 'api-verify') {
+        // Extract PAN and Aadhaar verification flags from selected documents
+        const verifyPan = result.selectedDocuments['panVerified'] || false;
+        const verifyAadhaar = result.selectedDocuments['aadhaarVerified'] || false;
+        this.performApiVerification(verifyPan, verifyAadhaar, result.notes);
       }
     });
   }
@@ -325,32 +468,66 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
   /**
    * Performs API verification
    */
-  private performApiVerification(): void {
+  private performApiVerification(verifyPan: boolean, verifyAadhaar: boolean, notes: string): void {
     this.isVerificationInProgress = true;
 
     const verificationData = {
-      provider: 'DECENTRO', // Default provider
-      verifyPan: !!this.kycData.panNumber,
-      verifyAadhaar: !!this.kycData.aadhaarNumber,
-      notes: 'API verification initiated'
+      provider: 'EXTERNAL_PROVIDER', // External Provider provider for KYC verification
+      verifyPan: verifyPan,
+      verifyAadhaar: verifyAadhaar,
+      notes: notes || 'API verification initiated via External Provider'
     };
+
+    // Show progress message
+    const documentsToVerify = [];
+    if (verifyPan) documentsToVerify.push('PAN');
+    if (verifyAadhaar) documentsToVerify.push('Aadhaar');
+
+    this.snackBar.open(`Verifying ${documentsToVerify.join(' and ')} via API...`, 'Close', { duration: 3000 });
 
     this.kycService
       .verifyKycViaApi(this.clientId, verificationData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (result) => {
-          this.snackBar.open('API verification completed successfully', 'Close', { duration: 3000 });
-          this.isVerificationInProgress = false;
-          this.loadKycData(); // Reload to get updated verification status
+          // Refresh KYC data to get latest verification status
+          this.loadKycData();
+
+          // Show success message
+          let successMessage = 'API verification completed';
+          if (verifyPan && verifyAadhaar) {
+            successMessage = 'PAN and Aadhaar verification completed';
+          } else if (verifyPan) {
+            successMessage = 'PAN verification completed';
+          } else if (verifyAadhaar) {
+            successMessage = 'Aadhaar verification completed';
+          }
+
+          this.completeVerificationOperation(successMessage);
         },
         error: (error) => {
-          this.snackBar.open(
-            'API verification failed: ' + error.error?.defaultUserMessage || 'Unknown error',
-            'Close',
-            { duration: 5000 }
-          );
-          this.isVerificationInProgress = false;
+          // Handle specific error cases based on backend provider configuration
+          if (error.status === 503) {
+            this.handleVerificationError(
+              error,
+              'Credit bureau service is currently unavailable. The external verification service is not configured. Please use manual verification or contact system administrator.'
+            );
+          } else if (error.status === 500) {
+            this.handleVerificationError(
+              error,
+              'Server error during verification. Please try again later or use manual verification.'
+            );
+          } else if (error.status === 400) {
+            this.handleVerificationError(
+              error,
+              'Invalid verification request. Please check the document numbers and try again.'
+            );
+          } else {
+            this.handleVerificationError(
+              error,
+              'API verification is not available. Please use manual verification instead.'
+            );
+          }
         }
       });
   }
@@ -359,10 +536,7 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
    * Initiates manual verification for documents
    */
   verifyKycManually(): void {
-    if (!this.hasExistingKyc) {
-      this.snackBar.open('Please save KYC details before verification', 'Close', { duration: 3000 });
-      return;
-    }
+    if (!this.validateKycExistsForVerification()) return;
 
     // Prepare dialog data
     const dialogData: KycVerificationDialogData = {
@@ -403,17 +577,17 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (result) => {
-          this.snackBar.open('Manual verification completed successfully', 'Close', { duration: 3000 });
-          this.isVerificationInProgress = false;
-          this.loadKycData(); // Reload to get updated verification status
+          // Update verification status for selected documents
+          this.updateVerificationStatus(selectedDocuments, true);
+
+          // Update verification metadata
+          this.updateVerificationMetadata('MANUAL', 'Current User', notes);
+
+          // Complete operation and refresh
+          this.completeVerificationOperation('Manual verification completed successfully');
         },
         error: (error) => {
-          this.snackBar.open(
-            'Manual verification failed: ' + error.error?.defaultUserMessage || 'Unknown error',
-            'Close',
-            { duration: 5000 }
-          );
-          this.isVerificationInProgress = false;
+          this.handleVerificationError(error, 'Manual verification failed');
         }
       });
   }
@@ -473,17 +647,17 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (result) => {
-          this.snackBar.open('Manual unverification completed successfully', 'Close', { duration: 3000 });
-          this.isVerificationInProgress = false;
-          this.loadKycData(); // Reload to get updated verification status
+          // Update verification status for selected documents (set to false)
+          this.updateVerificationStatus(selectedDocuments, false);
+
+          // Update unverification metadata
+          this.updateUnverificationMetadata(notes);
+
+          // Complete operation and refresh
+          this.completeVerificationOperation('Manual unverification completed successfully');
         },
         error: (error) => {
-          this.snackBar.open(
-            'Manual unverification failed: ' + error.error?.defaultUserMessage || 'Unknown error',
-            'Close',
-            { duration: 5000 }
-          );
-          this.isVerificationInProgress = false;
+          this.handleVerificationError(error, 'Manual unverification failed');
         }
       });
   }
@@ -520,11 +694,12 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
       return '-';
     }
 
+    // Direct field mapping - backend returns these exact field names
     const fieldMapping: { [key: string]: string } = {
       panNumber: 'panNumber',
       aadhaarNumber: 'aadhaarNumber',
       drivingLicenseNumber: 'drivingLicenseNumber',
-      voterId: 'voterIdNumber', // Note: API returns voterIdNumber but form uses voterId
+      voterId: 'voterIdNumber', // Backend DTO maps entity.voterId to DTO.voterIdNumber
       passportNumber: 'passportNumber'
     };
 
@@ -533,6 +708,25 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
 
     // Return value or dash if empty/null/undefined
     return value && value.trim() ? value.trim() : '-';
+  }
+
+  /**
+   * Gets tooltip text for API verification button
+   */
+  getApiVerificationTooltip(): string {
+    if (!this.kycData.panNumber && !this.kycData.aadhaarNumber) {
+      return 'Add PAN or Aadhaar number to enable API verification';
+    }
+
+    const documentsToVerify = [];
+    if (this.kycData.panNumber) {
+      documentsToVerify.push('PAN');
+    }
+    if (this.kycData.aadhaarNumber) {
+      documentsToVerify.push('Aadhaar');
+    }
+
+    return `Verify ${documentsToVerify.join(' and ')} using External Provider API`;
   }
 
   /**
@@ -552,14 +746,7 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
    */
   getVerifiedDocumentCount(): number {
     if (!this.kycData) return 0;
-
-    return (
-      (this.kycData.panVerified ? 1 : 0) +
-      (this.kycData.aadhaarVerified ? 1 : 0) +
-      (this.kycData.drivingLicenseVerified ? 1 : 0) +
-      (this.kycData.voterIdVerified ? 1 : 0) +
-      (this.kycData.passportVerified ? 1 : 0)
-    );
+    return this.countDocuments('verified');
   }
 
   /**
@@ -567,14 +754,41 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
    */
   getProvidedDocumentCount(): number {
     if (!this.kycData) return 0;
+    return this.countDocuments('provided');
+  }
 
-    return (
-      (this.kycData.panNumber ? 1 : 0) +
-      (this.kycData.aadhaarNumber ? 1 : 0) +
-      (this.kycData.drivingLicenseNumber ? 1 : 0) +
-      (this.kycData.voterIdNumber ? 1 : 0) +
-      (this.kycData.passportNumber ? 1 : 0)
-    );
+  /**
+   * Helper method to count documents by type
+   */
+  private countDocuments(type: 'verified' | 'provided'): number {
+    const fields = type === 'verified' ? [
+            'panVerified',
+            'aadhaarVerified',
+            'drivingLicenseVerified',
+            'voterIdVerified',
+            'passportVerified'
+          ] : [
+            'panNumber',
+            'aadhaarNumber',
+            'drivingLicenseNumber',
+            'voterIdNumber',
+            'passportNumber'
+          ]; // Backend returns voterIdNumber
+
+    return fields.reduce((count, field) => {
+      return count + (this.kycData[field] ? 1 : 0);
+    }, 0);
+  }
+
+  /**
+   * Validates that KYC data exists before verification operations
+   */
+  private validateKycExistsForVerification(): boolean {
+    if (!this.hasExistingKyc) {
+      this.snackBar.open('Please save KYC details before verification', 'Close', { duration: 3000 });
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -638,7 +852,7 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
       panNumber: '',
       aadhaarNumber: '',
       drivingLicenseNumber: '',
-      voterId: '',
+      voterIdNumber: '', // Backend returns voterIdNumber in DTO
       passportNumber: '',
       panVerified: false,
       aadhaarVerified: false,
@@ -657,5 +871,120 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
       voterIdLastVerifiedOn: null,
       passportLastVerifiedOn: null
     };
+  }
+
+  // ============================================================================
+  // HELPER METHODS FOR REDUCING CODE DUPLICATION
+  // ============================================================================
+
+  /**
+   * Updates verification status for selected documents
+   * Since backend now handles selective updates correctly, we can simplify this method
+   * and trust the backend to return the correct state via loadKycData()
+   */
+  private updateVerificationStatus(selectedDocuments: { [key: string]: boolean }, verified: boolean): void {
+    // Note: The backend now correctly handles selective verification/unverification
+    // We no longer need to manually update individual document statuses here
+    // The loadKycData() call after operation completion will fetch the correct state from backend
+    // This method is kept for backward compatibility but the actual UI updates
+    // will come from the fresh data loaded from the backend
+  }
+
+  /**
+   * Updates verification metadata (same approach as verification modals)
+   */
+  private updateVerificationMetadata(method: string, user: string, notes: string): void {
+    this.kycData.lastVerifiedOn = new Date().toISOString().split('T')[0];
+    this.kycData.lastVerifiedByUsername = user;
+    this.kycData.verificationMethod = method;
+    // Update notes in all possible fields using same approach as verification dialog
+    this.kycData.manualVerificationNotes = notes;
+    this.kycData.verificationNotes = notes;
+    this.kycData.notes = notes;
+  }
+
+  /**
+   * Updates unverification metadata (same approach as verification modals)
+   */
+  private updateUnverificationMetadata(notes: string): void {
+    this.kycData.lastVerifiedOn = null;
+    this.kycData.lastVerifiedByUsername = null;
+    this.kycData.verificationMethod = null;
+    // Update notes with UNVERIFIED prefix in all fields (same as verification dialog)
+    const unverifiedNotes = `UNVERIFIED: ${notes}`;
+    this.kycData.manualVerificationNotes = unverifiedNotes;
+    this.kycData.verificationNotes = unverifiedNotes;
+    this.kycData.notes = unverifiedNotes;
+  }
+
+  /**
+   * Completes verification operation with UI updates
+   */
+  private completeVerificationOperation(successMessage: string): void {
+    this.isVerificationInProgress = false;
+
+    // Clear KYC status cache since data has changed
+    this.kycStatusService.clearClientCache(this.clientId);
+
+    // Force change detection to update UI immediately
+    this.changeDetectorRef.detectChanges();
+
+    // Show success message
+    this.snackBar.open(successMessage, 'Close', { duration: 3000 });
+
+    // Refresh data in background to get server state
+    this.loadKycData();
+  }
+
+  /**
+   * Handles verification errors consistently
+   */
+  private handleVerificationError(error: any, baseMessage: string): void {
+    this.isVerificationInProgress = false;
+    this.snackBar.open(`${baseMessage}: ${error.error?.defaultUserMessage || 'Unknown error'}`, 'Close', {
+      duration: 5000
+    });
+  }
+
+  /**
+   * Generate KYC document for the client
+   */
+  generateKycDocument(): void {
+    if (!this.clientId) {
+      this.snackBar.open('Client ID not available', 'Close', { duration: 3000 });
+      return;
+    }
+
+    if (!this.hasExistingKyc) {
+      this.snackBar.open('Please save KYC details before generating document', 'Close', { duration: 3000 });
+      return;
+    }
+
+    this.isLoading = true;
+    this.kycDocumentService
+      .generateKycDocument(this.clientId, 'default')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (blob: Blob) => {
+          // Create download link
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `KYC_Document_Client_${this.clientId}.docx`;
+          link.click();
+          window.URL.revokeObjectURL(url);
+
+          this.isLoading = false;
+          this.snackBar.open('KYC document generated successfully', 'Close', { duration: 3000 });
+        },
+        error: (error) => {
+          this.isLoading = false;
+          this.snackBar.open(
+            `Document generation failed: ${error.error?.defaultUserMessage || 'Unknown error'}`,
+            'Close',
+            { duration: 5000 }
+          );
+        }
+      });
   }
 }

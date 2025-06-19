@@ -24,7 +24,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 /** Dialog Data Interface */
 export interface KycVerificationDialogData {
-  type: 'verify' | 'unverify';
+  type: 'verify' | 'unverify' | 'api-verify';
   clientName: string;
   kycData: any;
   documentTypes: any[];
@@ -32,7 +32,7 @@ export interface KycVerificationDialogData {
 
 /** Dialog Result Interface */
 export interface KycVerificationDialogResult {
-  action: 'verify' | 'unverify' | 'cancel';
+  action: 'verify' | 'unverify' | 'api-verify' | 'cancel';
   selectedDocuments: { [key: string]: boolean };
   notes: string;
   reason?: string; // For unverification
@@ -60,13 +60,15 @@ export interface KycVerificationDialogResult {
 export class KycVerificationDialogComponent implements OnInit {
   verificationForm: FormGroup;
   isVerificationMode: boolean;
+  isApiVerificationMode: boolean;
 
   constructor(
     private formBuilder: FormBuilder,
     private dialogRef: MatDialogRef<KycVerificationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: KycVerificationDialogData
   ) {
-    this.isVerificationMode = data.type === 'verify';
+    this.isVerificationMode = data.type === 'verify' || data.type === 'api-verify';
+    this.isApiVerificationMode = data.type === 'api-verify';
     this.createForm();
   }
 
@@ -111,7 +113,10 @@ export class KycVerificationDialogComponent implements OnInit {
     // Pre-populate notes field with existing verification notes for both verify and unverify modes
     let existingNotes = this.data.kycData.manualVerificationNotes || this.data.kycData.verificationNotes || '';
 
-    if (existingNotes) {
+    if (this.isApiVerificationMode) {
+      // For API verification, set default notes
+      this.verificationForm.get('notes')?.setValue('API verification via External Provider');
+    } else if (existingNotes) {
       if (this.isVerificationMode && existingNotes.startsWith('UNVERIFIED:')) {
         // For verify mode, remove the UNVERIFIED prefix to show clean notes
         existingNotes = existingNotes.replace('UNVERIFIED: ', '').trim();
@@ -154,7 +159,16 @@ export class KycVerificationDialogComponent implements OnInit {
    * Gets eligible documents for the current action
    */
   getEligibleDocuments(): any[] {
-    return this.getAvailableDocuments().filter((docType) => {
+    let availableDocuments = this.getAvailableDocuments();
+
+    // For API verification, only show PAN and Aadhaar (supported by External Provider)
+    if (this.isApiVerificationMode) {
+      availableDocuments = availableDocuments.filter(
+        (docType) => docType.key === 'panNumber' || docType.key === 'aadhaarNumber'
+      );
+    }
+
+    return availableDocuments.filter((docType) => {
       if (this.isVerificationMode) {
         // Can verify if not already verified
         return !this.isDocumentVerified(docType);
@@ -200,9 +214,12 @@ export class KycVerificationDialogComponent implements OnInit {
           }
           // Unselected documents are not included in the payload at all
         } else {
-          // For unverification: keep the unverify prefix format
-          const unverifyKey = `unverify${this.capitalize(docType.key.replace('Number', ''))}`;
-          selected[unverifyKey] = isSelected;
+          // For unverification: only send selected documents to preserve state of unselected ones
+          if (isSelected) {
+            const unverifyKey = `unverify${this.capitalize(docType.key.replace('Number', ''))}`;
+            selected[unverifyKey] = true; // Only selected documents are set to true
+          }
+          // Unselected documents are not included in the payload at all
         }
       }
     });

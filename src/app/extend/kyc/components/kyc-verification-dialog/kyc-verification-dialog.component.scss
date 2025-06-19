@@ -17,6 +17,8 @@
  * under the License.
  */
 
+/* stylelint-disable selector-max-universal, no-duplicate-selectors */
+
 /* Dialog Container */
 .dialog-header {
   margin-bottom: 16px;
@@ -31,9 +33,18 @@
 }
 
 .dialog-form {
-  padding: 16px 0;
+  padding: 20px 0;
   min-width: 500px;
   max-width: 600px;
+
+  /* Add better spacing between form sections */
+  .form-section {
+    margin-bottom: 20px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
 }
 
 /* Section Headers */
@@ -48,13 +59,13 @@
 
 /* Document Selection */
 .document-selection {
-  padding: 8px 0;
+  padding: 12px 0;
 }
 
 .document-item {
-  padding: 8px 12px;
+  padding: 16px;
   border: 1px solid rgb(0 0 0 / 12%);
-  border-radius: 4px;
+  border-radius: 6px;
   background-color: #fafafa;
   transition: background-color 0.2s ease;
   animation: fade-in 0.3s ease-in-out;
@@ -101,16 +112,18 @@
 .warning-message {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px;
+  gap: 12px;
+  padding: 16px 20px;
   background-color: #fff3cd;
   border: 1px solid #ffc107;
-  border-radius: 4px;
+  border-radius: 6px;
   color: #856404;
-  margin-top: 16px;
+  margin-top: 20px;
+  font-weight: 500;
 
   .warning-icon {
     color: #ffc107;
+    font-size: 20px;
   }
 }
 
@@ -182,6 +195,55 @@
   .mat-form-field-wrapper {
     margin-bottom: 8px;
   }
+
+  /* Fix textarea spacing and padding */
+  textarea.mat-input-element {
+    padding: 12px;
+    line-height: 1.5;
+    min-height: 80px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 14px;
+
+    &::placeholder {
+      color: rgb(0 0 0 / 54%);
+      font-style: italic;
+    }
+  }
+
+  /* Ensure proper spacing around the field */
+  &.mat-form-field-appearance-outline {
+    margin-top: 8px;
+    margin-bottom: 16px;
+
+    .mat-form-field-outline {
+      .mat-form-field-outline-start,
+      .mat-form-field-outline-gap,
+      .mat-form-field-outline-end {
+        border-width: 1px;
+      }
+    }
+
+    .mat-form-field-infix {
+      padding: 16px 14px;
+    }
+  }
+}
+
+/* Notes Field Container */
+.notes-field-container {
+  margin: 24px 0;
+
+  .mat-form-field {
+    width: 100%;
+
+    textarea {
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 8px 0;
+    }
+  }
 }
 
 /* Text Utilities */
@@ -191,11 +253,14 @@
 
 /* Dialog Actions */
 .mat-dialog-actions {
-  padding: 16px 0 8px;
+  padding: 24px 0 16px;
   margin: 0;
+  border-top: 1px solid rgb(0 0 0 / 12%);
+  margin-top: 24px;
 
   button {
-    margin-left: 8px;
+    margin-left: 12px;
+    min-width: 120px;
 
     &:first-child {
       margin-left: 0;
@@ -208,17 +273,41 @@
   .dialog-form {
     min-width: 300px;
     max-width: 400px;
+    padding: 16px 0;
+
+    .form-section {
+      margin-bottom: 16px;
+    }
   }
 
   .document-selection {
     .document-item {
-      padding: 12px 8px;
+      padding: 12px;
     }
   }
 
   .summary-section {
     .summary-content {
-      padding: 8px;
+      padding: 12px;
+    }
+  }
+
+  .notes-field-container {
+    margin: 20px 0;
+
+    .mat-form-field {
+      textarea {
+        font-size: 16px; /* Prevent zoom on iOS */
+      }
+    }
+  }
+
+  .mat-dialog-actions {
+    padding: 20px 0 12px;
+
+    button {
+      margin-left: 8px;
+      min-width: 100px;
     }
   }
 }
@@ -232,6 +321,20 @@
 .document-item:focus-within {
   background-color: #e3f2fd;
   border-color: #2196f3;
+}
+
+/* Focus enhancement for textarea */
+.notes-field-focused {
+  .mat-form-field.mat-focused {
+    .mat-form-field-outline-thick {
+      .mat-form-field-outline-start,
+      .mat-form-field-outline-gap,
+      .mat-form-field-outline-end {
+        border-width: 2px;
+        border-color: #2196f3;
+      }
+    }
+  }
 }
 
 /* Animation */

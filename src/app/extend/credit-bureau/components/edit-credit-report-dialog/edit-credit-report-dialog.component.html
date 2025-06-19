@@ -22,7 +22,13 @@
     type="button"
     mat-raised-button
     color="primary"
-    [disabled]="!creditReportForm?.form?.valid || !creditReportForm?.areAllSectionNamesValid() || isSubmitting"
+    [disabled]="
+      !creditReportForm?.form?.valid ||
+      !creditReportForm?.areAllSectionNamesValid() ||
+      (creditReportForm?.creditScoresComponent?.hasDuplicateScoreModels &&
+        creditReportForm?.creditScoresComponent?.hasDuplicateScoreModels()) ||
+      isSubmitting
+    "
     (click)="onSubmitClick()"
     class="submit-button"
   >

@@ -19,8 +19,10 @@
 
 /** Angular Imports */
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+
+/** rxjs Imports */
+import { Observable, of } from 'rxjs';
 
 /**
  * Client KYC Service
@@ -38,7 +40,7 @@ import { Observable } from 'rxjs';
  * - RESTful API communication
  *
  * IMPORTANT: All endpoints correspond to real backend APIs in ClientKycApiResource.java
- * No mock data or fallback responses as per No Mock Data rule.
+ * All errors are propagated to components for proper handling - no mock data or fallback responses.
  */
 @Injectable({
   providedIn: 'root'
@@ -53,6 +55,23 @@ export class ClientKycService {
   getKycDetails(clientId: number): Observable<any> {
     return this.http.get(`/v1/clients/${clientId}/extend/kyc`);
   }
+
+  /**
+   * Bulk retrieval: Gets KYC details for multiple clients in a single optimized request
+   * Endpoint: GET /v1/clients/extend/kyc/bulk?clientIds=1,2,3,4,5
+   * Returns: Map<clientId, KycData> - significantly faster than individual requests
+   */
+  getKycDetailsBulk(clientIds: number[]): Observable<{ [key: string]: any }> {
+    if (!clientIds || clientIds.length === 0) {
+      return of({});
+    }
+
+    // Convert array to comma-separated string for query parameter
+    const clientIdsParam = clientIds.join(',');
+    return this.http.get<{ [key: string]: any }>(`/v1/clients/extend/kyc/bulk?clientIds=${clientIdsParam}`);
+  }
+
+  // Removed getMockKycData method - violates DRY principle and "No Mock Data" rule
 
   /**
    * Retrieves KYC template for a specific client

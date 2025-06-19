@@ -18,7 +18,7 @@
  */
 
 /** Angular Imports */
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -89,7 +89,8 @@ export class ViewCreditBureauActionComponent implements OnInit, OnDestroy {
     private clientKycService: ClientKycService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private changeDetectorRef: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -170,20 +171,17 @@ export class ViewCreditBureauActionComponent implements OnInit, OnDestroy {
    * Following UI Components KB: Dialog patterns with proper data flow
    */
   pullCreditReport(): void {
-    const dialogRef = this.dialog.open(PullCreditReportDialogComponent, {
+    const dialogConfig = {
       width: '600px',
-      data: {
-        clientId: this.clientId
-        // template removed - not used effectively
-      }
-    });
+      data: { clientId: this.clientId }
+    };
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.loadCreditReports(); // Refresh the list
-        this.showSuccess('Credit report pull initiated successfully');
-      }
-    });
+    this.openDialogWithCallback(
+      PullCreditReportDialogComponent,
+      dialogConfig,
+      'Credit report pull initiated successfully',
+      (result: any) => !!result
+    );
   }
 
   /**
@@ -191,30 +189,19 @@ export class ViewCreditBureauActionComponent implements OnInit, OnDestroy {
    * Following Angular Architecture KB: Component communication patterns
    */
   createManualReport(): void {
-    const dialogRef = this.dialog.open(CreateCreditReportDialogComponent, {
+    const dialogConfig = {
       width: '1200px',
       maxWidth: '95vw',
       height: '90vh',
-      data: {
-        clientId: this.clientId,
-        // template removed - not used effectively
-        clientData: this.clientData,
-        clientIdentifiers: this.clientIdentifiers,
-        clientKycData: this.clientKycData,
-        clientAddresses: this.clientAddresses
-      }
-    });
+      data: this.buildDialogData()
+    };
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result && result.resourceId) {
-        // Only show success if we have a valid response with resourceId
-        this.loadCreditReports(); // Refresh the list
-        this.showSuccess('Credit report created successfully');
-      } else {
-      }
-      // If result is null/undefined, dialog was cancelled or error occurred
-      // Error messages are already shown by ErrorHandlerInterceptor
-    });
+    this.openDialogWithCallback(
+      CreateCreditReportDialogComponent,
+      dialogConfig,
+      'Credit report created successfully',
+      (result: any) => result && result.entityId
+    );
   }
 
   /**
@@ -234,31 +221,19 @@ export class ViewCreditBureauActionComponent implements OnInit, OnDestroy {
    * Opens dialog to edit credit report
    */
   editReport(report: CreditBureauReport): void {
-    const dialogRef = this.dialog.open(EditCreditReportDialogComponent, {
+    const dialogConfig = {
       width: '1200px',
       maxWidth: '95vw',
       height: '90vh',
-      data: {
-        clientId: this.clientId,
-        report: report,
-        // template removed - not used effectively
-        clientData: this.clientData,
-        clientIdentifiers: this.clientIdentifiers,
-        clientKycData: this.clientKycData,
-        clientAddresses: this.clientAddresses
-      }
-    });
+      data: { ...this.buildDialogData(), report: report }
+    };
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result && (result.resourceId || result.changes)) {
-        // Only show success if we have a valid response with resourceId or changes
-        this.loadCreditReports(); // Refresh the list
-        this.showSuccess('Credit report updated successfully');
-      } else {
-      }
-      // If result is null/undefined, dialog was cancelled or error occurred
-      // Error messages are already shown by ErrorHandlerInterceptor
-    });
+    this.openDialogWithCallback(
+      EditCreditReportDialogComponent,
+      dialogConfig,
+      'Credit report updated successfully',
+      (result: any) => result && result.entityId
+    );
   }
 
   /**
@@ -266,33 +241,28 @@ export class ViewCreditBureauActionComponent implements OnInit, OnDestroy {
    * Following UI Components KB: Confirmation dialogs for destructive actions
    */
   deleteReport(report: CreditBureauReport): void {
-    const dialogRef = this.dialog.open(DeleteDialogComponent, {
-      width: '400px',
-      data: {
-        title: 'Delete Credit Report',
-        message: `Are you sure you want to delete the ${this.getReportTypeDisplay(report.reportType)} report generated on ${report.reportGeneratedOn}?`,
-        confirmText: 'Delete',
-        cancelText: 'Cancel'
-      }
-    });
+    const confirmMessage = `Are you sure you want to delete the ${this.getReportTypeDisplay(report.reportType)} report generated on ${report.reportGeneratedOn}?`;
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result && report.id) {
-        this.creditBureauService
-          .deleteCreditReport(this.clientId, report.id)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe({
-            next: () => {
-              this.loadCreditReports(); // Refresh the list
-              this.showSuccess('Credit report deleted successfully');
-            },
-            error: (error) => {
-              this.showError('Failed to delete credit report');
-              // Handle delete error appropriately
-            }
-          });
-      }
-    });
+    this.openConfirmationDialog('Delete Credit Report', confirmMessage, () => this.performDeleteReport(report));
+  }
+
+  /**
+   * Performs the actual delete operation
+   */
+  private performDeleteReport(report: CreditBureauReport): void {
+    if (!report.id) return;
+
+    this.creditBureauService
+      .deleteCreditReport(this.clientId, report.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.refreshDataAndShowSuccess('Credit report deleted successfully');
+        },
+        error: (error) => {
+          this.showError('Failed to delete credit report');
+        }
+      });
   }
 
   /**
@@ -422,5 +392,102 @@ export class ViewCreditBureauActionComponent implements OnInit, OnDestroy {
       '/clients',
       this.clientId
     ]);
+  }
+
+  // ============================================================================
+  // HELPER METHODS FOR REDUCING CODE DUPLICATION
+  // ============================================================================
+
+  /**
+   * Opens dialog with standardized callback handling
+   */
+  private openDialogWithCallback(
+    componentType: any,
+    config: any,
+    successMessage: string,
+    successCondition: (result: any) => boolean
+  ): void {
+    const dialogRef = this.dialog.open(componentType, config);
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (successCondition(result)) {
+        this.refreshDataAndShowSuccess(successMessage);
+      }
+      // If result is null/undefined, dialog was cancelled or error occurred
+      // Error messages are already shown by ErrorHandlerInterceptor
+    });
+  }
+
+  /**
+   * Refreshes credit reports data and shows success message (reactive)
+   */
+  private refreshDataAndShowSuccess(message: string): void {
+    // Show success message first
+    this.showSuccess(message);
+
+    // Force immediate refresh of credit reports
+    this.isLoadingReports = true;
+    this.changeDetectorRef.detectChanges();
+
+    this.creditBureauService
+      .getClientCreditReports(this.clientId)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          this.isLoadingReports = false;
+          this.changeDetectorRef.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (reports) => {
+          this.creditReports = [...reports]; // Create new array reference for better change detection
+          this.changeDetectorRef.detectChanges();
+        },
+        error: (error) => {
+          this.showError('Failed to refresh credit reports');
+        }
+      });
+  }
+
+  /**
+   * Opens confirmation dialog for destructive actions
+   */
+  private openConfirmationDialog(title: string, message: string, onConfirm: () => void): void {
+    const dialogRef = this.dialog.open(DeleteDialogComponent, {
+      width: '400px',
+      data: {
+        title: title,
+        message: message,
+        confirmText: 'Delete',
+        cancelText: 'Cancel'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        onConfirm();
+      }
+    });
+  }
+
+  /**
+   * Builds common dialog data object for credit report dialogs
+   */
+  private buildDialogData(): any {
+    return {
+      clientId: this.clientId,
+      clientData: this.clientData,
+      clientIdentifiers: this.clientIdentifiers,
+      clientKycData: this.clientKycData,
+      clientAddresses: this.clientAddresses
+    };
+  }
+
+  /**
+   * Track by function for mat-table performance optimization
+   * Following Performance KB: Change Detection Optimization
+   */
+  trackByReportId(index: number, item: CreditBureauReport): any {
+    return item.id || index;
   }
 }
