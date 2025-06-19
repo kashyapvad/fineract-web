@@ -21,14 +21,22 @@ under the License.
   <!-- Dialog Header -->
   <div class="dialog-header" fxLayout="column" fxLayoutGap="8px">
     <h2 mat-dialog-title>
-      <mat-icon>{{ isVerificationMode ? 'verified' : 'gpp_maybe' }}</mat-icon>
-      {{ isVerificationMode ? 'Manual KYC Verification' : 'Manual KYC Unverification' }}
+      <mat-icon>{{ isApiVerificationMode ? 'cloud_sync' : isVerificationMode ? 'verified' : 'gpp_maybe' }}</mat-icon>
+      {{
+        isApiVerificationMode
+          ? 'API KYC Verification'
+          : isVerificationMode
+            ? 'Manual KYC Verification'
+            : 'Manual KYC Unverification'
+      }}
     </h2>
     <p class="mat-body-2 text-muted">
       {{
-        isVerificationMode
-          ? 'Select KYC documents to verify manually. Please provide verification notes if necessary.'
-          : 'Select KYC documents to unverify. Please provide a reason for unverification.'
+        isApiVerificationMode
+          ? 'Select KYC documents to verify using external API integration. Documents will be validated against External Provider database.'
+          : isVerificationMode
+            ? 'Select KYC documents to verify manually. Please provide verification notes if necessary.'
+            : 'Select KYC documents to unverify. Please provide a reason for unverification.'
       }}
     </p>
     <p class="mat-body-2"><strong>Client:</strong> {{ data.clientName }}</p>
@@ -42,7 +50,11 @@ under the License.
     <div *ngIf="getEligibleDocuments().length > 0; else noEligibleDocuments">
       <h4 class="section-header">
         <mat-icon>assignment_ind</mat-icon>
-        Select Documents to {{ isVerificationMode ? 'Verify' : 'Unverify' }}
+        {{
+          isApiVerificationMode
+            ? 'Select Documents for API Verification'
+            : 'Select Documents to ' + (isVerificationMode ? 'Verify' : 'Unverify')
+        }}
       </h4>
 
       <div class="document-selection" fxLayout="column" fxLayoutGap="12px">
@@ -87,32 +99,36 @@ under the License.
     </ng-template>
 
     <!-- Notes Field -->
-    <mat-form-field appearance="outline">
-      <mat-label>
-        {{ isVerificationMode ? 'Verification Notes (Optional)' : 'Unverification Notes *' }}
-      </mat-label>
-      <textarea
-        matInput
-        formControlName="notes"
-        rows="4"
-        [placeholder]="
-          isVerificationMode
-            ? 'Enter verification notes or observations (optional)'
-            : 'Enter reason and details for unverifying documents (e.g., Document found to be expired, Invalid document detected)'
-        "
-        maxlength="1000"
-      >
-      </textarea>
-      <mat-icon matSuffix>note</mat-icon>
-      <mat-hint>
-        {{
-          isVerificationMode
-            ? 'Optional - Add any observations during verification'
-            : 'Required - Explain why documents are being unverified'
-        }}
-      </mat-hint>
-      <mat-error *ngIf="hasFieldError('notes')">{{ getFieldErrorMessage('notes') }}</mat-error>
-    </mat-form-field>
+    <div class="notes-field-container">
+      <mat-form-field appearance="outline">
+        <mat-label>
+          {{ isVerificationMode ? 'Verification Notes (Optional)' : 'Unverification Notes *' }}
+        </mat-label>
+        <textarea
+          matInput
+          formControlName="notes"
+          rows="5"
+          [placeholder]="
+            isVerificationMode
+              ? 'Enter verification notes or observations (optional)...'
+              : 'Enter reason and details for unverifying documents (e.g., Document found to be expired, Invalid document detected)...'
+          "
+          maxlength="1000"
+          cdkTextareaAutosize
+          cdkAutosizeMinRows="5"
+          cdkAutosizeMaxRows="8"
+        ></textarea>
+        <mat-icon matSuffix>note</mat-icon>
+        <mat-hint>
+          {{
+            isVerificationMode
+              ? 'Optional - Add any observations during verification'
+              : 'Required - Explain why documents are being unverified'
+          }}
+        </mat-hint>
+        <mat-error *ngIf="hasFieldError('notes')">{{ getFieldErrorMessage('notes') }}</mat-error>
+      </mat-form-field>
+    </div>
 
     <!-- Document Summary -->
     <div *ngIf="getEligibleDocuments().length > 0" class="summary-section">
@@ -158,7 +174,7 @@ under the License.
     [disabled]="verificationForm.invalid || !hasSelectedDocuments()"
     type="button"
   >
-    <mat-icon>{{ isVerificationMode ? 'verified' : 'gpp_maybe' }}</mat-icon>
-    {{ isVerificationMode ? 'Verify Selected' : 'Unverify Selected' }}
+    <mat-icon>{{ isApiVerificationMode ? 'cloud_sync' : isVerificationMode ? 'verified' : 'gpp_maybe' }}</mat-icon>
+    {{ isApiVerificationMode ? 'Verify via API' : isVerificationMode ? 'Verify Selected' : 'Unverify Selected' }}
   </button>
 </div>

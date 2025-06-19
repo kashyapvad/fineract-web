@@ -1,89 +1,53 @@
-import {
-  Directive,
-  ElementRef,
-  OnInit,
-  OnDestroy,
-  Input,
-  ComponentFactoryResolver,
-  ViewContainerRef,
-  Renderer2
-} from '@angular/core';
+import { Directive, Input, TemplateRef, ViewContainerRef, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { KycStatusBadgeComponent } from '../kyc/components/kyc-status-badge/kyc-status-badge.component';
 
 /**
- * Extension directive for adding KYC status badge to client info bar
- * Following fork-safe pattern - no upstream modifications required
+ * Client Info KYC Extension Directive
+ *
+ * Robust Angular-native structural directive for extending client info bars
+ * with KYC status badges. Uses proper Angular patterns instead of brittle
+ * DOM manipulation.
+ *
+ * Usage:
+ * <ng-container *mifosxClientInfoKycExtension="clientData">
+ *   <mifosx-kyc-status-badge [clientId]="clientData.id" variant="simple" [clickable]="true"></mifosx-kyc-status-badge>
+ * </ng-container>
+ *
+ * Following Angular Architecture Patterns:
+ * - Structural directive for conditional content projection
+ * - Template-based rendering instead of DOM manipulation
+ * - Proper Angular lifecycle management
+ * - Fork-safe architecture with minimal upstream modifications
  */
 @Directive({
   selector: '[mifosxClientInfoKycExtension]'
 })
-export class ClientInfoKycExtensionDirective implements OnInit, OnDestroy {
-  @Input() appClientInfoKycExtension!: any; // Client data
-
+export class ClientInfoKycExtensionDirective implements OnDestroy {
   private destroy$ = new Subject<void>();
-  private kycBadgeAdded = false;
 
   constructor(
-    private elementRef: ElementRef,
-    private renderer: Renderer2,
-    private viewContainer: ViewContainerRef,
-    private componentFactoryResolver: ComponentFactoryResolver
+    private templateRef: TemplateRef<any>,
+    private viewContainer: ViewContainerRef
   ) {}
 
-  ngOnInit(): void {
-    if (this.appClientInfoKycExtension?.id) {
-      this.addKycBadge();
+  @Input() set mifosxClientInfoKycExtension(clientData: any) {
+    this.viewContainer.clear();
+
+    if (this.shouldShowKycExtension(clientData)) {
+      this.viewContainer.createEmbeddedView(this.templateRef, {
+        $implicit: clientData,
+        clientData: clientData
+      });
     }
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.viewContainer.clear();
   }
 
-  private addKycBadge(): void {
-    if (this.kycBadgeAdded) return;
-
-    try {
-      // Find a good location to insert the badge
-      const hostElement = this.elementRef.nativeElement;
-
-      // Look for the client name specifically - the <b> tag containing "Client Name"
-      const clientNameLabel = hostElement.querySelector('b');
-      const entityNameElement = hostElement.querySelector('mifosx-entity-name');
-
-      if (clientNameLabel && entityNameElement) {
-        // Create KYC badge component
-        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(KycStatusBadgeComponent);
-        const componentRef = this.viewContainer.createComponent(componentFactory);
-
-        // Set component inputs
-        componentRef.instance.clientId = this.appClientInfoKycExtension.id;
-        componentRef.instance.variant = 'simple';
-        componentRef.instance.showDetails = false;
-        componentRef.instance.clickable = true;
-
-        // Create container div for the badge
-        const badgeContainer = this.renderer.createElement('div');
-        this.renderer.addClass(badgeContainer, 'kyc-badge-wrapper');
-        this.renderer.setStyle(badgeContainer, 'display', 'inline-block');
-        this.renderer.setStyle(badgeContainer, 'margin-left', '8px');
-        this.renderer.setStyle(badgeContainer, 'vertical-align', 'middle');
-
-        // Append the component's host element to our container
-        this.renderer.appendChild(badgeContainer, componentRef.location.nativeElement);
-
-        // Insert the container right after the entity name element
-        if (entityNameElement.parentNode) {
-          this.renderer.insertBefore(entityNameElement.parentNode, badgeContainer, entityNameElement.nextSibling);
-        }
-
-        this.kycBadgeAdded = true;
-      }
-    } catch (error) {
-      // Extension failed silently to avoid breaking the client info display
-    }
+  private shouldShowKycExtension(clientData: any): boolean {
+    return clientData && clientData.id && typeof clientData.id === 'number';
   }
 }

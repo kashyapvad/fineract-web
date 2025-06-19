@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Subject, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ClientKycStatusService, KycStatusInfo } from '../../services/client-kyc-status.service';
 
@@ -39,7 +39,7 @@ export class KycStatusBadgeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.clientId) {
-      this.loadKycStatus();
+      this.initializeKycStatus();
     }
   }
 
@@ -48,36 +48,63 @@ export class KycStatusBadgeComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private loadKycStatus(): void {
+  /**
+   * SIMPLIFIED: Initialize KYC status - no API calls, purely reactive
+   */
+  private initializeKycStatus(): void {
     if (!this.clientId) return;
 
-    this.isLoading = true;
+    // 1. Check cache immediately
+    this.checkCacheAndUpdate();
+
+    // 2. Listen for cache updates (data will be loaded by extension service)
+    this.kycStatusService.batchLoadStatus$.pipe(takeUntil(this.destroy$)).subscribe((batchStatusMap) => {
+      this.checkCacheAndUpdate();
+    });
+
+    // 3. Show loading state initially if no data
+    if (!this.kycStatus) {
+      this.isLoading = true;
+      this.updateComputedValues();
+      this.cdr.markForCheck();
+
+      // 4. Fallback timeout - if no data after 5 seconds, show "Unknown"
+      timer(5000)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          if (!this.kycStatus && this.isLoading) {
+            this.showUnknownStatus();
+          }
+        });
+    }
+  }
+
+  /**
+   * Check cache and update component state
+   */
+  private checkCacheAndUpdate(): void {
+    const cachedStatus = this.kycStatusService.getKycStatusFromCache(this.clientId);
+    if (cachedStatus && (!this.kycStatus || JSON.stringify(this.kycStatus) !== JSON.stringify(cachedStatus))) {
+      this.kycStatus = cachedStatus;
+      this.isLoading = false;
+      this.updateComputedValues();
+      this.cdr.markForCheck();
+    }
+  }
+
+  /**
+   * Show unknown status (fallback)
+   */
+  private showUnknownStatus(): void {
+    this.kycStatus = {
+      isVerified: false,
+      verifiedDocumentCount: 0,
+      totalRequiredDocuments: 2,
+      hasRequiredDocuments: false
+    };
+    this.isLoading = false;
     this.updateComputedValues();
     this.cdr.markForCheck();
-
-    this.kycStatusService
-      .getKycStatus(this.clientId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (status) => {
-          this.kycStatus = status;
-          this.isLoading = false;
-          this.updateComputedValues();
-          this.cdr.markForCheck();
-        },
-        error: () => {
-          this.isLoading = false;
-          // If error, assume not verified
-          this.kycStatus = {
-            isVerified: false,
-            verifiedDocumentCount: 0,
-            totalRequiredDocuments: 2,
-            hasRequiredDocuments: false
-          };
-          this.updateComputedValues();
-          this.cdr.markForCheck();
-        }
-      });
   }
 
   private updateComputedValues(): void {

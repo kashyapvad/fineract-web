@@ -25,6 +25,7 @@ export class RepaymentScheduleTabComponent implements OnInit, OnChanges {
   /** Loan Repayment Schedule Details Data */
   @Input() repaymentScheduleDetails: any = null;
   loanDetailsDataRepaymentSchedule: any = [];
+  loanDetailsData: any = null;
 
   editCache: { [key: string]: any } = {};
   listOfData: any[] = [];
@@ -84,6 +85,7 @@ export class RepaymentScheduleTabComponent implements OnInit, OnChanges {
     this.route.parent.data.subscribe((data: { loanDetailsData: any }) => {
       if (data.loanDetailsData) {
         this.currencyCode = data.loanDetailsData.currency.code;
+        this.loanDetailsData = data.loanDetailsData; // Store full loan data for EIR extension
       }
       this.loanDetailsDataRepaymentSchedule = data.loanDetailsData ? data.loanDetailsData.repaymentSchedule : [];
     });

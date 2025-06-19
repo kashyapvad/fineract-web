@@ -52,6 +52,14 @@
             ></i>
             <b>{{ 'labels.inputs.Client Name' | translate }} :</b
             ><mifosx-entity-name entityName="{{ clientViewData.displayName }}"></mifosx-entity-name>
+            <!-- KYC Status Badge Extension - Angular-Native Pattern -->
+            <ng-container *mifosxClientInfoKycExtension="clientViewData">
+              <mifosx-kyc-status-badge
+                [clientId]="clientViewData.id"
+                variant="simple"
+                [clickable]="true"
+              ></mifosx-kyc-status-badge>
+            </ng-container>
           </h3>
           <div class="flex-5 align-end-center">
             <button mat-icon-button [matMenuTriggerFor]="clientMenu" aria-label="Client actions" yPosition="below">
@@ -318,7 +326,7 @@
           </button>
         </span>
 
-        <!-- Extended Menu Items Component -->
+        <!-- Extended Menu Items Component - Now using Angular-Native Patterns -->
         <mifosx-client-extended-menu [clientData]="clientViewData"></mifosx-client-extended-menu>
       </mat-menu>
     </mat-card-title-group>

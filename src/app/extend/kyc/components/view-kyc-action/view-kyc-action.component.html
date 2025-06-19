@@ -17,81 +17,146 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<div class="container" fxLayout="column" fxLayoutGap="24px">
-  <!-- Enhanced Header Section -->
-  <div fxLayout="row" fxLayoutAlign="space-between center">
-    <div>
-      <h1 class="page-title">
-        <mat-icon>security</mat-icon>
-        KYC Management
-      </h1>
-      <p class="page-subtitle">
-        Client: <strong>{{ clientData?.displayName }}</strong> ({{ clientData?.accountNo }})
-      </p>
+<div class="kyc-container">
+  <!-- Modern Header Section -->
+  <div class="kyc-header">
+    <div class="header-content">
+      <mat-icon class="header-icon">security</mat-icon>
+      <div class="header-text">
+        <h1 class="page-title">KYC Management</h1>
+        <p class="page-subtitle">
+          Client: <strong>{{ clientData?.displayName }}</strong> ({{ clientData?.accountNo }})
+        </p>
+      </div>
     </div>
   </div>
 
-  <!-- Enhanced Progress Bar -->
-  <mat-progress-bar mode="indeterminate" *ngIf="isLoading || isVerificationInProgress"></mat-progress-bar>
+  <!-- Progress Bar -->
+  <mat-progress-bar
+    mode="indeterminate"
+    *ngIf="isLoading || isVerificationInProgress"
+    class="progress-bar"
+  ></mat-progress-bar>
 
-  <!-- Main Content with Enhanced Layout -->
-  <div fxLayout="row" fxLayout.lt-md="column" fxLayoutGap="24px">
-    <!-- KYC Details Section -->
-    <div fxFlex="60" fxFlex.lt-md="100">
-      <!-- KYC Details Card - With Data (Enhanced) -->
-      <mat-card *ngIf="hasExistingKyc && !isEditMode" class="kyc-details-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>assignment_ind</mat-icon>
-            KYC Document Details
-          </mat-card-title>
-          <mat-card-subtitle>Client identification documents</mat-card-subtitle>
-        </mat-card-header>
+  <!-- KYC Verified Badge (when verified) -->
+  <div *ngIf="hasExistingKyc && isKycVerified()" class="kyc-verified-badge">
+    <mat-icon>check_circle</mat-icon>
+    <div class="badge-content">
+      <h3>KYC Verified</h3>
+      <p>PAN and Aadhaar verified successfully</p>
+    </div>
+  </div>
 
-        <mat-card-content>
-          <div fxLayout="column" fxLayoutGap="8px">
-            <!-- Document Details List with Enhanced Styling -->
-            <div
-              *ngFor="let docType of documentTypes"
-              fxLayout="row"
-              fxLayoutAlign="space-between center"
-              class="document-row"
-            >
-              <span class="document-label">{{ docType.label }}</span>
-              <div fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="12px">
-                <span class="document-value" [class.empty-value]="getDocumentNumber(docType) === '-'">
-                  {{ getDocumentNumber(docType) }}
+  <!-- Main Content Layout -->
+  <div class="main-content">
+    <!-- Left Column - Document Details -->
+    <div class="document-details-section">
+      <!-- Document Details Card -->
+      <div *ngIf="hasExistingKyc && !isEditMode" class="details-card">
+        <div class="card-header">
+          <mat-icon>description</mat-icon>
+          <h2>Document Details</h2>
+        </div>
+        <p class="card-subtitle">Detailed view of KYC document information</p>
+
+        <div class="document-overview">
+          <h3>Document Overview</h3>
+
+          <!-- Document Fields Grid -->
+          <div class="document-grid">
+            <div class="document-item">
+              <div class="document-label">PAN Number</div>
+              <div class="document-value-section">
+                <span class="document-value" [class.empty-value]="!kycData.panNumber">
+                  {{ kycData.panNumber || '–' }}
                 </span>
                 <mat-icon
-                  [class]="getDocumentVerificationStatus(docType) ? 'verified-icon' : 'unverified-icon'"
-                  [matTooltip]="getDocumentVerificationStatus(docType) ? 'Verified' : 'Not Verified'"
-                  [style.opacity]="getDocumentNumber(docType) === '-' ? '0.5' : '1'"
+                  class="status-icon"
+                  [class.verified]="kycData.panVerified"
+                  [class.unverified]="!kycData.panVerified"
                 >
-                  {{ getDocumentVerificationStatus(docType) ? 'check_circle' : 'cancel' }}
+                  {{ kycData.panVerified ? 'check_circle' : 'cancel' }}
                 </mat-icon>
               </div>
             </div>
 
-            <!-- Enhanced Verification Notes -->
-            <div
-              *ngIf="kycData.manualVerificationNotes || kycData.verificationNotes"
-              fxLayout="column"
-              fxLayoutGap="12px"
-              style="margin-top: 20px"
-            >
-              <mat-divider></mat-divider>
-              <div class="notes-section">
-                <h4 class="notes-label">
-                  <mat-icon>note</mat-icon>
-                  Verification Notes
-                </h4>
-                <p class="notes-content">{{ kycData.manualVerificationNotes || kycData.verificationNotes }}</p>
+            <div class="document-item">
+              <div class="document-label">Aadhaar Number</div>
+              <div class="document-value-section">
+                <span class="document-value" [class.empty-value]="!kycData.aadhaarNumber">
+                  {{ kycData.aadhaarNumber || '–' }}
+                </span>
+                <mat-icon
+                  class="status-icon"
+                  [class.verified]="kycData.aadhaarVerified"
+                  [class.unverified]="!kycData.aadhaarVerified"
+                >
+                  {{ kycData.aadhaarVerified ? 'check_circle' : 'cancel' }}
+                </mat-icon>
+              </div>
+            </div>
+
+            <div class="document-item">
+              <div class="document-label">Driving License</div>
+              <div class="document-value-section">
+                <span class="document-value" [class.empty-value]="!kycData.drivingLicenseNumber">
+                  {{ kycData.drivingLicenseNumber || '–' }}
+                </span>
+                <mat-icon
+                  class="status-icon"
+                  [class.verified]="kycData.drivingLicenseVerified"
+                  [class.unverified]="!kycData.drivingLicenseVerified"
+                >
+                  {{ kycData.drivingLicenseVerified ? 'check_circle' : 'cancel' }}
+                </mat-icon>
+              </div>
+            </div>
+
+            <div class="document-item">
+              <div class="document-label">Voter ID</div>
+              <div class="document-value-section">
+                <span class="document-value" [class.empty-value]="!kycData.voterIdNumber">
+                  {{ kycData.voterIdNumber || '–' }}
+                </span>
+                <mat-icon
+                  class="status-icon"
+                  [class.verified]="kycData.voterIdVerified"
+                  [class.unverified]="!kycData.voterIdVerified"
+                >
+                  {{ kycData.voterIdVerified ? 'check_circle' : 'cancel' }}
+                </mat-icon>
+              </div>
+            </div>
+
+            <div class="document-item">
+              <div class="document-label">Passport Number</div>
+              <div class="document-value-section">
+                <span class="document-value" [class.empty-value]="!kycData.passportNumber">
+                  {{ kycData.passportNumber || '–' }}
+                </span>
+                <mat-icon
+                  class="status-icon"
+                  [class.verified]="kycData.passportVerified"
+                  [class.unverified]="!kycData.passportVerified"
+                >
+                  {{ kycData.passportVerified ? 'check_circle' : 'cancel' }}
+                </mat-icon>
               </div>
             </div>
           </div>
-        </mat-card-content>
 
-        <mat-card-actions align="end">
+          <!-- Verification Notes -->
+          <div *ngIf="kycData.manualVerificationNotes || kycData.verificationNotes" class="verification-notes">
+            <h4><mat-icon>note</mat-icon> Additional Data</h4>
+            <div class="notes-content">
+              <div class="notes-label">Notes</div>
+              <div class="notes-text">{{ kycData.manualVerificationNotes || kycData.verificationNotes }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit Button -->
+        <div class="card-actions">
           <button
             mat-raised-button
             color="primary"
@@ -101,95 +166,80 @@ under the License.
             <mat-icon>edit</mat-icon>
             Edit Details
           </button>
-        </mat-card-actions>
-      </mat-card>
+        </div>
+      </div>
 
-      <!-- KYC Details Card - Edit Mode (Enhanced Form) -->
-      <mat-card *ngIf="isEditMode" class="kyc-edit-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>{{ hasExistingKyc ? 'edit' : 'add_circle' }}</mat-icon>
-            {{ hasExistingKyc ? 'Edit KYC Document Details' : 'Add KYC Document Details' }}
-          </mat-card-title>
-          <mat-card-subtitle>{{ hasExistingKyc ? 'Update' : 'Add' }} client identification documents</mat-card-subtitle>
-        </mat-card-header>
+      <!-- Edit Mode Form -->
+      <div *ngIf="isEditMode" class="edit-form-card">
+        <div class="card-header">
+          <mat-icon>{{ hasExistingKyc ? 'edit' : 'add_circle' }}</mat-icon>
+          <h2>{{ hasExistingKyc ? 'Edit KYC Document Details' : 'Add KYC Document Details' }}</h2>
+        </div>
+        <p class="card-subtitle">{{ hasExistingKyc ? 'Update' : 'Add' }} client identification documents</p>
 
-        <mat-card-content>
-          <form [formGroup]="kycDetailsForm" fxLayout="column" fxLayoutGap="20px">
-            <!-- Enhanced Form Fields -->
-            <div fxLayout="row" fxLayout.lt-md="column" fxLayoutGap="16px">
-              <!-- PAN Number -->
-              <mat-form-field appearance="outline" fxFlex="50" fxFlex.lt-md="100">
-                <mat-label>PAN Number</mat-label>
-                <input matInput formControlName="panNumber" placeholder="ABCDE1234F" maxlength="10" />
-                <mat-icon matSuffix>credit_card</mat-icon>
-                <mat-hint>10-character PAN format</mat-hint>
-                <mat-error *ngIf="hasFieldError('panNumber')">{{ getFieldErrorMessage('panNumber') }}</mat-error>
-              </mat-form-field>
+        <form [formGroup]="kycDetailsForm" class="kyc-form">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>PAN Number</mat-label>
+              <input matInput formControlName="panNumber" placeholder="ABCDE1234F" maxlength="10" />
+              <mat-icon matSuffix>credit_card</mat-icon>
+              <mat-hint>10-character PAN format</mat-hint>
+              <mat-error *ngIf="hasFieldError('panNumber')">{{ getFieldErrorMessage('panNumber') }}</mat-error>
+            </mat-form-field>
 
-              <!-- Aadhaar Number -->
-              <mat-form-field appearance="outline" fxFlex="50" fxFlex.lt-md="100">
-                <mat-label>Aadhaar Number</mat-label>
-                <input matInput formControlName="aadhaarNumber" placeholder="123456789012" maxlength="12" />
-                <mat-icon matSuffix>fingerprint</mat-icon>
-                <mat-hint>12-digit Aadhaar number</mat-hint>
-                <mat-error *ngIf="hasFieldError('aadhaarNumber')">{{
-                  getFieldErrorMessage('aadhaarNumber')
-                }}</mat-error>
-              </mat-form-field>
-            </div>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Aadhaar Number</mat-label>
+              <input matInput formControlName="aadhaarNumber" placeholder="123456789012" maxlength="12" />
+              <mat-icon matSuffix>fingerprint</mat-icon>
+              <mat-hint>12-digit Aadhaar number</mat-hint>
+              <mat-error *ngIf="hasFieldError('aadhaarNumber')">{{ getFieldErrorMessage('aadhaarNumber') }}</mat-error>
+            </mat-form-field>
+          </div>
 
-            <div fxLayout="row" fxLayout.lt-md="column" fxLayoutGap="16px">
-              <!-- Driving License -->
-              <mat-form-field appearance="outline" fxFlex="50" fxFlex.lt-md="100">
-                <mat-label>Driving License Number</mat-label>
-                <input
-                  matInput
-                  formControlName="drivingLicenseNumber"
-                  placeholder="Enter driving license number"
-                  maxlength="20"
-                />
-                <mat-icon matSuffix>drive_eta</mat-icon>
-                <mat-error *ngIf="hasFieldError('drivingLicenseNumber')">{{
-                  getFieldErrorMessage('drivingLicenseNumber')
-                }}</mat-error>
-              </mat-form-field>
-
-              <!-- Voter ID -->
-              <mat-form-field appearance="outline" fxFlex="50" fxFlex.lt-md="100">
-                <mat-label>Voter ID</mat-label>
-                <input matInput formControlName="voterId" placeholder="Enter voter ID number" maxlength="20" />
-                <mat-icon matSuffix>how_to_vote</mat-icon>
-                <mat-error *ngIf="hasFieldError('voterId')">{{ getFieldErrorMessage('voterId') }}</mat-error>
-              </mat-form-field>
-            </div>
-
-            <!-- Passport Number (Full Width) -->
-            <mat-form-field appearance="outline">
-              <mat-label>Passport Number</mat-label>
-              <input matInput formControlName="passportNumber" placeholder="Enter passport number" maxlength="20" />
-              <mat-icon matSuffix>flight_takeoff</mat-icon>
-              <mat-error *ngIf="hasFieldError('passportNumber')">{{
-                getFieldErrorMessage('passportNumber')
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Driving License Number</mat-label>
+              <input
+                matInput
+                formControlName="drivingLicenseNumber"
+                placeholder="Enter driving license number"
+                maxlength="20"
+              />
+              <mat-icon matSuffix>drive_eta</mat-icon>
+              <mat-error *ngIf="hasFieldError('drivingLicenseNumber')">{{
+                getFieldErrorMessage('drivingLicenseNumber')
               }}</mat-error>
             </mat-form-field>
 
-            <!-- Enhanced Verification Notes -->
-            <mat-form-field appearance="outline">
-              <mat-label>Verification Notes</mat-label>
-              <textarea
-                matInput
-                formControlName="verificationNotes"
-                rows="4"
-                placeholder="Enter verification notes, observations, or special instructions..."
-              ></textarea>
-              <mat-icon matSuffix>note_add</mat-icon>
-              <mat-hint>Optional notes for verification process</mat-hint>
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Voter ID</mat-label>
+              <input matInput formControlName="voterId" placeholder="Enter voter ID number" maxlength="20" />
+              <mat-icon matSuffix>how_to_vote</mat-icon>
+              <mat-error *ngIf="hasFieldError('voterId')">{{ getFieldErrorMessage('voterId') }}</mat-error>
             </mat-form-field>
-          </form>
-        </mat-card-content>
+          </div>
 
-        <mat-card-actions align="end">
+          <mat-form-field appearance="outline" class="form-field-full">
+            <mat-label>Passport Number</mat-label>
+            <input matInput formControlName="passportNumber" placeholder="Enter passport number" maxlength="20" />
+            <mat-icon matSuffix>flight_takeoff</mat-icon>
+            <mat-error *ngIf="hasFieldError('passportNumber')">{{ getFieldErrorMessage('passportNumber') }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field-full">
+            <mat-label>Verification Notes</mat-label>
+            <textarea
+              matInput
+              formControlName="verificationNotes"
+              rows="4"
+              placeholder="Enter verification notes, observations, or special instructions..."
+            ></textarea>
+            <mat-icon matSuffix>note_add</mat-icon>
+            <mat-hint>Optional notes for verification process</mat-hint>
+          </mat-form-field>
+        </form>
+
+        <div class="form-actions">
           <button mat-button (click)="toggleEditMode()" [disabled]="isLoading">
             <mat-icon>cancel</mat-icon>
             Cancel
@@ -203,162 +253,131 @@ under the License.
             <mat-icon>save</mat-icon>
             {{ hasExistingKyc ? 'Update' : 'Save' }} KYC Details
           </button>
-        </mat-card-actions>
-      </mat-card>
-
-      <!-- Enhanced No KYC Data Card -->
-      <mat-card *ngIf="!hasExistingKyc && !isEditMode" class="no-data-card">
-        <mat-card-content>
-          <div fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px" class="no-data-message">
-            <mat-icon class="large-icon">assignment_late</mat-icon>
-            <h3>No KYC Details Found</h3>
-            <p class="text-center">
-              No KYC details have been added for this client yet.
-              <br />
-              Get started by adding the client's identification documents.
-            </p>
-            <button mat-raised-button color="primary" (click)="toggleEditMode()" [disabled]="isLoading">
-              <mat-icon>add_circle</mat-icon>
-              Add KYC Details
-            </button>
-            <p class="disclaimer">
-              <mat-icon>info</mat-icon>
-              KYC functionality is ready but may require backend database setup completion.
-            </p>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
-
-    <!-- Verification Status & Actions -->
-    <div fxFlex="40" fxFlex.lt-md="100" fxLayout="column" fxLayoutGap="16px">
-      <!-- KYC Overall Status Block -->
-      <div
-        *ngIf="hasExistingKyc"
-        class="kyc-overall-status"
-        [class.kyc-verified]="isKycVerified()"
-        [class.kyc-pending]="!isKycVerified()"
-      >
-        <div class="status-content">
-          <mat-icon>{{ isKycVerified() ? 'verified_user' : 'schedule' }}</mat-icon>
-          <div>
-            <div class="status-text">{{ isKycVerified() ? 'KYC Verified' : 'KYC Pending' }}</div>
-            <div class="status-description">
-              {{ isKycVerified() ? 'PAN and Aadhaar verified successfully' : 'Complete PAN and Aadhaar verification' }}
-            </div>
-          </div>
-        </div>
-        <div *ngIf="isKycVerified()" class="status-icon">
-          <mat-icon>check_circle</mat-icon>
         </div>
       </div>
 
+      <!-- No KYC Data State -->
+      <div *ngIf="!hasExistingKyc && !isEditMode" class="no-data-card">
+        <div class="no-data-content">
+          <mat-icon class="no-data-icon">assignment_late</mat-icon>
+          <h3>No KYC Details Found</h3>
+          <p>
+            No KYC details have been added for this client yet. Get started by adding the client's identification
+            documents.
+          </p>
+          <button mat-raised-button color="primary" (click)="toggleEditMode()" [disabled]="isLoading">
+            <mat-icon>add_circle</mat-icon>
+            Add KYC Details
+          </button>
+          <p class="disclaimer">
+            <mat-icon>info</mat-icon>
+            KYC functionality is ready but may require backend database setup completion.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column - Status & Actions -->
+    <div class="status-actions-section">
       <!-- Verification Status Card -->
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>verified_user</mat-icon>
-            Verification Status
-          </mat-card-title>
-          <mat-card-subtitle>Document verification status</mat-card-subtitle>
-        </mat-card-header>
+      <div class="status-card">
+        <div class="card-header">
+          <mat-icon>verified_user</mat-icon>
+          <h2>Verification Status</h2>
+        </div>
 
-        <mat-card-content>
-          <div *ngIf="hasExistingKyc; else noKycData" fxLayout="column" fxLayoutGap="8px">
-            <!-- Verification Status Summary -->
-            <div fxLayout="row" fxLayoutAlign="space-between center" class="status-summary">
-              <span>Overall Status:</span>
-              <mat-chip [class]="getOverallKycStatus() === 'verified' ? 'status-verified' : 'status-pending'">
-                {{ getOverallKycStatus() === 'verified' ? 'Verified' : 'Pending' }}
-              </mat-chip>
-            </div>
-
-            <mat-divider></mat-divider>
-
-            <!-- Document Count -->
-            <div fxLayout="row" fxLayoutAlign="space-between center">
-              <span>Documents Verified:</span>
-              <span>{{ getVerifiedDocumentCount() }} / {{ getProvidedDocumentCount() }}</span>
-            </div>
-
-            <!-- Last Verification Info -->
-            <div *ngIf="kycData.lastVerifiedOn" fxLayout="column" fxLayoutGap="4px" class="verification-metadata">
-              <mat-divider></mat-divider>
-              <div><strong>Last Verified:</strong> {{ kycData.lastVerifiedOn | date: 'mediumDate' }}</div>
-              <div *ngIf="kycData.lastVerifiedByUsername">
-                <strong>Verified By:</strong> {{ kycData.lastVerifiedByUsername }}
-              </div>
-            </div>
+        <div *ngIf="hasExistingKyc; else noKycStatus" class="status-content">
+          <div class="status-item">
+            <span class="status-label">Overall Status:</span>
+            <span class="status-badge" [class.verified]="isKycVerified()" [class.pending]="!isKycVerified()">
+              {{ isKycVerified() ? 'Verified' : 'Pending' }}
+            </span>
           </div>
 
-          <!-- No KYC Data Template -->
-          <ng-template #noKycData>
-            <div fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="8px" class="no-data-message">
-              <mat-icon class="text-muted">info</mat-icon>
-              <p class="mat-body-2 text-muted text-center">Add KYC details to enable verification.</p>
-            </div>
-          </ng-template>
-        </mat-card-content>
-      </mat-card>
+          <div class="status-item">
+            <span class="status-label">Documents Verified:</span>
+            <span class="status-count">{{ getVerifiedDocumentCount() }} / {{ getProvidedDocumentCount() }}</span>
+          </div>
 
-      <!-- Verification Actions Card -->
-      <mat-card *ngIf="hasExistingKyc">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>build</mat-icon>
-            Verification Actions
-          </mat-card-title>
-          <mat-card-subtitle>Verify or unverify KYC documents</mat-card-subtitle>
-        </mat-card-header>
-
-        <mat-card-content>
-          <div fxLayout="column" fxLayoutGap="12px">
-            <!-- Manual Verification -->
-            <button
-              mat-stroked-button
-              color="accent"
-              (click)="verifyKycManually()"
-              [disabled]="isLoading || isVerificationInProgress"
-              fxLayout="row"
-              fxLayoutAlign="start center"
-              fxLayoutGap="8px"
-            >
-              <mat-icon>verified</mat-icon>
-              Manual Verification
-            </button>
-
-            <!-- Manual Unverification -->
-            <button
-              mat-stroked-button
-              color="warn"
-              (click)="unverifyKycManually()"
-              [disabled]="isLoading || isVerificationInProgress"
-              fxLayout="row"
-              fxLayoutAlign="start center"
-              fxLayoutGap="8px"
-            >
-              <mat-icon>gpp_maybe</mat-icon>
-              Unverify Documents
-            </button>
-
-            <!-- API Verification -->
-            <button
-              mat-stroked-button
+          <div class="progress-bar-container">
+            <mat-progress-bar
+              mode="determinate"
+              [value]="(getVerifiedDocumentCount() / getProvidedDocumentCount()) * 100"
               color="primary"
-              (click)="verifyKycViaApi()"
-              [disabled]="isLoading || isVerificationInProgress || !isApiVerificationEnabled"
-              matTooltip="Coming Soon - API verification will be available in a future update"
-              [matTooltipDisabled]="isApiVerificationEnabled"
-              fxLayout="row"
-              fxLayoutAlign="start center"
-              fxLayoutGap="8px"
-            >
-              <mat-icon>cloud_sync</mat-icon>
-              API Verification
-            </button>
+            ></mat-progress-bar>
           </div>
-        </mat-card-content>
-      </mat-card>
+        </div>
+
+        <ng-template #noKycStatus>
+          <div class="no-status-content">
+            <mat-icon>info_outline</mat-icon>
+            <p>Add KYC details to enable verification.</p>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Actions Card -->
+      <div *ngIf="hasExistingKyc" class="actions-card">
+        <div class="card-header">
+          <mat-icon>build</mat-icon>
+          <h2>Actions</h2>
+        </div>
+
+        <div class="actions-content">
+          <button
+            mat-stroked-button
+            color="accent"
+            (click)="verifyKycManually()"
+            [disabled]="isLoading || isVerificationInProgress"
+            class="action-button"
+          >
+            <mat-icon>verified</mat-icon>
+            Manual Verification
+          </button>
+
+          <button
+            mat-stroked-button
+            color="warn"
+            (click)="unverifyKycManually()"
+            [disabled]="isLoading || isVerificationInProgress"
+            class="action-button"
+          >
+            <mat-icon>gpp_maybe</mat-icon>
+            Unverify Documents
+          </button>
+
+          <button
+            mat-stroked-button
+            color="primary"
+            (click)="verifyKycViaApi()"
+            [disabled]="
+              isLoading ||
+              isVerificationInProgress ||
+              !isApiVerificationEnabled ||
+              (!kycData.panNumber && !kycData.aadhaarNumber)
+            "
+            [matTooltip]="getApiVerificationTooltip()"
+            class="action-button"
+          >
+            <mat-icon>cloud_sync</mat-icon>
+            API Verification
+          </button>
+        </div>
+      </div>
+
+      <!-- Verified By Section (Horizontal) -->
+      <div *ngIf="hasExistingKyc && kycData.lastVerifiedOn" class="verified-by-card">
+        <div class="verified-by-content">
+          <div class="verified-info">
+            <span class="verified-label">LAST VERIFIED</span>
+            <span class="verified-date">{{ kycData.lastVerifiedOn | date: 'dd MMM yyyy' }}</span>
+          </div>
+          <div class="verified-info">
+            <span class="verified-label">VERIFIED BY</span>
+            <span class="verified-by">{{ kycData.lastVerifiedByUsername || 'System' }}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

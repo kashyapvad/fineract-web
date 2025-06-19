@@ -1,0 +1,298 @@
+<div class="kfs-modal-container">
+  <div class="modal-header">
+    <h1 mat-dialog-title class="kfs-title">
+      <fa-icon icon="file-alt" class="m-r-10"></fa-icon>
+      Key Fact Sheet
+    </h1>
+    <button mat-icon-button (click)="onClose()" class="close-button">
+      <fa-icon icon="times"></fa-icon>
+    </button>
+  </div>
+
+  <div mat-dialog-content class="modal-body">
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="loading-container">
+      <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+      <p class="loading-text">Loading KFS data...</p>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!isLoading" class="kfs-content">
+      <!-- Client Information Section -->
+      <mat-card class="info-section">
+        <mat-card-header>
+          <mat-card-title>
+            <fa-icon icon="user" class="section-icon"></fa-icon>
+            Client Information
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Client Name:</label>
+              <span>{{ clientName }}</span>
+            </div>
+            <div class="info-item">
+              <label>Mobile Number:</label>
+              <span>{{ clientMobile }}</span>
+            </div>
+            <div class="info-item">
+              <label>Email Address:</label>
+              <span>{{ clientEmail }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Loan Information Section -->
+      <mat-card class="info-section">
+        <mat-card-header>
+          <mat-card-title>
+            <fa-icon icon="dollar-sign" class="section-icon"></fa-icon>
+            Loan Information
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Loan ID:</label>
+              <span>{{ loanData.id }}</span>
+            </div>
+            <div class="info-item">
+              <label>Loan Product:</label>
+              <span>{{ loanProduct }}</span>
+            </div>
+            <div class="info-item">
+              <label>Loan Purpose:</label>
+              <span>{{ loanPurpose }}</span>
+            </div>
+            <div class="info-item">
+              <label>Loan Status:</label>
+              <span class="status-badge" [ngClass]="'status-' + loanData.status?.value?.toLowerCase()">
+                {{ loanStatus }}
+              </span>
+            </div>
+            <div class="info-item">
+              <label>Loan Officer:</label>
+              <span>{{ loanOfficer }}</span>
+            </div>
+            <div class="info-item">
+              <label>Disbursement Date:</label>
+              <span>{{ formatDate(disbursementDate) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Maturity Date:</label>
+              <span>{{ formatDate(maturityDate) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Repayment Frequency:</label>
+              <span>{{ repaymentFrequency }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Loan Details Section -->
+      <mat-card class="info-section">
+        <mat-card-header>
+          <mat-card-title>
+            <fa-icon icon="file-alt" class="section-icon"></fa-icon>
+            Loan Details
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Repayment Strategy:</label>
+              <span>{{ repaymentStrategy }}</span>
+            </div>
+            <div class="info-item">
+              <label>Repayments:</label>
+              <span>{{ repaymentSchedule }}</span>
+            </div>
+            <div class="info-item">
+              <label>Amortization:</label>
+              <span>{{ amortizationType }}</span>
+            </div>
+            <div class="info-item">
+              <label>Equal Amortization:</label>
+              <span>{{ equalAmortization }}</span>
+            </div>
+            <div class="info-item">
+              <label>Interest:</label>
+              <span>{{ interestDetails }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Financial Details Section -->
+      <mat-card class="info-section">
+        <mat-card-header>
+          <mat-card-title>
+            <fa-icon icon="calculator" class="section-icon"></fa-icon>
+            Financial Details
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Principal Amount:</label>
+              <span class="amount">{{ formatCurrency(principalAmount) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Approved Amount:</label>
+              <span class="amount">{{ formatCurrency(approvedAmount) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Disbursed Amount:</label>
+              <span class="amount highlight">{{ formatCurrency(disbursedAmount) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Total Charges:</label>
+              <span class="amount">{{ formatCurrency(totalCharges) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Term (Months):</label>
+              <span>{{ termInMonths }}</span>
+            </div>
+            <div class="info-item">
+              <label>EMI Amount:</label>
+              <span class="amount">{{ formatCurrency(emiAmount) }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Charges Details Section -->
+      <mat-card class="info-section" *ngIf="allCharges.length > 0">
+        <mat-card-header>
+          <mat-card-title>
+            <fa-icon icon="receipt" class="section-icon"></fa-icon>
+            Charges Breakdown
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="charges-list">
+            <div class="charge-item" *ngFor="let charge of allCharges">
+              <div class="charge-info">
+                <span class="charge-name">{{ charge.name }}</span>
+                <span class="charge-timing">({{ charge.timeType }})</span>
+              </div>
+              <div class="charge-amount">
+                <span class="amount">{{ formatCurrency(charge.amount) }}</span>
+                <span class="charge-type" *ngIf="charge.type !== 'Fixed'">({{ charge.type }})</span>
+              </div>
+            </div>
+            <div class="charge-total">
+              <div class="charge-info">
+                <span class="charge-name"><strong>Total Charges</strong></span>
+              </div>
+              <div class="charge-amount">
+                <span class="amount"
+                  ><strong>{{ formatCurrency(totalCharges) }}</strong></span
+                >
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Interest Rate Details Section -->
+      <mat-card class="info-section">
+        <mat-card-header>
+          <mat-card-title>
+            <fa-icon icon="percent" class="section-icon"></fa-icon>
+            Interest Rate Details
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Nominal Interest Rate:</label>
+              <span class="rate">{{ formatPercentage(interestRate) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Effective Interest Rate (EIR):</label>
+              <span class="rate highlight">{{ formatPercentage(effectiveInterestRate) }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- EIR Calculation Details Section -->
+      <mat-card class="info-section" *ngIf="eirCalculationData">
+        <mat-card-header>
+          <mat-card-title>
+            <fa-icon icon="chart-line" class="section-icon"></fa-icon>
+            EIR Calculation Details
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Calculation Method:</label>
+              <span>{{ eirCalculationData.calculationMethod || 'IRR Method' }}</span>
+            </div>
+            <div class="info-item">
+              <label>Formula Used:</label>
+              <span>{{ eirCalculationData.formulaUsed || 'IRR' }}</span>
+            </div>
+            <div class="info-item">
+              <label>Calculation Date:</label>
+              <span>{{ formatDate(eirCalculationData.calculationDate) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Calculation Status:</label>
+              <span class="status-badge" [ngClass]="'status-' + eirCalculationData.calculationStatus?.toLowerCase()">
+                {{ eirCalculationData.calculationStatus || 'COMPLETED' }}
+              </span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <div mat-dialog-actions class="modal-actions">
+    <!-- Export Format Selection -->
+    <div class="export-controls">
+      <mat-form-field appearance="outline" class="format-select">
+        <mat-label>Export Format</mat-label>
+        <mat-select [(value)]="selectedFormat">
+          <mat-option *ngFor="let format of exportFormats" [value]="format">
+            {{ format }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button mat-button (click)="onClose()" class="cancel-button">
+        <fa-icon icon="times" class="m-r-5"></fa-icon>
+        Close
+      </button>
+
+      <button mat-button (click)="onPrint()" class="print-button">
+        <fa-icon icon="file-export" class="m-r-5"></fa-icon>
+        Print
+      </button>
+
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="onExport()"
+        [disabled]="isLoading"
+        [matTooltip]="getExportTooltip()"
+        matTooltipPosition="above"
+        class="export-button"
+      >
+        <mat-progress-spinner *ngIf="isLoading" mode="indeterminate" diameter="20" class="m-r-5">
+        </mat-progress-spinner>
+        <fa-icon *ngIf="!isLoading" icon="download" class="m-r-5"></fa-icon>
+        {{ isLoading ? 'Exporting...' : 'Export KFS' }}
+      </button>
+    </div>
+  </div>
+</div>

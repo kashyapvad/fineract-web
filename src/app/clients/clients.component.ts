@@ -79,6 +79,11 @@ export class ClientsComponent implements OnInit {
           this.existsClientsToFilter = data.numberOfElements > 0;
           this.notExistsClientsToFilter = !this.existsClientsToFilter;
           this.isLoading = false;
+
+          // Initialize extension data loading through the service
+          if (data.content && data.content.length > 0) {
+            this.columnExtensionService.initializeExtensionDataLoading(data.content);
+          }
         },
         (error: any) => {
           this.isLoading = false;

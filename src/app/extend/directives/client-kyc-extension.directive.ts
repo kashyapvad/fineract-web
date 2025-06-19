@@ -1,58 +1,53 @@
-import { Directive, OnInit, OnDestroy, Input } from '@angular/core';
+import { Directive, Input, TemplateRef, ViewContainerRef, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 
 /**
- * Extension directive for adding KYC status column to clients table
- * Following fork-safe pattern - minimal upstream modifications required
+ * Client KYC Table Extension Directive
+ *
+ * Robust Angular-native structural directive for extending client tables
+ * with KYC status columns. Uses proper Angular patterns instead of brittle
+ * component manipulation.
+ *
+ * Usage:
+ * <ng-container *mifosxClientKycExtension="clientData">
+ *   <mifosx-kyc-status-badge [clientId]="clientData.id" variant="chip" [clickable]="true"></mifosx-kyc-status-badge>
+ * </ng-container>
+ *
+ * Following Angular Architecture Patterns:
+ * - Structural directive for conditional content projection
+ * - Template-based rendering instead of component manipulation
+ * - Proper Angular lifecycle management
+ * - Fork-safe architecture with minimal upstream modifications
  */
 @Directive({
   selector: '[mifosxClientKycExtension]'
 })
-export class ClientKycExtensionDirective implements OnInit, OnDestroy {
-  @Input() appClientKycExtension!: any; // ClientsComponent instance
-
+export class ClientKycExtensionDirective implements OnDestroy {
   private destroy$ = new Subject<void>();
-  private kycColumnAdded = false;
 
-  constructor() {}
+  constructor(
+    private templateRef: TemplateRef<any>,
+    private viewContainer: ViewContainerRef
+  ) {}
 
-  ngOnInit(): void {
-    if (this.appClientKycExtension) {
-      this.addKycColumn();
+  @Input() set mifosxClientKycExtension(clientData: any) {
+    this.viewContainer.clear();
+
+    if (this.shouldShowKycExtension(clientData)) {
+      this.viewContainer.createEmbeddedView(this.templateRef, {
+        $implicit: clientData,
+        clientData: clientData
+      });
     }
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.viewContainer.clear();
   }
 
-  private addKycColumn(): void {
-    if (this.kycColumnAdded) return;
-
-    try {
-      const component = this.appClientKycExtension;
-
-      // Add KYC column to displayed columns
-      if (component.displayedColumns && Array.isArray(component.displayedColumns)) {
-        // Insert KYC column after status column, or before last column if status not found
-        const statusIndex = component.displayedColumns.indexOf('status');
-        const insertIndex = statusIndex !== -1 ? statusIndex + 1 : component.displayedColumns.length - 1;
-
-        // Only add if not already present
-        if (!component.displayedColumns.includes('kycStatus')) {
-          component.displayedColumns.splice(insertIndex, 0, 'kycStatus');
-          this.kycColumnAdded = true;
-
-          // Trigger change detection
-          if (component.changeDetectorRef) {
-            component.changeDetectorRef.detectChanges();
-          }
-        }
-      }
-    } catch (error) {
-      // Extension failed silently to avoid breaking the main table functionality
-    }
+  private shouldShowKycExtension(clientData: any): boolean {
+    return clientData && clientData.id && typeof clientData.id === 'number';
   }
 }

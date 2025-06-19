@@ -143,14 +143,31 @@
           </mat-menu>
         </ng-container>
 
-        <ng-container *ngIf="buttonConfig.options.length" class="loan-span">
+        <ng-container *ngIf="buttonConfig.options.length || shouldShowEirKfsExtension()" class="loan-span">
           <button mat-menu-item [matMenuTriggerFor]="More">{{ 'labels.menus.More' | translate }}</button>
           <mat-menu #More="matMenu">
+            <!-- Standard More Menu Items -->
             <span *ngFor="let item of buttonConfig.options">
               <button mat-menu-item *mifosxHasPermission="item.taskPermissionName" (click)="loanAction(item.name)">
                 {{ 'labels.menus.' + item.name | translate }}
               </button>
             </span>
+
+            <!-- EIR/KFS Extension Menu Items - Robust Angular Pattern -->
+            <ng-container
+              *mifosxLoanEirExtension="
+                loanDetailsData;
+                let showCalculateEir = showCalculateEir;
+                let showExportKfs = showExportKfs
+              "
+            >
+              <mifosx-loan-eir-menu-items
+                [loanData]="loanDetailsData"
+                [showCalculateEir]="showCalculateEir"
+                [showExportKfs]="showExportKfs"
+              >
+              </mifosx-loan-eir-menu-items>
+            </ng-container>
           </mat-menu>
         </ng-container>
       </mat-menu>

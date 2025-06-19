@@ -412,4 +412,21 @@ export class LoansViewComponent implements OnInit {
     }
     return substatus.code === 'loanSubStatus.loanSubStatusType.contractTermination';
   }
+
+  /**
+   * Check if EIR/KFS extension should be shown
+   * Shows for loans with status: Active, Approved, Submitted and pending approval
+   */
+  shouldShowEirKfsExtension(): boolean {
+    if (!this.loanDetailsData?.status?.value) {
+      return false;
+    }
+
+    const validStatuses = [
+      'Active',
+      'Approved',
+      'Submitted and pending approval'
+    ];
+    return validStatuses.includes(this.loanDetailsData.status.value);
+  }
 }

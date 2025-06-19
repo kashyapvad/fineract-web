@@ -36,8 +36,17 @@ import { ClientExtendActionsService } from '../services/client-extend-actions.se
   template: `
     <ng-container *ngIf="hasMenuItems()">
       <mat-divider></mat-divider>
-      <button mat-menu-item *ngFor="let item of getMenuItems()" (click)="executeAction(item.name)">
-        <span>{{ item.name }}</span>
+
+      <!-- View KYC Extension - Angular-Native Pattern -->
+      <ng-container *mifosxClientInfoKycExtension="clientData">
+        <button mat-menu-item (click)="executeAction('View KYC')">
+          <span>View KYC</span>
+        </button>
+      </ng-container>
+
+      <!-- View Credit Report Extension -->
+      <button mat-menu-item (click)="executeAction('View Credit Report')">
+        <span>View Credit Report</span>
       </button>
     </ng-container>
   `
@@ -74,10 +83,6 @@ export class ClientExtendedMenuComponent implements OnInit, OnChanges {
       name: action.name,
       action: () => this.executeAction(action.name)
     }));
-  }
-
-  getMenuItems(): any[] {
-    return this._menuItems;
   }
 
   executeAction(actionName: string): void {

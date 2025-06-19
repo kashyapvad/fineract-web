@@ -20,6 +20,9 @@
 /** Angular Imports */
 import { Injectable, ComponentRef, ViewContainerRef, TemplateRef, EmbeddedViewRef } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
+import { Subject } from 'rxjs';
+import { takeUntil, finalize } from 'rxjs/operators';
+import { ClientKycStatusService } from '../kyc/services/client-kyc-status.service';
 
 /** Status Badge Components - Removed broken imports, handled by extension directives now */
 
@@ -46,6 +49,10 @@ export class ClientColumnExtensionService {
   ];
   private readonly EXTEND_COLUMN_POSITION = 4; // After 'status' column
 
+  private destroy$ = new Subject<void>();
+
+  constructor(private kycStatusService: ClientKycStatusService) {}
+
   /**
    * Gets extended columns array for clients table
    * Following Fork Safety Pattern: Returns modified array without side effects
@@ -66,6 +73,59 @@ export class ClientColumnExtensionService {
     extendedColumns.splice(insertPosition + 1, 0, 'kycStatus');
 
     return extendedColumns;
+  }
+
+  /**
+   * NEW: Initialize extension data loading for clients table
+   * This method should be called when the clients data source changes
+   */
+  initializeExtensionDataLoading(clientsData: any[]): void {
+    if (!clientsData || clientsData.length === 0) {
+      return;
+    }
+
+    console.log(`[Extension Service] Initializing data loading for ${clientsData.length} clients`);
+
+    // Extract client IDs and trigger batch loading
+    const clientIds = clientsData.map((client) => client.id).filter((id) => id);
+
+    if (clientIds.length > 0) {
+      this.loadKycStatusBatch(clientIds);
+    }
+  }
+
+  /**
+   * Load KYC status for multiple clients using batch loading
+   */
+  private loadKycStatusBatch(clientIds: number[]): void {
+    console.log(`[Extension Service] Loading KYC status for ${clientIds.length} clients`);
+
+    this.kycStatusService
+      .batchLoadKycStatus(clientIds)
+      .pipe(
+        takeUntil(this.destroy$),
+        finalize(() => {
+          console.log(`[Extension Service] KYC batch loading completed`);
+        })
+      )
+      .subscribe(
+        (kycStatusMap) => {
+          console.log(`[Extension Service] Successfully loaded KYC status for ${kycStatusMap.size} clients`);
+          // KYC status data is now cached and available to badge components
+        },
+        (error) => {
+          console.warn('[Extension Service] Error batch loading KYC status:', error);
+          // Individual badge components will handle fallbacks
+        }
+      );
+  }
+
+  /**
+   * Cleanup method to be called when the service is destroyed
+   */
+  cleanup(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   /**
@@ -199,7 +259,7 @@ export class ClientColumnExtensionService {
         };
       case 'creditBureauStatus':
         return {
-          component: 'mifosx-credit-bureau-status-badge',
+          component: 'mifosx-credit-bureau-badge',
           props: { clientId: row.id, size: 'small' }
         };
       default:
@@ -212,19 +272,19 @@ export class ClientColumnExtensionService {
    */
   private getHeaderContent(column: string): string {
     const headers: { [key: string]: string } = {
-      kycStatus: 'labels.inputs.KYC Status',
-      creditBureauStatus: 'labels.inputs.Credit Report'
+      kycStatus: 'KYC Status',
+      creditBureauStatus: 'Credit Report'
     };
 
     return headers[column] || column;
   }
 
   /**
-   * Finds info bar table element (left or right)
+   * Finds info bar table element
    */
   private findInfoBarTable(component: any, side: 'left' | 'right'): Element | null {
-    // This would need to query the DOM to find the table elements
-    // Implementation depends on component structure
+    // This would need to be implemented based on the actual DOM structure
+    // For now, return null as a placeholder
     return null;
   }
 
@@ -232,17 +292,14 @@ export class ClientColumnExtensionService {
    * Injects status row into info bar table
    */
   private injectStatusRow(table: Element, type: 'kyc' | 'creditBureau', clientId: number): void {
-    // This would dynamically create and insert DOM elements
-    // Implementation depends on table structure
+    // This would need to be implemented based on the actual DOM structure
+    // For now, this is a placeholder
   }
 }
 
 /**
- * Client Extension Initializer Service
- *
- * Automatically initializes client component extensions using Angular lifecycle hooks.
- * This service is designed to be injected into components that need extension
- * without requiring manual initialization.
+ * Extension Initializer Service
+ * Provides lifecycle management for client extensions
  */
 @Injectable({
   providedIn: 'root'
@@ -251,13 +308,17 @@ export class ClientExtensionInitializerService {
   constructor(private columnExtensionService: ClientColumnExtensionService) {}
 
   /**
-   * Initializes client component extensions
-   * Call this from component ngAfterViewInit or ngOnInit
+   * Initialize extensions for a component
+   * Following Fork Safety Pattern: Non-invasive initialization
    */
   initializeExtensions(component: any, type: 'table' | 'infoBar', data?: any): void {
     switch (type) {
       case 'table':
         this.columnExtensionService.extendClientsTable(component);
+        // Initialize data loading if data is provided
+        if (data && Array.isArray(data)) {
+          this.columnExtensionService.initializeExtensionDataLoading(data);
+        }
         break;
       case 'infoBar':
         this.columnExtensionService.extendClientInfoBar(component, data);
@@ -266,10 +327,10 @@ export class ClientExtensionInitializerService {
   }
 
   /**
-   * Cleanup extensions
-   * Call this from component ngOnDestroy
+   * Cleanup extensions for a component
    */
   cleanupExtensions(component: any): void {
     this.columnExtensionService.removeExtendColumns(component);
+    this.columnExtensionService.cleanup();
   }
 }

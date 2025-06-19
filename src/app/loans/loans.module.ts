@@ -82,6 +82,9 @@ import { LoanTermVariationsTabComponent } from './loans-view/loan-term-variation
 import { AddInterestPauseComponent } from './loans-view/loan-account-actions/add-interest-pause/add-interest-pause.component';
 import { LoansActiveClientMembersComponent } from './loans-account-stepper/loans-active-client-members/loans-active-client-members.component';
 
+/** Extension Modules */
+import { LoanEirModule } from '../extend/loan-eir/loan-eir.module';
+
 /**
  * Loans Module
  *
@@ -93,7 +96,10 @@ import { LoansActiveClientMembersComponent } from './loans-account-stepper/loans
     DirectivesModule,
     LoansRoutingModule,
     PipesModule,
-    TranslateModule
+    TranslateModule,
+
+    // Extension Modules
+    LoanEirModule
   ],
   declarations: [
     AddLoanChargeComponent,

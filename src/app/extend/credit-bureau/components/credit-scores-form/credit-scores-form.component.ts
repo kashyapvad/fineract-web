@@ -45,12 +45,8 @@ export class CreditScoresFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Don't initialize scores here - let the parent component handle it
-    // This prevents duplicate scores when autofill service runs
-    // Explicit check to satisfy ESLint rule
-    if (this.parentForm) {
-      // Parent form exists, ready for initialization
-    }
+    // Initialize credit scores from initial data when component loads
+    this.initializeCreditScores();
   }
 
   /**
@@ -66,16 +62,18 @@ export class CreditScoresFormComponent implements OnInit {
    * Following UI Components KB: Form Design and Validation
    */
   private initializeCreditScores(): void {
+    // Clear existing scores first to avoid duplicates
+    while (this.creditScores.length > 0) {
+      this.creditScores.removeAt(0);
+    }
+
     if (this.initialScores && this.initialScores.length > 0) {
       this.initialScores.forEach((score) => {
         this.creditScores.push(this.createCreditScoreGroup(score));
       });
     } else {
-      // Only add default score if the form array is completely empty
-      // This prevents duplicate scores when autofill service runs later
-      if (this.creditScores.length === 0) {
-        this.addCreditScore();
-      }
+      // Add one default score if no initial scores provided
+      this.addCreditScore();
     }
   }
 
@@ -111,16 +109,24 @@ export class CreditScoresFormComponent implements OnInit {
       ]
     });
 
+    // Add valueChanges listener to revalidate other score models when this one changes
+    const scoreModelControl = formGroup.get('scoreModel');
+    scoreModelControl?.valueChanges.subscribe(() => {
+      setTimeout(() => this.revalidateAllScoreModels(), 0);
+    });
+
     return formGroup;
   }
 
   /**
    * Add new credit score
-   * Following Angular Architecture KB: Component Communication Patterns
+   * Following Angular Architecture KB: Component Architecture Patterns
    */
   addCreditScore(): void {
     this.creditScores.push(this.createCreditScoreGroup());
     this.emitScoresChange();
+    // Revalidate all score models after adding
+    setTimeout(() => this.revalidateAllScoreModels(), 0);
   }
 
   /**
@@ -132,14 +138,15 @@ export class CreditScoresFormComponent implements OnInit {
   }
 
   /**
-   * Remove credit score at index
-   * Following UI Components KB: Component Communication Patterns
+   * Remove credit score by index
+   * Following Angular Architecture KB: Component Architecture Patterns
    */
   removeCreditScore(index: number): void {
-    // Only allow removal if more than 1 score exists
     if (this.creditScores.length > 1) {
       this.creditScores.removeAt(index);
       this.emitScoresChange();
+      // Revalidate all score models after removing
+      setTimeout(() => this.revalidateAllScoreModels(), 0);
     }
   }
 
@@ -178,10 +185,96 @@ export class CreditScoresFormComponent implements OnInit {
   }
 
   /**
+   * Custom validator to prevent duplicate score models
+   * Following UI Components KB: Form Validation Patterns
+   */
+  private createDuplicateScoreModelValidator() {
+    return (control: AbstractControl) => {
+      if (!control.value || !this.creditScores) {
+        return null;
+      }
+
+      const currentModel = control.value;
+      const duplicateCount = this.creditScores.controls
+        .map((group) => group.get('scoreModel')?.value)
+        .filter((model) => model === currentModel).length;
+
+      return duplicateCount > 1 ? { duplicateScoreModel: true } : null;
+    };
+  }
+
+  /**
+   * Revalidate all score model controls to update duplicate validation
+   * Following Angular Architecture KB: Component Architecture Patterns
+   */
+  private revalidateAllScoreModels(): void {
+    this.creditScores.controls.forEach((group) => {
+      const scoreModelControl = group.get('scoreModel');
+      if (scoreModelControl) {
+        scoreModelControl.updateValueAndValidity({ emitEvent: false });
+      }
+    });
+  }
+
+  /**
    * Emit scores change event
    * Following Angular Architecture KB: Component Communication Patterns
    */
   private emitScoresChange(): void {
     this.scoresChange.emit(this.creditScores.value);
+  }
+
+  /**
+   * Check if there are any duplicate score models
+   * Following UI Components KB: Form Validation Patterns
+   */
+  hasDuplicateScoreModels(): boolean {
+    const scoreModels = this.creditScores.controls
+      .map((group) => group.get('scoreModel')?.value)
+      .filter((model) => model); // Filter out empty values
+
+    const uniqueModels = new Set(scoreModels);
+    return scoreModels.length !== uniqueModels.size;
+  }
+
+  /**
+   * Get duplicate score models
+   * Following UI Components KB: Form Validation Patterns
+   */
+  getDuplicateScoreModels(): string[] {
+    const scoreModels = this.creditScores.controls
+      .map((group) => group.get('scoreModel')?.value)
+      .filter((model) => model);
+
+    const modelCounts = new Map<string, number>();
+    scoreModels.forEach((model) => {
+      modelCounts.set(model, (modelCounts.get(model) || 0) + 1);
+    });
+
+    return Array.from(modelCounts.entries())
+      .filter(
+        ([
+          model,
+          count
+        ]) => count > 1
+      )
+      .map(
+        ([
+          model,
+          count
+        ]) => model
+      );
+  }
+
+  /**
+   * Check if a specific score model is duplicated
+   * Following UI Components KB: Form Validation Patterns
+   */
+  isScoreModelDuplicated(index: number): boolean {
+    const currentModel = this.creditScores.at(index).get('scoreModel')?.value;
+    if (!currentModel) return false;
+
+    const duplicateModels = this.getDuplicateScoreModels();
+    return duplicateModels.includes(currentModel);
   }
 }

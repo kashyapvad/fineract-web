@@ -378,6 +378,13 @@ export class SharedCreditReportFormComponent implements OnInit {
       return;
     }
 
+    // Check for duplicate score models before submission
+    if (this.creditScoresComponent && this.creditScoresComponent.hasDuplicateScoreModels()) {
+      this.markAllFieldsTouched();
+      // The error messages will be shown in the template
+      return;
+    }
+
     // Validate JSON sections before submission
     if (!this.areAllSectionNamesValid()) {
       // Mark sections as touched to show validation errors

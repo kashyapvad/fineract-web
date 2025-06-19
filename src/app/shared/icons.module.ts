@@ -112,7 +112,8 @@ import {
   faPause,
   faReceipt,
   faTableCells,
-  faSave
+  faSave,
+  faPercent
 } from '@fortawesome/free-solid-svg-icons';
 
 /**
@@ -184,6 +185,7 @@ export class IconsModule {
       faMoneyCheck,
       faPause,
       faPencilAlt,
+      faPercent,
       faPlay,
       faPlus,
       faPlusCircle,

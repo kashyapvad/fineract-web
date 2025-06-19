@@ -34,6 +34,9 @@
               <mat-error *ngIf="scoreGroup.get('scoreModel')?.hasError('required')">
                 {{ getErrorMessage('scoreModel', i) }}
               </mat-error>
+              <mat-error *ngIf="isScoreModelDuplicated(i)">
+                This score model is already used. Each score model can only be used once per report.
+              </mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="half-width">

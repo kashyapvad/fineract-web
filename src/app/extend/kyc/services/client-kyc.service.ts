@@ -19,7 +19,9 @@
 
 /** Angular Imports */
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
+
+/** rxjs Imports */
 import { Observable } from 'rxjs';
 
 /**
@@ -38,7 +40,7 @@ import { Observable } from 'rxjs';
  * - RESTful API communication
  *
  * IMPORTANT: All endpoints correspond to real backend APIs in ClientKycApiResource.java
- * No mock data or fallback responses as per No Mock Data rule.
+ * All errors are propagated to components for proper handling - no mock data or fallback responses.
  */
 @Injectable({
   providedIn: 'root'
@@ -53,6 +55,8 @@ export class ClientKycService {
   getKycDetails(clientId: number): Observable<any> {
     return this.http.get(`/v1/clients/${clientId}/extend/kyc`);
   }
+
+  // Removed getMockKycData method - violates DRY principle and "No Mock Data" rule
 
   /**
    * Retrieves KYC template for a specific client
