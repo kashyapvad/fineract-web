@@ -1,18 +1,74 @@
 .delete-dialog-content {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px 0;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 24px 0;
+  min-height: 80px;
+  overflow: visible;
 
   .warning-icon {
-    font-size: 48px;
-    width: 48px;
-    height: 48px;
+    // Robust icon sizing with proper container
+    font-size: 48px !important;
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+
+    // Layout and positioning
+    flex-shrink: 0;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    margin-top: 4px;
+
+    // Color and appearance
+    color: #f44336 !important;
+
+    // Ensure proper font rendering
+    font-family: 'Material Icons', sans-serif !important;
+    font-weight: normal !important;
+    font-style: normal !important;
+    line-height: 1 !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
+    white-space: nowrap !important;
+    word-wrap: normal !important;
+    direction: ltr !important;
+
+    // Prevent clipping and ensure visibility
+    overflow: visible !important;
+    box-sizing: content-box !important;
+    position: relative;
+    z-index: 1;
+
+    // Anti-aliasing for crisp display
+    -webkit-font-smoothing: antialiased !important;
+    -moz-osx-font-smoothing: grayscale !important;
   }
 
   p {
     margin: 0;
     font-size: 16px;
     line-height: 1.5;
+    flex: 1;
+    padding-top: 8px;
+    color: #666;
+  }
+}
+
+// Ensure dialog containers don't clip content
+:host ::ng-deep {
+  .mat-mdc-dialog-content {
+    overflow: visible !important;
+    padding: 0 24px !important;
+    max-height: none !important;
+  }
+
+  .mat-mdc-dialog-container {
+    overflow: visible !important;
+  }
+
+  .mdc-dialog__surface {
+    overflow: visible !important;
   }
 }

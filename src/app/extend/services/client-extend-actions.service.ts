@@ -22,11 +22,11 @@ import { Injectable } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 /**
- * Interface for extend actions
+ * Interface for Client Extend Actions
  */
-export interface ExtendAction {
+export interface ClientExtendAction {
   name: string;
-  icon: string;
+  icon?: string;
   route: string;
   condition?: (clientData: any) => boolean;
 }
@@ -34,19 +34,15 @@ export interface ExtendAction {
 /**
  * Client Extend Actions Service
  *
- * Provides extensible actions for client management without modifying upstream code.
- * Actions are dynamically registered and filtered based on client state.
- *
- * Following Angular Architecture KB:
- * - Service-based extension pattern
- * - Clean separation of concerns
- * - Type-safe action definitions
+ * Manages registration and execution of client extension actions.
+ * Provides a centralized way to add new actions without modifying
+ * upstream components.
  */
 @Injectable({
   providedIn: 'root'
 })
 export class ClientExtendActionsService {
-  private actions: ExtendAction[] = [];
+  private actions: ClientExtendAction[] = [];
 
   constructor(private router: Router) {
     this.initializeDefaultActions();
@@ -56,34 +52,42 @@ export class ClientExtendActionsService {
    * Initialize default extend actions
    */
   private initializeDefaultActions(): void {
-    // KYC Management Action - Available for all clients (removed status restriction)
+    // KYC Management Action - Available for all clients
     this.registerAction({
       name: 'View KYC',
       icon: 'security',
       route: '/clients',
-      condition: (clientData: any) => true // Available for all clients
+      condition: (clientData: any) => true
     });
 
-    // Credit Report Action - Available for all clients (removed status restriction)
+    // Guarantor KYC Management Action - Available for all clients
+    this.registerAction({
+      name: 'Guarantor KYC',
+      icon: 'users',
+      route: '/clients',
+      condition: (clientData: any) => true
+    });
+
+    // Credit Report Action - Available for all clients
     this.registerAction({
       name: 'View Credit Report',
       icon: 'assessment',
       route: '/clients',
-      condition: (clientData: any) => true // Available for all clients
+      condition: (clientData: any) => true
     });
   }
 
   /**
-   * Register a new extend action
+   * Register a new action
    */
-  registerAction(action: ExtendAction): void {
+  registerAction(action: ClientExtendAction): void {
     this.actions.push(action);
   }
 
   /**
-   * Get all available actions for a client
+   * Get available actions for a client
    */
-  getAvailableActions(clientData: any): ExtendAction[] {
+  getAvailableActions(clientData: any): ClientExtendAction[] {
     const availableActions = this.actions.filter((action) => {
       if (action.condition) {
         const result = action.condition(clientData);
@@ -97,29 +101,30 @@ export class ClientExtendActionsService {
 
   /**
    * Execute an action by name
+   * Routes match the clientExtensionsRoutes structure from client-extensions-routing.module.ts
    */
   executeAction(actionName: string, clientId: number, route: ActivatedRoute): void {
-    const action = this.actions.find((a) => a.name === actionName);
-    if (action) {
-      // Navigate to the action route with client ID and specific sub-route
-      if (actionName === 'View KYC') {
-        this.router.navigate([
-          action.route,
-          clientId,
-          'kyc'
-        ]);
-      } else if (actionName === 'View Credit Report') {
-        this.router.navigate([
-          action.route,
-          clientId,
-          'credit-report'
-        ]);
-      } else {
-        this.router.navigate([
-          action.route,
-          clientId
-        ]);
-      }
+    // Navigate to the correct extension routes
+    if (actionName === 'View KYC') {
+      this.router.navigate([
+        '/clients',
+        clientId,
+        'kyc'
+      ]);
+    } else if (actionName === 'Guarantor KYC') {
+      this.router.navigate([
+        '/clients',
+        clientId,
+        'guarantor-kyc'
+      ]);
+    } else if (actionName === 'View Credit Report') {
+      this.router.navigate([
+        '/clients',
+        clientId,
+        'credit-report'
+      ]);
+    } else {
+      console.error(`Unknown action: ${actionName}`);
     }
   }
 }

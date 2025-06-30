@@ -22,9 +22,12 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
+/** Extension Shared Imports */
+import { EXTENSION_SHARED_IMPORTS } from '../../../shared/extension-imports';
+
 /** Dialog Data Interface */
 export interface KycVerificationDialogData {
-  type: 'verify' | 'unverify' | 'api-verify';
+  type: 'verify' | 'unverify' | 'api-verify' | 'otp-verify';
   clientName: string;
   kycData: any;
   documentTypes: any[];
@@ -32,7 +35,7 @@ export interface KycVerificationDialogData {
 
 /** Dialog Result Interface */
 export interface KycVerificationDialogResult {
-  action: 'verify' | 'unverify' | 'api-verify' | 'cancel';
+  action: 'verify' | 'unverify' | 'api-verify' | 'otp-verify' | 'cancel';
   selectedDocuments: { [key: string]: boolean };
   notes: string;
   reason?: string; // For unverification
@@ -55,20 +58,26 @@ export interface KycVerificationDialogResult {
 @Component({
   selector: 'mifosx-kyc-verification-dialog',
   templateUrl: './kyc-verification-dialog.component.html',
-  styleUrls: ['./kyc-verification-dialog.component.scss']
+  styleUrls: ['./kyc-verification-dialog.component.scss'],
+  standalone: true,
+  imports: [
+    ...EXTENSION_SHARED_IMPORTS
+  ]
 })
 export class KycVerificationDialogComponent implements OnInit {
   verificationForm: FormGroup;
   isVerificationMode: boolean;
   isApiVerificationMode: boolean;
+  isOtpVerificationMode: boolean;
 
   constructor(
     private formBuilder: FormBuilder,
     private dialogRef: MatDialogRef<KycVerificationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: KycVerificationDialogData
   ) {
-    this.isVerificationMode = data.type === 'verify' || data.type === 'api-verify';
+    this.isVerificationMode = data.type === 'verify' || data.type === 'api-verify' || data.type === 'otp-verify';
     this.isApiVerificationMode = data.type === 'api-verify';
+    this.isOtpVerificationMode = data.type === 'otp-verify';
     this.createForm();
   }
 
@@ -145,7 +154,24 @@ export class KycVerificationDialogComponent implements OnInit {
    * Checks if a document is currently verified
    */
   isDocumentVerified(documentType: any): boolean {
-    return this.data.kycData[documentType.verifiedKey] || false;
+    // Check standard verification status
+    const standardVerified = this.data.kycData[documentType.verifiedKey] || false;
+
+    // Handle different verification types based on document type
+    if (documentType.key === 'panNumber') {
+      // For PAN: check both standard verification and manual verification (for guarantor KYC)
+      const manualVerified = this.data.kycData.panManuallyVerified || false;
+      return standardVerified || manualVerified;
+    }
+
+    if (documentType.key === 'aadhaarNumber') {
+      // For Aadhaar: check all three verification types
+      const otpVerified = this.data.kycData.aadhaarOtpVerified || false;
+      const manualVerified = this.data.kycData.aadhaarManuallyVerified || false;
+      return standardVerified || otpVerified || manualVerified;
+    }
+
+    return standardVerified;
   }
 
   /**
@@ -168,12 +194,17 @@ export class KycVerificationDialogComponent implements OnInit {
       );
     }
 
+    // For OTP verification, only show Aadhaar (OTP is only for Aadhaar)
+    if (this.isOtpVerificationMode) {
+      availableDocuments = availableDocuments.filter((docType) => docType.key === 'aadhaarNumber');
+    }
+
     return availableDocuments.filter((docType) => {
       if (this.isVerificationMode) {
-        // Can verify if not already verified
+        // Can verify if not already verified (using comprehensive verification check)
         return !this.isDocumentVerified(docType);
       } else {
-        // Can unverify if already verified
+        // Can unverify if already verified (using comprehensive verification check)
         return this.isDocumentVerified(docType);
       }
     });

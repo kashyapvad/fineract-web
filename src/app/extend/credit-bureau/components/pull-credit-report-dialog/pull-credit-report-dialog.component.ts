@@ -25,6 +25,9 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 /** Custom Services */
 import { ClientCreditBureauService, PullCreditReportRequest } from '../../services/client-credit-bureau.service';
 
+/** Extension Shared Imports */
+import { EXTENSION_SHARED_IMPORTS } from '../../../shared/extension-imports';
+
 /** Dialog Data Interface */
 export interface PullCreditReportDialogData {
   clientId: number;
@@ -42,7 +45,11 @@ export interface PullCreditReportDialogData {
 @Component({
   selector: 'mifosx-pull-credit-report-dialog',
   templateUrl: './pull-credit-report-dialog.component.html',
-  styleUrls: ['./pull-credit-report-dialog.component.scss']
+  styleUrls: ['./pull-credit-report-dialog.component.scss'],
+  standalone: true,
+  imports: [
+    ...EXTENSION_SHARED_IMPORTS
+  ]
 })
 export class PullCreditReportDialogComponent implements OnInit {
   pullForm!: FormGroup;

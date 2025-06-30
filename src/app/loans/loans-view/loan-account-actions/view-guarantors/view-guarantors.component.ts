@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 
 /** Custom Services */
 import { LoansService } from 'app/loans/loans.service';
+import { GuarantorViewExtensionService } from 'app/extend/guarantor-kyc/services/guarantor-view-extension.service';
 
 /** Dialog Components */
 import { DeleteDialogComponent } from 'app/shared/delete-dialog/delete-dialog.component';
@@ -27,6 +28,7 @@ import {
 import { AccountsFilterPipe } from '../../../../pipes/accounts-filter.pipe';
 import { FormatNumberPipe } from '../../../../pipes/format-number.pipe';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
+import { ExtendModule } from '../../../../extend/extend.module';
 
 /**
  * View Guarantors Action
@@ -37,6 +39,7 @@ import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
   styleUrls: ['./view-guarantors.component.scss'],
   imports: [
     ...STANDALONE_SHARED_IMPORTS,
+    ExtendModule,
     FaIconComponent,
     ExternalIdentifierComponent,
     MatTable,
@@ -51,6 +54,7 @@ import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
     MatRow,
     AccountsFilterPipe,
     FormatNumberPipe
+    // Extension Components (KycStatusBadgeComponent) are now available through ExtendModule imported in LoansModule
   ]
 })
 export class ViewGuarantorsComponent implements OnInit {
@@ -62,6 +66,7 @@ export class ViewGuarantorsComponent implements OnInit {
     'fullname',
     'relationship',
     'guarantortype',
+    'kycStatus',
     'depositAccount',
     'amount',
     'remainingAmount',
@@ -79,13 +84,15 @@ export class ViewGuarantorsComponent implements OnInit {
     public dialog: MatDialog,
     public loansService: LoansService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private guarantorExtensionService: GuarantorViewExtensionService
   ) {
     this.loanId = this.route.snapshot.params['loanId'];
   }
 
   ngOnInit() {
     this.guarantorDetails = this.dataObject.guarantors;
+    this.guarantorExtensionService.initializeGuarantorView(this);
   }
 
   toggleGuarantorsDetailsOverview() {
@@ -110,6 +117,13 @@ export class ViewGuarantorsComponent implements OnInit {
       data: { guarantorData: guarantorData }
     });
     viewGuarantorDetailsDialogRef.afterClosed().subscribe(() => {});
+  }
+
+  /**
+   * Gets the client ID from the data object (for extensions)
+   */
+  getClientId(): number {
+    return this.dataObject?.clientId;
   }
 
   /**

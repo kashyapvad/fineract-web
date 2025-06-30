@@ -27,6 +27,9 @@ import { SharedCreditReportFormComponent } from '../shared-credit-report-form/sh
 /** Custom Services */
 import { ClientCreditBureauService, CreateCreditReportRequest } from '../../services/client-credit-bureau.service';
 
+/** Extension Shared Imports */
+import { EXTENSION_SHARED_IMPORTS } from '../../../shared/extension-imports';
+
 /** Dialog Data Interface */
 export interface CreateCreditReportDialogData {
   clientId: number;
@@ -48,7 +51,12 @@ export interface CreateCreditReportDialogData {
 @Component({
   selector: 'mifosx-create-credit-report-dialog',
   templateUrl: './create-credit-report-dialog.component.html',
-  styleUrls: ['./create-credit-report-dialog.component.scss']
+  styleUrls: ['./create-credit-report-dialog.component.scss'],
+  standalone: true,
+  imports: [
+    ...EXTENSION_SHARED_IMPORTS,
+    SharedCreditReportFormComponent
+  ]
 })
 export class CreateCreditReportDialogComponent implements OnInit {
   isSubmitting = false;

@@ -70,13 +70,22 @@ under the License.
                 <span class="document-value" [class.empty-value]="!kycData.panNumber">
                   {{ kycData.panNumber || '–' }}
                 </span>
-                <mat-icon
-                  class="status-icon"
-                  [class.verified]="kycData.panVerified"
-                  [class.unverified]="!kycData.panVerified"
-                >
-                  {{ kycData.panVerified ? 'check_circle' : 'cancel' }}
-                </mat-icon>
+                <div class="status-section">
+                  <span
+                    class="status-text"
+                    [class.verified]="kycData.panVerified"
+                    [class.unverified]="!kycData.panVerified"
+                  >
+                    {{ kycData.panVerified ? 'Verified' + getPanVerificationMethod() : 'Unverified' }}
+                  </span>
+                  <mat-icon
+                    class="status-icon"
+                    [class.verified]="kycData.panVerified"
+                    [class.unverified]="!kycData.panVerified"
+                  >
+                    {{ kycData.panVerified ? 'check_circle' : 'cancel' }}
+                  </mat-icon>
+                </div>
               </div>
             </div>
 
@@ -86,13 +95,26 @@ under the License.
                 <span class="document-value" [class.empty-value]="!kycData.aadhaarNumber">
                   {{ kycData.aadhaarNumber || '–' }}
                 </span>
-                <mat-icon
-                  class="status-icon"
-                  [class.verified]="kycData.aadhaarVerified"
-                  [class.unverified]="!kycData.aadhaarVerified"
-                >
-                  {{ kycData.aadhaarVerified ? 'check_circle' : 'cancel' }}
-                </mat-icon>
+                <div class="status-section">
+                  <span
+                    class="status-text"
+                    [class.verified]="kycData.aadhaarVerified || kycData.aadhaarOtpVerified"
+                    [class.unverified]="!kycData.aadhaarVerified && !kycData.aadhaarOtpVerified"
+                  >
+                    {{
+                      kycData.aadhaarVerified || kycData.aadhaarOtpVerified
+                        ? 'Verified' + getAadhaarVerificationMethod()
+                        : 'Unverified'
+                    }}
+                  </span>
+                  <mat-icon
+                    class="status-icon"
+                    [class.verified]="kycData.aadhaarVerified || kycData.aadhaarOtpVerified"
+                    [class.unverified]="!kycData.aadhaarVerified && !kycData.aadhaarOtpVerified"
+                  >
+                    {{ kycData.aadhaarVerified || kycData.aadhaarOtpVerified ? 'check_circle' : 'cancel' }}
+                  </mat-icon>
+                </div>
               </div>
             </div>
 
@@ -361,6 +383,22 @@ under the License.
           >
             <mat-icon>cloud_sync</mat-icon>
             API Verification
+          </button>
+
+          <button
+            mat-stroked-button
+            color="primary"
+            (click)="verifyKycViaOtp()"
+            [disabled]="isLoading || isVerificationInProgress || !kycData.aadhaarNumber"
+            [matTooltip]="
+              !kycData.aadhaarNumber
+                ? 'Aadhaar number is required for OTP verification'
+                : 'Verify Aadhaar using OTP sent to mobile'
+            "
+            class="action-button"
+          >
+            <mat-icon>sms</mat-icon>
+            OTP Verification
           </button>
         </div>
       </div>

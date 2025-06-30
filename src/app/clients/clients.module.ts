@@ -6,7 +6,7 @@ import { ClientsRoutingModule } from './clients-routing.module';
 import { SharedModule } from 'app/shared/shared.module';
 import { PipesModule } from '../pipes/pipes.module';
 import { DirectivesModule } from '../directives/directives.module';
-import { ExtendSharedModule } from '../extend/extend-shared.module';
+import { ExtendModule } from '../extend/extend.module';
 
 /** Custom Components */
 import { ClientsComponent } from './clients.component';
@@ -69,10 +69,7 @@ import { ClientDatatableStepComponent } from './client-stepper/client-datatable-
     ClientsRoutingModule,
     PipesModule,
     DirectivesModule,
-    // Extension Modules
-    ExtendSharedModule
-  ],
-  declarations: [
+    ExtendModule,
     ClientsComponent,
     ClientsViewComponent,
     GeneralTabComponent,

@@ -44,7 +44,7 @@ import { SharedModule } from '../../shared/shared.module';
 /** KYC Components */
 import { ViewKycActionComponent } from './components/view-kyc-action/view-kyc-action.component';
 import { KycVerificationDialogComponent } from './components/kyc-verification-dialog/kyc-verification-dialog.component';
-import { KycStatusBadgeComponent } from './components/kyc-status-badge/kyc-status-badge.component';
+import { KycStatusBadgeComponent } from '../components/kyc-status-badge.component';
 
 /**
  * Extend KYC Module
@@ -72,9 +72,7 @@ import { KycStatusBadgeComponent } from './components/kyc-status-badge/kyc-statu
     MatSnackBarModule,
     MatDividerModule,
     MatTabsModule,
-    MatTooltipModule
-  ],
-  declarations: [
+    MatTooltipModule,
     ViewKycActionComponent,
     KycVerificationDialogComponent,
     KycStatusBadgeComponent

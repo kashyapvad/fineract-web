@@ -1,0 +1,155 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+.container {
+  max-width: 900px;
+  margin: 20px auto;
+  min-height: calc(100vh - 160px);
+}
+
+// Form actions styling - placed before .guarantor-kyc-form to avoid specificity issues
+.form-actions {
+  padding: 20px 24px;
+  background-color: #fafafa;
+  border-top: 1px solid rgb(0 0 0 / 12%);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+  @media (width < 769px) {
+    flex-direction: column;
+    gap: 8px;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  button {
+    min-width: 120px;
+    height: 40px;
+    font-weight: 500;
+
+    mat-icon {
+      margin-right: 8px;
+      font-size: 18px;
+    }
+  }
+}
+
+.guarantor-kyc-form {
+  padding: 20px;
+
+  // Form sections with clear visual separation
+  .form-section {
+    margin-bottom: 32px;
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 12px;
+
+      mat-icon {
+        font-size: 20px;
+        color: #1976d2;
+      }
+    }
+
+    mat-divider {
+      margin-bottom: 20px;
+    }
+  }
+
+  // Form layout with responsive grid
+  .form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+
+    @media (width < 769px) {
+      flex-direction: column;
+      gap: 8px;
+    }
+  }
+
+  // Form field sizing
+  .form-field {
+    flex: 1;
+    min-width: 250px;
+
+    @media (width < 769px) {
+      min-width: unset;
+      width: 100%;
+    }
+  }
+
+  .form-field-full {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  // Checkbox styling
+  .form-checkbox {
+    margin: 8px 16px 8px 0;
+
+    @media (width < 769px) {
+      margin: 8px 0;
+    }
+  }
+}
+
+// Card styling
+mat-card {
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
+  border-radius: 8px;
+  overflow: hidden;
+
+  mat-card-header {
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    color: white;
+    padding: 24px;
+
+    mat-card-title h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 500;
+    }
+
+    mat-card-subtitle {
+      color: rgb(255 255 255 / 80%);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+  }
+
+  mat-card-content {
+    padding: 0;
+
+    mat-progress-bar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+  }
+}

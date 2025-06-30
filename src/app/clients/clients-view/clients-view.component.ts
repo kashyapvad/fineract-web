@@ -37,6 +37,7 @@ import { MatTabNav, MatTabLink, MatTabNavPanel } from '@angular/material/tabs';
 import { StatusLookupPipe } from '../../pipes/status-lookup.pipe';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
+import { ExtendModule } from '../../extend/extend.module';
 
 @Component({
   selector: 'mifosx-clients-view',
@@ -44,6 +45,7 @@ import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
   styleUrls: ['./clients-view.component.scss'],
   imports: [
     ...STANDALONE_SHARED_IMPORTS,
+    ExtendModule,
     MatCardHeader,
     MatCardTitleGroup,
     MatCardMdImage,

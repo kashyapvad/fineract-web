@@ -2,6 +2,9 @@ import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core
 import { FormGroup, Validators } from '@angular/forms';
 import { CreditReportValidationService } from '../../services/credit-report-validation.service';
 
+/** Extension Shared Imports */
+import { EXTENSION_SHARED_IMPORTS } from '../../../shared/extension-imports';
+
 /**
  * Focused component for managing financial information in credit reports.
  *
@@ -15,7 +18,11 @@ import { CreditReportValidationService } from '../../services/credit-report-vali
   selector: 'mifosx-financial-info-form',
   templateUrl: './financial-info-form.component.html',
   styleUrls: ['./financial-info-form.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    ...EXTENSION_SHARED_IMPORTS
+  ]
 })
 export class FinancialInfoFormComponent implements OnInit {
   @Input() parentForm!: FormGroup;

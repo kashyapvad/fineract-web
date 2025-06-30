@@ -28,6 +28,9 @@ import { takeUntil, finalize } from 'rxjs/operators';
 /** Custom Services */
 import { ClientCreditBureauService, CreditBureauReport } from '../../services/client-credit-bureau.service';
 
+/** Extension Shared Imports */
+import { EXTENSION_SHARED_IMPORTS } from '../../../shared/extension-imports';
+
 /**
  * Interface for Additional Data Section Display
  * Following UI Components KB: Reusable Component Design patterns
@@ -64,7 +67,11 @@ export interface AdditionalDataSection {
 @Component({
   selector: 'mifosx-view-credit-report-details',
   templateUrl: './view-credit-report-details.component.html',
-  styleUrls: ['./view-credit-report-details.component.scss']
+  styleUrls: ['./view-credit-report-details.component.scss'],
+  standalone: true,
+  imports: [
+    ...EXTENSION_SHARED_IMPORTS
+  ]
 })
 export class ViewCreditReportDetailsComponent implements OnInit, OnDestroy {
   /** Route Parameters */

@@ -2,6 +2,9 @@ import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectionStrategy
 import { FormBuilder, FormGroup, FormArray, Validators, AbstractControl } from '@angular/forms';
 import { CreditReportValidationService } from '../../services/credit-report-validation.service';
 
+/** Extension Shared Imports */
+import { EXTENSION_SHARED_IMPORTS } from '../../../shared/extension-imports';
+
 export interface EnhancedCreditScore {
   scoreModel?: string;
   creditScore?: number;
@@ -24,7 +27,11 @@ export interface EnhancedCreditScore {
   selector: 'mifosx-credit-scores-form',
   templateUrl: './credit-scores-form.component.html',
   styleUrls: ['./credit-scores-form.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    ...EXTENSION_SHARED_IMPORTS
+  ]
 })
 export class CreditScoresFormComponent implements OnInit {
   @Input() parentForm!: FormGroup;

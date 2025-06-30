@@ -1,0 +1,15 @@
+<ng-container *ngIf="showCalculateEir">
+  <button mat-menu-item (click)="handleCalculateEir()">Calculate EIR</button>
+</ng-container>
+
+<ng-container *ngIf="showExportKfs">
+  <button
+    mat-menu-item
+    [disabled]="!hasUploadedTemplate"
+    [matTooltip]="hasUploadedTemplate ? 'Export KFS document' : 'Please upload a KFS template first'"
+    matTooltipPosition="left"
+    (click)="handleExportKfs()"
+  >
+    Export KFS
+  </button>
+</ng-container>

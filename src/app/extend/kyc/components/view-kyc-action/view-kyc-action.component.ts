@@ -30,13 +30,16 @@ import { takeUntil } from 'rxjs/operators';
 import { ClientKycService } from '../../services/client-kyc.service';
 import { ClientKycStatusService } from '../../services/client-kyc-status.service';
 import { VerificationNotesService } from '../../../shared/services/verification-notes.service';
-import { KycDocumentGenerationService } from '../../../services/kyc-document-generation.service';
+
 import { ConfirmationDialogComponent } from 'app/shared/confirmation-dialog/confirmation-dialog.component';
 import {
   KycVerificationDialogComponent,
   KycVerificationDialogData,
   KycVerificationDialogResult
 } from '../kyc-verification-dialog/kyc-verification-dialog.component';
+
+/** Extension Shared Imports */
+import { EXTENSION_SHARED_IMPORTS } from '../../../shared/extension-imports';
 
 /**
  * KYC Management Component
@@ -56,7 +59,11 @@ import {
 @Component({
   selector: 'mifosx-view-kyc-action',
   templateUrl: './view-kyc-action.component.html',
-  styleUrls: ['./view-kyc-action.component.scss']
+  styleUrls: ['./view-kyc-action.component.scss'],
+  standalone: true,
+  imports: [
+    ...EXTENSION_SHARED_IMPORTS
+  ]
 })
 export class ViewKycActionComponent implements OnInit, OnDestroy {
   /** Client and KYC data */
@@ -80,7 +87,8 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
   /** Available verification methods */
   verificationMethods = [
     { value: 'MANUAL', label: 'Manual Verification' },
-    { value: 'API', label: 'API Verification' }
+    { value: 'API', label: 'API Verification' },
+    { value: 'OTP', label: 'OTP Verification' }
   ];
 
   /** Document types for verification */
@@ -100,7 +108,6 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
     private formBuilder: FormBuilder,
     private kycService: ClientKycService,
     private kycStatusService: ClientKycStatusService,
-    private kycDocumentService: KycDocumentGenerationService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private changeDetectorRef: ChangeDetectorRef
@@ -312,9 +319,7 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
 
         // Show success message with refresh indicator
         this.snackBar.open(
-          wasUpdate
-            ? 'KYC details updated successfully. Refresh the page to see the latest data.'
-            : 'KYC details created successfully. Refresh the page to see the latest data.',
+          wasUpdate ? 'KYC details updated successfully.' : 'KYC details created successfully.',
           'Close',
           { duration: 3000 }
         );
@@ -463,6 +468,92 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
         this.performApiVerification(verifyPan, verifyAadhaar, result.notes);
       }
     });
+  }
+
+  /**
+   * Initiates OTP verification for Aadhaar
+   */
+  verifyKycViaOtp(): void {
+    if (!this.validateKycExistsForVerification()) return;
+
+    // Check if Aadhaar number exists
+    if (!this.kycData.aadhaarNumber) {
+      this.snackBar.open('Aadhaar number is required for OTP verification', 'Close', { duration: 3000 });
+      return;
+    }
+
+    // Prepare dialog data for OTP verification
+    const dialogData: KycVerificationDialogData = {
+      type: 'otp-verify',
+      clientName: this.clientData?.displayName || `Client ${this.clientId}`,
+      kycData: this.kycData,
+      documentTypes: this.documentTypes
+    };
+
+    const dialogRef = this.dialog.open(KycVerificationDialogComponent, {
+      data: dialogData,
+      width: '600px',
+      maxWidth: '90vw',
+      disableClose: true,
+      autoFocus: true
+    });
+
+    dialogRef.afterClosed().subscribe((result: KycVerificationDialogResult) => {
+      if (result && result.action === 'otp-verify') {
+        this.performOtpVerification(result.notes);
+      }
+    });
+  }
+
+  /**
+   * Performs OTP verification for Aadhaar
+   */
+  private performOtpVerification(notes: string): void {
+    this.isVerificationInProgress = true;
+
+    this.snackBar.open('Generating OTP for Aadhaar verification...', 'Close', { duration: 3000 });
+
+    // First generate OTP
+    this.kycService
+      .generateOtpForAadhaarVerification(this.clientId, { aadhaarNumber: this.kycData.aadhaarNumber })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          // Show OTP input dialog
+          this.showOtpInputDialog(notes);
+        },
+        error: (error) => {
+          this.handleVerificationError(error, 'OTP generation failed');
+        }
+      });
+  }
+
+  /**
+   * Shows OTP input dialog
+   */
+  private showOtpInputDialog(notes: string): void {
+    const otpInput = prompt('Enter 6-digit OTP received on your mobile:');
+
+    if (otpInput) {
+      this.snackBar.open('Verifying OTP...', 'Close', { duration: 3000 });
+
+      this.kycService
+        .submitOtpForAadhaarVerification(this.clientId, { otp: otpInput, notes: notes })
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (result) => {
+            // Refresh KYC data to get latest verification status
+            this.loadKycData();
+
+            this.completeVerificationOperation('Aadhaar OTP verification completed successfully');
+          },
+          error: (error) => {
+            this.handleVerificationError(error, 'OTP verification failed');
+          }
+        });
+    } else {
+      this.isVerificationInProgress = false;
+    }
   }
 
   /**
@@ -680,7 +771,8 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
 
     // Check if both PAN and Aadhaar are verified (primary KYC documents)
     const panVerified = this.kycData.panVerified || false;
-    const aadhaarVerified = this.kycData.aadhaarVerified || false;
+    // Aadhaar is considered verified if ANY of the verification types are true
+    const aadhaarVerified = this.kycData.aadhaarVerified || this.kycData.aadhaarOtpVerified || false;
 
     // KYC is considered verified if both primary documents (PAN and Aadhaar) are verified
     return panVerified && aadhaarVerified;
@@ -708,6 +800,37 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
 
     // Return value or dash if empty/null/undefined
     return value && value.trim() ? value.trim() : '-';
+  }
+
+  /**
+   * Gets the verification method for Aadhaar display
+   */
+  getAadhaarVerificationMethod(): string {
+    if (!this.kycData) return '';
+
+    if (this.kycData.aadhaarOtpVerified) {
+      return ' (OTP)';
+    } else if (this.kycData.aadhaarVerified) {
+      return ' (API)';
+    }
+    return '';
+  }
+
+  /**
+   * Gets the verification method for PAN display
+   */
+  getPanVerificationMethod(): string {
+    if (!this.kycData) return '';
+
+    if (this.kycData.panVerified) {
+      // PAN can be verified via API or Manual - check verification method
+      if (this.kycData.verificationMethod === 'API') {
+        return ' (API)';
+      } else {
+        return ' (Manual)';
+      }
+    }
+    return '';
   }
 
   /**
@@ -944,47 +1067,5 @@ export class ViewKycActionComponent implements OnInit, OnDestroy {
     this.snackBar.open(`${baseMessage}: ${error.error?.defaultUserMessage || 'Unknown error'}`, 'Close', {
       duration: 5000
     });
-  }
-
-  /**
-   * Generate KYC document for the client
-   */
-  generateKycDocument(): void {
-    if (!this.clientId) {
-      this.snackBar.open('Client ID not available', 'Close', { duration: 3000 });
-      return;
-    }
-
-    if (!this.hasExistingKyc) {
-      this.snackBar.open('Please save KYC details before generating document', 'Close', { duration: 3000 });
-      return;
-    }
-
-    this.isLoading = true;
-    this.kycDocumentService
-      .generateKycDocument(this.clientId, 'default')
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (blob: Blob) => {
-          // Create download link
-          const url = window.URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `KYC_Document_Client_${this.clientId}.docx`;
-          link.click();
-          window.URL.revokeObjectURL(url);
-
-          this.isLoading = false;
-          this.snackBar.open('KYC document generated successfully', 'Close', { duration: 3000 });
-        },
-        error: (error) => {
-          this.isLoading = false;
-          this.snackBar.open(
-            `Document generation failed: ${error.error?.defaultUserMessage || 'Unknown error'}`,
-            'Close',
-            { duration: 5000 }
-          );
-        }
-      });
   }
 }

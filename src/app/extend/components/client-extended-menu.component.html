@@ -1,0 +1,17 @@
+<!-- Divider to separate from upstream menu items -->
+<mat-divider></mat-divider>
+
+<!-- View KYC - Following upstream pattern from "Create Collateral" (no permission check) -->
+<button mat-menu-item (click)="executeAction('View KYC')">
+  {{ 'labels.buttons.View KYC' | translate }}
+</button>
+
+<!-- Guarantor KYC - Following upstream pattern from "Survey" (no permission check) -->
+<button mat-menu-item (click)="executeAction('Guarantor KYC')">
+  {{ 'labels.buttons.Guarantor KYC' | translate }}
+</button>
+
+<!-- View Credit Report - Following upstream pattern from "Client Screen Reports" (no permission check) -->
+<button mat-menu-item (click)="executeAction('View Credit Report')">
+  {{ 'labels.buttons.View Credit Report' | translate }}
+</button>

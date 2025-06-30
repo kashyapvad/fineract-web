@@ -21,6 +21,9 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
+/** Extension Shared Imports */
+import { EXTENSION_SHARED_IMPORTS } from '../extension-imports';
+
 /** Dialog Data Interface */
 export interface DeleteDialogData {
   title: string;
@@ -41,7 +44,11 @@ export interface DeleteDialogData {
 @Component({
   selector: 'mifosx-delete-dialog',
   templateUrl: './delete-dialog.component.html',
-  styleUrls: ['./delete-dialog.component.scss']
+  styleUrls: ['./delete-dialog.component.scss'],
+  standalone: true,
+  imports: [
+    ...EXTENSION_SHARED_IMPORTS
+  ]
 })
 export class DeleteDialogComponent {
   constructor(

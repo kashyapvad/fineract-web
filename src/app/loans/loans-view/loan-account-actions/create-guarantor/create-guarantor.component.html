@@ -1,11 +1,14 @@
 <div class="container mat-elevation-z8">
   <mat-card>
-    <form [formGroup]="newGuarantorForm" (ngSubmit)="submit()">
+    <form [formGroup]="newGuarantorForm" (ngSubmit)="submit()" mifosxGuarantorFormExtension>
       <mat-card-content>
         <div class="layout-column">
-          <mat-checkbox labelPosition="before" formControlName="existingClient">
-            {{ 'labels.inputs.Existing Client' | translate }}
-          </mat-checkbox>
+          <div class="layout-row gap-20px">
+            <mat-checkbox labelPosition="before" formControlName="existingClient">
+              {{ 'labels.inputs.Existing Client' | translate }}
+            </mat-checkbox>
+            <mat-checkbox labelPosition="before" formControlName="existingGuarantor"> Existing Guarantor </mat-checkbox>
+          </div>
 
           <ng-container *ngIf="!showClientDetailsForm">
             <mat-form-field class="flex-30">
@@ -52,6 +55,42 @@
                 <input type="number" matInput required formControlName="amount" />
               </mat-form-field>
             </ng-container>
+          </ng-container>
+
+          <!-- Existing Guarantor KYC Selection -->
+          <ng-container *ngIf="newGuarantorForm.value.existingGuarantor && showGuarantorKycDetailsForm">
+            <mat-form-field class="flex-30">
+              <mat-label>Guarantor Name</mat-label>
+              <mat-select
+                formControlName="guarantorName"
+                (selectionChange)="guarantorKycSelected($event.value)"
+                [disabled]="isLoadingGuarantorKycs"
+              >
+                <mat-option *ngIf="isLoadingGuarantorKycs" disabled>
+                  <mat-spinner diameter="20" style="display: inline-block; margin-right: 8px"></mat-spinner>
+                  Loading guarantors...
+                </mat-option>
+                <mat-option *ngIf="!isLoadingGuarantorKycs && guarantorKycData.length === 0" disabled>
+                  No guarantors found for this client
+                </mat-option>
+                <mat-option *ngFor="let guarantorKyc of guarantorKycData" [value]="guarantorKyc">
+                  <div class="guarantor-option">
+                    <div class="guarantor-name">{{ guarantorKyc.fullName }}</div>
+                    <div class="guarantor-details">
+                      <span class="mobile">{{ guarantorKyc.mobileNumber }}</span>
+                      <span class="relationship" *ngIf="guarantorKyc.relationshipToClient">
+                        | {{ guarantorKyc.relationshipToClient | relationshipDisplay }}
+                      </span>
+                    </div>
+                  </div>
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="newGuarantorForm.controls.guarantorName?.hasError('required')">
+                Guarantor Name is <strong>required</strong>
+              </mat-error>
+              <mat-hint *ngIf="!isLoadingGuarantorKycs">Select from existing guarantors for this client</mat-hint>
+              <mat-hint *ngIf="isLoadingGuarantorKycs">Loading guarantor data...</mat-hint>
+            </mat-form-field>
           </ng-container>
 
           <ng-container *ngIf="showClientDetailsForm">
@@ -153,6 +192,27 @@
         <div class="mat-row">
           <div class="mat-cell">{{ 'labels.inputs.Office' | translate }}</div>
           <div class="mat-cell">{{ newGuarantorForm.controls.name.value.officeName }}</div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Selected Guarantor KYC Details -->
+    <ng-container *ngIf="selectedGuarantorKyc">
+      <div class="mat-table">
+        <div class="mat-header-row">
+          <div class="mat-header-cell">Selected Guarantor</div>
+        </div>
+        <div class="mat-row">
+          <div class="mat-cell">Full Name</div>
+          <div class="mat-cell">{{ selectedGuarantorKyc.fullName }}</div>
+        </div>
+        <div class="mat-row">
+          <div class="mat-cell">Mobile Number</div>
+          <div class="mat-cell">{{ selectedGuarantorKyc.mobileNumber }}</div>
+        </div>
+        <div class="mat-row" *ngIf="selectedGuarantorKyc.relationshipToClient">
+          <div class="mat-cell">Relationship to Client</div>
+          <div class="mat-cell">{{ selectedGuarantorKyc.relationshipToClient | relationshipDisplay }}</div>
         </div>
       </div>
     </ng-container>

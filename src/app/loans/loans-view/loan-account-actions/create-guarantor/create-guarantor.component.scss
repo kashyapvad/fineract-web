@@ -1,3 +1,7 @@
+// Import extension styles
+/* stylelint-disable-next-line import-notation, scss/load-partial-extension */
+@import '../../../../extend/styles/guarantor-form-extensions.scss';
+
 .container {
   .mat-table {
     display: block;

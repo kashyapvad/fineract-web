@@ -1,0 +1,124 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements. See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership. The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+/**
+ * Guarantor Table Extension Styles
+ * 
+ * Fork-safe extension styles for the view guarantors table component.
+ * These styles extend the original component without modifying upstream files.
+ */
+
+// Table enhancements
+table {
+  &.mat-table {
+    width: 100%;
+    display: table;
+
+    // Fix vertical alignment for all table cells
+    .mat-mdc-cell {
+      vertical-align: middle !important;
+      align-items: center !important;
+      padding: 8px 16px !important;
+    }
+
+    .mat-mdc-header-cell {
+      vertical-align: middle !important;
+      align-items: center !important;
+      padding: 8px 16px !important;
+    }
+
+    // Ensure content within cells is also centered
+    td.mat-cell {
+      vertical-align: middle !important;
+
+      span {
+        display: inline-flex;
+        align-items: center;
+        min-height: 32px; // Match badge height
+      }
+    }
+
+    th.mat-header-cell {
+      vertical-align: middle !important;
+    }
+  }
+
+  .account-action-button {
+    min-width: 32px !important;
+    max-width: 32px !important;
+    height: 32px !important;
+    width: 32px !important;
+    padding: 0 !important;
+    margin: 2px !important;
+    line-height: 32px !important;
+
+    fa-icon {
+      font-size: 14px !important;
+    }
+
+    .m-r-10 {
+      margin-right: 0 !important;
+    }
+  }
+}
+
+// Action buttons styling
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+
+  .mat-mdc-icon-button {
+    width: 32px;
+    height: 32px;
+
+    .mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    &[color='warn'] .mat-icon {
+      color: #f44336;
+    }
+
+    &[color='primary'] .mat-icon {
+      color: #1976d2;
+    }
+
+    &:hover {
+      background-color: rgb(0 0 0 / 4%);
+    }
+
+    &[color='warn']:hover {
+      background-color: rgb(244 67 54 / 10%);
+    }
+
+    &[color='primary']:hover {
+      background-color: rgb(25 118 210 / 10%);
+    }
+  }
+}
+
+// Utility classes
+.text-muted {
+  color: #6c757d;
+  font-size: 13px;
+}

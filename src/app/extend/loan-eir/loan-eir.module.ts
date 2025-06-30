@@ -43,14 +43,6 @@ import { KfsTemplateService } from './services/kfs-template.service';
  * - Fork-safe extension patterns
  */
 @NgModule({
-  declarations: [
-    // Components
-    KfsModalComponent,
-    LoanEirMenuItemsComponent,
-
-    // Directives
-    LoanEirMenuExtensionDirective
-  ],
   imports: [
     // Angular Core
     CommonModule,
@@ -71,7 +63,14 @@ import { KfsTemplateService } from './services/kfs-template.service';
     MatTooltipModule,
 
     // FontAwesome
-    FontAwesomeModule
+    FontAwesomeModule,
+
+    // Components
+    KfsModalComponent,
+    LoanEirMenuItemsComponent,
+
+    // Directives
+    LoanEirMenuExtensionDirective
   ],
   exports: [
     // Export directive for use in loan components

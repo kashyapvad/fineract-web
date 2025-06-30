@@ -1,9 +1,14 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
+
 import { EirCalculatorService } from '../services/eir-calculator.service';
 import { KfsTemplateService } from '../services/kfs-template.service';
 import { KfsModalComponent } from './kfs-modal/kfs-modal.component';
+/** Material Design Components - specific imports for menu items */
+import { MatMenuItem } from '@angular/material/menu';
+import { MatTooltip } from '@angular/material/tooltip';
+import { CommonModule } from '@angular/common';
 
 /**
  * Loan EIR Menu Items Component
@@ -19,25 +24,13 @@ import { KfsModalComponent } from './kfs-modal/kfs-modal.component';
  */
 @Component({
   selector: 'mifosx-loan-eir-menu-items',
-  template: `
-    <ng-container *ngIf="showCalculateEir">
-      <button mat-menu-item (click)="handleCalculateEir()">
-        <span>Calculate EIR</span>
-      </button>
-    </ng-container>
-
-    <ng-container *ngIf="showExportKfs">
-      <button
-        mat-menu-item
-        [disabled]="!hasUploadedTemplate"
-        [matTooltip]="hasUploadedTemplate ? 'Export KFS document' : 'Please upload a KFS template first'"
-        matTooltipPosition="left"
-        (click)="handleExportKfs()"
-      >
-        <span>Export KFS</span>
-      </button>
-    </ng-container>
-  `
+  templateUrl: './loan-eir-menu-items.component.html',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatMenuItem,
+    MatTooltip
+  ]
 })
 export class LoanEirMenuItemsComponent implements OnInit {
   @Input() loanData: any;

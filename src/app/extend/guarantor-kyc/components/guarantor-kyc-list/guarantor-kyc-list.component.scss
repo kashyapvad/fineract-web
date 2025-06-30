@@ -1,0 +1,142 @@
+/**
+ * Guarantor KYC List Component Styles
+ */
+
+.container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px;
+  text-align: center;
+
+  mat-icon {
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+    color: #666;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    margin: 0 0 8px;
+    color: #666;
+    font-weight: 500;
+  }
+
+  p {
+    color: #999;
+    margin: 0 0 24px;
+    max-width: 400px;
+  }
+
+  button {
+    min-width: 180px;
+
+    // Use flexbox for proper icon-text alignment
+    .mat-button-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    // Icon alignment for no-data button
+    mat-icon {
+      font-size: 20px;
+      height: 20px;
+      width: 20px;
+      color: white;
+      margin: 0; // Remove default margins, let flexbox handle spacing
+    }
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+
+  button {
+    min-width: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    // Icon alignment for action buttons
+    mat-icon {
+      margin-right: 8px;
+      font-size: 20px;
+      height: 20px;
+      width: 20px;
+      color: white;
+      line-height: 1;
+    }
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+  margin-top: 20px;
+
+  .guarantor-table {
+    width: 100%;
+
+    th {
+      font-weight: 600;
+      color: #333;
+    }
+
+    td {
+      padding: 12px 8px;
+    }
+
+    // Action buttons styling
+    .mat-icon-button {
+      margin: 0 4px;
+
+      &:hover {
+        background-color: rgb(0 0 0 / 4%);
+      }
+
+      &[color='warn']:hover {
+        background-color: rgb(244 67 54 / 10%);
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (width < 769px) {
+  .container {
+    padding: 16px;
+  }
+
+  .actions {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+      min-width: unset;
+    }
+  }
+
+  .table-container {
+    .guarantor-table {
+      .mat-icon-button {
+        margin: 0 2px;
+      }
+    }
+  }
+}
+
+.warn {
+  color: #f44336;
+}

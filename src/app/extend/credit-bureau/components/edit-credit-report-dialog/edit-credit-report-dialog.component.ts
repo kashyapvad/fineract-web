@@ -31,6 +31,9 @@ import {
   UpdateCreditReportRequest
 } from '../../services/client-credit-bureau.service';
 
+/** Extension Shared Imports */
+import { EXTENSION_SHARED_IMPORTS } from '../../../shared/extension-imports';
+
 /** Dialog Data Interface */
 export interface EditCreditReportDialogData {
   clientId: number;
@@ -53,7 +56,12 @@ export interface EditCreditReportDialogData {
 @Component({
   selector: 'mifosx-edit-credit-report-dialog',
   templateUrl: './edit-credit-report-dialog.component.html',
-  styleUrls: ['./edit-credit-report-dialog.component.scss']
+  styleUrls: ['./edit-credit-report-dialog.component.scss'],
+  standalone: true,
+  imports: [
+    ...EXTENSION_SHARED_IMPORTS,
+    SharedCreditReportFormComponent
+  ]
 })
 export class EditCreditReportDialogComponent implements OnInit {
   isSubmitting = false;

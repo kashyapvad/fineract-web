@@ -38,6 +38,12 @@ export const clientExtensionsRoutes: Routes = [
     loadChildren: () => import('./kyc/kyc-routed.module').then((m) => m.ExtendKycRoutedModule)
   },
   {
+    path: 'guarantor-kyc',
+    data: { title: 'Guarantor KYC', breadcrumb: 'Guarantor KYC', routeParamBreadcrumb: false },
+    loadChildren: () =>
+      import('./guarantor-kyc/guarantor-kyc-routed.module').then((m) => m.ExtendGuarantorKycRoutedModule)
+  },
+  {
     path: 'credit-report',
     data: {
       title: 'Credit Report',

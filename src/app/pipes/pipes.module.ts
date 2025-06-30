@@ -9,6 +9,7 @@ import { ExternalIdentifierPipe } from './external-identifier.pipe';
 import { FindPipe } from './find.pipe';
 import { FormatNumberPipe } from './format-number.pipe';
 import { PrettyPrintPipe } from './pretty-print.pipe';
+import { RelationshipDisplayPipe } from './relationship-display.pipe';
 import { StatusLookupPipe } from './status-lookup.pipe';
 import { TranslatePipe } from './translate.pipe';
 import { TruncateTextPipe } from './truncate-text.pipe';
@@ -31,7 +32,8 @@ import { YesnoPipe } from './yesno.pipe';
     YesnoPipe,
     PrettyPrintPipe,
     TruncateTextPipe,
-    TranslatePipe
+    TranslatePipe,
+    RelationshipDisplayPipe
   ],
   providers: [
     StatusLookupPipe,
@@ -47,7 +49,8 @@ import { YesnoPipe } from './yesno.pipe';
     YesnoPipe,
     PrettyPrintPipe,
     TranslatePipe,
-    TruncateTextPipe
+    TruncateTextPipe,
+    RelationshipDisplayPipe
   ],
   exports: [
     StatusLookupPipe,
@@ -63,7 +66,8 @@ import { YesnoPipe } from './yesno.pipe';
     YesnoPipe,
     PrettyPrintPipe,
     TranslatePipe,
-    TruncateTextPipe
+    TruncateTextPipe,
+    RelationshipDisplayPipe
   ]
 })
 export class PipesModule {}

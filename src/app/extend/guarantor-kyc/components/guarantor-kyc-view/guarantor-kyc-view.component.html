@@ -1,0 +1,459 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements. See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership. The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied. See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<div class="guarantor-kyc-container">
+  <!-- Header Section -->
+  <div class="guarantor-kyc-header">
+    <div class="header-content">
+      <mat-icon class="header-icon">security</mat-icon>
+      <div class="header-text">
+        <h1 class="page-title">Guarantor KYC Details</h1>
+        <p class="page-subtitle">
+          Client: <strong>{{ clientData?.displayName }}</strong> ({{ clientData?.accountNo }})
+        </p>
+      </div>
+      <div class="header-actions">
+        <button mat-icon-button (click)="goBack()" matTooltip="Back to Guarantor KYC List">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <mat-progress-bar
+    mode="indeterminate"
+    *ngIf="isLoading || isVerificationInProgress"
+    class="progress-bar"
+  ></mat-progress-bar>
+
+  <!-- Verified Badge (when verified) -->
+  <div *ngIf="hasExistingData && isGuarantorVerified()" class="verified-badge">
+    <mat-icon>check_circle</mat-icon>
+    <div class="badge-content">
+      <h3>Guarantor Verified</h3>
+      <p>{{ getVerificationStatus().text }}</p>
+    </div>
+  </div>
+
+  <!-- Main Content Layout -->
+  <div class="main-content">
+    <!-- Left Column - Guarantor Details -->
+    <div class="details-section">
+      <!-- Details Card (View Mode) -->
+      <div *ngIf="hasExistingData && !isEditMode" class="details-card">
+        <div class="card-header">
+          <mat-icon>person</mat-icon>
+          <h2>Guarantor Information</h2>
+        </div>
+        <p class="card-subtitle">Complete guarantor details and KYC information</p>
+
+        <div class="guarantor-overview">
+          <h3>Personal Information</h3>
+
+          <!-- Personal Details Grid -->
+          <div class="details-grid">
+            <div class="detail-item">
+              <div class="detail-label">Full Name</div>
+              <div class="detail-value">
+                <span class="value-text">{{ guarantorKycData.fullName || '–' }}</span>
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <div class="detail-label">Mobile Number</div>
+              <div class="detail-value">
+                <span class="value-text">{{ guarantorKycData.mobileNumber || '–' }}</span>
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <div class="detail-label">Relationship to Client</div>
+              <div class="detail-value">
+                <span class="value-text">{{ guarantorKycData.relationshipToClient | relationshipDisplay }}</span>
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <div class="detail-label">Primary Guarantor</div>
+              <div class="detail-value">
+                <mat-icon [color]="guarantorKycData.isPrimaryGuarantor ? 'primary' : 'warn'">
+                  {{ guarantorKycData.isPrimaryGuarantor ? 'check_circle' : 'cancel' }}
+                </mat-icon>
+                <span class="value-text">{{ guarantorKycData.isPrimaryGuarantor ? 'Yes' : 'No' }}</span>
+              </div>
+            </div>
+
+            <div class="detail-item">
+              <div class="detail-label">Status</div>
+              <div class="detail-value">
+                <mat-icon [color]="guarantorKycData.isActive ? 'primary' : 'warn'">
+                  {{ guarantorKycData.isActive ? 'check_circle' : 'cancel' }}
+                </mat-icon>
+                <span class="value-text">{{ guarantorKycData.isActive ? 'Active' : 'Inactive' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <h3>KYC Documents</h3>
+
+          <!-- KYC Documents Grid -->
+          <div class="documents-grid">
+            <div class="document-item">
+              <div class="document-label">PAN Number</div>
+              <div class="document-value-section">
+                <span class="document-value" [class.empty-value]="!guarantorKycData.panNumber">
+                  {{ guarantorKycData.panNumber || '–' }}
+                </span>
+                <div class="status-section">
+                  <span
+                    class="status-text"
+                    [class.verified]="guarantorKycData.panVerified"
+                    [class.unverified]="!guarantorKycData.panVerified"
+                  >
+                    {{ guarantorKycData.panVerified ? 'Verified' + getPanVerificationMethod() : 'Unverified' }}
+                  </span>
+                  <mat-icon
+                    class="status-icon"
+                    [class.verified]="guarantorKycData.panVerified"
+                    [class.unverified]="!guarantorKycData.panVerified"
+                  >
+                    {{ guarantorKycData.panVerified ? 'check_circle' : 'cancel' }}
+                  </mat-icon>
+                </div>
+              </div>
+            </div>
+
+            <div class="document-item">
+              <div class="document-label">Aadhaar Number</div>
+              <div class="document-value-section">
+                <span class="document-value" [class.empty-value]="!guarantorKycData.aadhaarNumber">
+                  {{ guarantorKycData.aadhaarNumber || '–' }}
+                </span>
+                <div class="status-section">
+                  <span
+                    class="status-text"
+                    [class.verified]="
+                      guarantorKycData.aadhaarVerified ||
+                      guarantorKycData.aadhaarManuallyVerified ||
+                      guarantorKycData.aadhaarOtpVerified
+                    "
+                    [class.unverified]="
+                      !guarantorKycData.aadhaarVerified &&
+                      !guarantorKycData.aadhaarManuallyVerified &&
+                      !guarantorKycData.aadhaarOtpVerified
+                    "
+                  >
+                    {{
+                      guarantorKycData.aadhaarVerified ||
+                      guarantorKycData.aadhaarManuallyVerified ||
+                      guarantorKycData.aadhaarOtpVerified
+                        ? 'Verified' + getAadhaarVerificationMethod()
+                        : 'Unverified'
+                    }}
+                  </span>
+                  <mat-icon
+                    class="status-icon"
+                    [class.verified]="
+                      guarantorKycData.aadhaarVerified ||
+                      guarantorKycData.aadhaarManuallyVerified ||
+                      guarantorKycData.aadhaarOtpVerified
+                    "
+                    [class.unverified]="
+                      !guarantorKycData.aadhaarVerified &&
+                      !guarantorKycData.aadhaarManuallyVerified &&
+                      !guarantorKycData.aadhaarOtpVerified
+                    "
+                  >
+                    {{
+                      guarantorKycData.aadhaarVerified ||
+                      guarantorKycData.aadhaarManuallyVerified ||
+                      guarantorKycData.aadhaarOtpVerified
+                        ? 'check_circle'
+                        : 'cancel'
+                    }}
+                  </mat-icon>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Verification Notes -->
+          <div *ngIf="guarantorKycData.verificationNotes" class="verification-notes">
+            <h4><mat-icon>note</mat-icon> Verification Notes</h4>
+            <div class="notes-content">
+              <div class="notes-text">{{ guarantorKycData.verificationNotes }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit Button -->
+        <div class="card-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="toggleEditMode()"
+            [disabled]="isLoading || isVerificationInProgress"
+          >
+            <mat-icon>edit</mat-icon>
+            Edit Details
+          </button>
+        </div>
+      </div>
+
+      <!-- Edit Mode Form -->
+      <div *ngIf="isEditMode" class="edit-form-card">
+        <div class="card-header">
+          <mat-icon>edit</mat-icon>
+          <h2>Edit Guarantor KYC Details</h2>
+        </div>
+        <p class="card-subtitle">Update guarantor information and KYC documents</p>
+
+        <form [formGroup]="guarantorKycForm" class="guarantor-kyc-form">
+          <div class="form-section">
+            <h3>Personal Information</h3>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Full Name</mat-label>
+                <input matInput formControlName="fullName" placeholder="Complete legal name" />
+                <mat-icon matSuffix>person</mat-icon>
+                <mat-error *ngIf="hasFieldError('fullName')">{{ getFieldErrorMessage('fullName') }}</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Mobile Number</mat-label>
+                <input matInput formControlName="mobileNumber" placeholder="10-digit mobile number" maxlength="10" />
+                <mat-icon matSuffix>phone</mat-icon>
+                <mat-error *ngIf="hasFieldError('mobileNumber')">{{ getFieldErrorMessage('mobileNumber') }}</mat-error>
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="form-field-full">
+              <mat-label>Relationship to Client</mat-label>
+              <mat-select formControlName="relationshipToClient">
+                <mat-option value="">Select Relationship</mat-option>
+                <mat-option *ngFor="let option of relationshipOptions" [value]="option.value">
+                  {{ option.label }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>people</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-section">
+            <h3>KYC Documents</h3>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>PAN Number</mat-label>
+                <input matInput formControlName="panNumber" placeholder="ABCDE1234F" maxlength="10" />
+                <mat-icon matSuffix>credit_card</mat-icon>
+                <mat-hint>10-character PAN format</mat-hint>
+                <mat-error *ngIf="hasFieldError('panNumber')">{{ getFieldErrorMessage('panNumber') }}</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-field">
+                <mat-label>Aadhaar Number</mat-label>
+                <input matInput formControlName="aadhaarNumber" placeholder="123456789012" maxlength="12" />
+                <mat-icon matSuffix>fingerprint</mat-icon>
+                <mat-hint>12-digit Aadhaar number</mat-hint>
+                <mat-error *ngIf="hasFieldError('aadhaarNumber')">{{
+                  getFieldErrorMessage('aadhaarNumber')
+                }}</mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>Status & Settings</h3>
+
+            <div class="checkbox-row">
+              <mat-checkbox formControlName="isPrimaryGuarantor"> Primary Guarantor </mat-checkbox>
+              <mat-checkbox formControlName="isActive"> Active Status </mat-checkbox>
+            </div>
+
+            <mat-form-field appearance="outline" class="form-field-full">
+              <mat-label>Verification Notes</mat-label>
+              <textarea
+                matInput
+                formControlName="verificationNotes"
+                rows="4"
+                placeholder="Enter verification notes, observations, or special instructions..."
+              ></textarea>
+              <mat-icon matSuffix>note_add</mat-icon>
+              <mat-hint>Optional notes for verification process</mat-hint>
+            </mat-form-field>
+          </div>
+        </form>
+
+        <div class="form-actions">
+          <button mat-button (click)="toggleEditMode()" [disabled]="isLoading">
+            <mat-icon>cancel</mat-icon>
+            Cancel
+          </button>
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="saveGuarantorKycDetails()"
+            [disabled]="isLoading || guarantorKycForm.invalid"
+          >
+            <mat-icon>save</mat-icon>
+            Update Details
+          </button>
+        </div>
+      </div>
+
+      <!-- No Data State -->
+      <div *ngIf="!hasExistingData && !isLoading" class="no-data-card">
+        <div class="no-data-content">
+          <mat-icon class="no-data-icon">assignment_late</mat-icon>
+          <h3>Guarantor KYC Not Found</h3>
+          <p>The requested guarantor KYC record could not be found.</p>
+          <button mat-raised-button color="primary" (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+            Back to List
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column - Status & Actions -->
+    <div class="status-actions-section">
+      <!-- Verification Status Card -->
+      <div class="status-card">
+        <div class="card-header">
+          <mat-icon>verified_user</mat-icon>
+          <h2>Verification Status</h2>
+        </div>
+
+        <div *ngIf="hasExistingData; else noKycStatus" class="status-content">
+          <div class="status-item">
+            <span class="status-label">Overall Status:</span>
+            <span class="status-badge" [class]="getVerificationStatus().color">
+              {{ getVerificationStatus().text }}
+            </span>
+          </div>
+
+          <div class="status-item">
+            <span class="status-label">PAN Status:</span>
+            <span class="status-value" [class.verified]="guarantorKycData.panVerified">
+              {{ guarantorKycData.panVerified ? 'Verified' + getPanVerificationMethod() : 'Unverified' }}
+            </span>
+          </div>
+
+          <div class="status-item">
+            <span class="status-label">Aadhaar Status:</span>
+            <span
+              class="status-value"
+              [class.verified]="
+                guarantorKycData.aadhaarVerified ||
+                guarantorKycData.aadhaarManuallyVerified ||
+                guarantorKycData.aadhaarOtpVerified
+              "
+            >
+              {{
+                guarantorKycData.aadhaarVerified ||
+                guarantorKycData.aadhaarManuallyVerified ||
+                guarantorKycData.aadhaarOtpVerified
+                  ? 'Verified' + getAadhaarVerificationMethod()
+                  : 'Unverified'
+              }}
+            </span>
+          </div>
+        </div>
+
+        <ng-template #noKycStatus>
+          <div class="no-status-content">
+            <mat-icon>info_outline</mat-icon>
+            <p>No verification status available.</p>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Actions Card -->
+      <div *ngIf="hasExistingData" class="actions-card">
+        <div class="card-header">
+          <mat-icon>build</mat-icon>
+          <h2>Actions</h2>
+        </div>
+
+        <div class="actions-content">
+          <button
+            mat-stroked-button
+            color="accent"
+            (click)="openManualVerificationDialog()"
+            [disabled]="isLoading || isVerificationInProgress"
+            class="action-button"
+          >
+            <mat-icon>verified</mat-icon>
+            Manual Verification
+          </button>
+
+          <button
+            mat-stroked-button
+            color="warn"
+            (click)="unverifyGuarantorKycManually()"
+            [disabled]="isLoading || isVerificationInProgress"
+            class="action-button"
+          >
+            <mat-icon>gpp_maybe</mat-icon>
+            Unverify Documents
+          </button>
+
+          <button
+            mat-stroked-button
+            color="primary"
+            (click)="performApiVerification()"
+            [disabled]="isLoading || isVerificationInProgress"
+            class="action-button"
+          >
+            <mat-icon>cloud_sync</mat-icon>
+            API Verification
+          </button>
+
+          <button
+            mat-stroked-button
+            color="primary"
+            (click)="openOtpVerificationDialog()"
+            [disabled]="isLoading || isVerificationInProgress"
+            class="action-button"
+          >
+            <mat-icon>sms</mat-icon>
+            OTP Verification
+          </button>
+        </div>
+      </div>
+
+      <!-- Verification History (if available) -->
+      <div *ngIf="hasExistingData && guarantorKycData.lastVerifiedOn" class="verified-by-card">
+        <div class="verified-by-content">
+          <div class="verified-info">
+            <span class="verified-label">LAST VERIFIED</span>
+            <span class="verified-date">{{ guarantorKycData.lastVerifiedOn | date: 'dd MMM yyyy' }}</span>
+          </div>
+          <div class="verified-info">
+            <span class="verified-label">VERIFIED BY</span>
+            <span class="verified-by">{{ guarantorKycData.lastVerifiedByUsername || 'System' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

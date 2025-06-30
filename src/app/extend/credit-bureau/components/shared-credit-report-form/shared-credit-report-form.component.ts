@@ -16,6 +16,9 @@ import { CreditScoresFormComponent } from '../credit-scores-form/credit-scores-f
 import { CustomerInfoFormComponent } from '../customer-info-form/customer-info-form.component';
 import { FinancialInfoFormComponent } from '../financial-info-form/financial-info-form.component';
 
+/** Extension Shared Imports */
+import { EXTENSION_SHARED_IMPORTS } from '../../../shared/extension-imports';
+
 /**
  * Enhanced Credit Score interface with streamlined fields
  */
@@ -55,7 +58,14 @@ export interface JsonEditorSection {
 @Component({
   selector: 'mifosx-shared-credit-report-form',
   templateUrl: './shared-credit-report-form.component.html',
-  styleUrls: ['./shared-credit-report-form.component.scss']
+  styleUrls: ['./shared-credit-report-form.component.scss'],
+  standalone: true,
+  imports: [
+    ...EXTENSION_SHARED_IMPORTS,
+    CreditScoresFormComponent,
+    CustomerInfoFormComponent,
+    FinancialInfoFormComponent
+  ]
 })
 export class SharedCreditReportFormComponent implements OnInit {
   @Input() mode: 'create' | 'edit' = 'create';

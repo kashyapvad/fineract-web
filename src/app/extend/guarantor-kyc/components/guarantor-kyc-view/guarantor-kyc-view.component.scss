@@ -1,0 +1,541 @@
+/**
+ * Guarantor KYC View Component Styles
+ * Modeled after the KYC view component for consistency
+ */
+
+// Generic selectors first to avoid specificity issues
+mat-icon {
+  display: inline-block;
+}
+
+h3 {
+  color: #333;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+// All mat-icon selectors ordered by specificity (lowest to highest)
+.verified-badge mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  margin-right: 16px;
+}
+
+.no-status-content mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 8px;
+  color: #ccc;
+}
+
+.verification-notes h4 mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.actions-content .action-button mat-icon {
+  margin-right: 12px;
+}
+
+.status-actions-section .status-card .card-header mat-icon,
+.status-actions-section .actions-card .card-header mat-icon,
+.status-actions-section .verified-by-card .card-header mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: #3f51b5;
+  margin-right: 12px;
+}
+
+.details-section .details-card .card-header mat-icon,
+.details-section .edit-form-card .card-header mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  color: #3f51b5;
+  margin-right: 12px;
+}
+
+.guarantor-kyc-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #f5f5f5;
+  min-height: calc(100vh - 120px);
+}
+
+/* Header Section */
+.guarantor-kyc-header {
+  margin-bottom: 24px;
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+
+    .header-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      color: #3f51b5;
+      margin-right: 16px;
+    }
+
+    .header-text {
+      flex: 1;
+
+      .page-title {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 500;
+        color: #333;
+      }
+
+      .page-subtitle {
+        margin: 8px 0 0;
+        color: #666;
+        font-size: 14px;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+  }
+}
+
+/* Progress Bar */
+.progress-bar {
+  margin-bottom: 16px;
+}
+
+/* Verified Badge */
+.verified-badge {
+  background: linear-gradient(135deg, #4caf50, #45a049);
+  color: white;
+  padding: 16px 24px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgb(76 175 80 / 30%);
+
+  .badge-content {
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    p {
+      margin: 4px 0 0;
+      opacity: 0.9;
+      font-size: 14px;
+    }
+  }
+}
+
+/* Main Content Layout */
+.main-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+
+  @media (width < 769px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Details Section */
+.details-section {
+  .details-card,
+  .edit-form-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+    padding: 24px;
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+
+      h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 500;
+        color: #333;
+      }
+    }
+
+    .card-subtitle {
+      color: #666;
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+  }
+
+  .guarantor-overview {
+    h3 {
+      margin: 24px 0 16px;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 8px;
+    }
+  }
+
+  .details-grid,
+  .documents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .detail-item,
+  .document-item {
+    .detail-label,
+    .document-label {
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .detail-value,
+    .document-value-section {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .value-text,
+      .document-value {
+        font-size: 14px;
+        color: #333;
+
+        &.empty-value {
+          color: #999;
+          font-style: italic;
+        }
+      }
+
+      .status-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+
+        &.verified {
+          color: #4caf50;
+        }
+
+        &.unverified {
+          color: #f44336;
+        }
+      }
+    }
+  }
+
+  .verification-notes {
+    margin-top: 24px;
+    padding: 16px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    border-left: 4px solid #3f51b5;
+
+    h4 {
+      margin: 0 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .notes-content {
+      .notes-text {
+        color: #666;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+    }
+  }
+
+  .card-actions {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+}
+
+/* No Data State */
+.no-data-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+  padding: 48px 24px;
+  text-align: center;
+
+  .no-data-content {
+    .no-data-icon {
+      font-size: 64px;
+      width: 64px;
+      height: 64px;
+      color: #ccc;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    p {
+      margin: 0 0 24px;
+      color: #666;
+      font-size: 14px;
+    }
+  }
+}
+
+/* Edit Form Styles */
+.edit-form-card {
+  .guarantor-kyc-form {
+    .form-section {
+      margin-bottom: 32px;
+
+      h3 {
+        margin: 0 0 16px;
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 8px;
+      }
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+
+      @media (width < 601px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-field {
+      width: 100%;
+    }
+
+    .form-field-full {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 16px;
+
+      @media (width < 601px) {
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #e0e0e0;
+  }
+}
+
+.details-section .guarantor-overview h3:first-child {
+  margin-top: 0;
+}
+
+/* Status & Actions Section */
+.status-actions-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  .status-card,
+  .actions-card,
+  .verified-by-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+    padding: 20px;
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 16px;
+
+      h2 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 500;
+        color: #333;
+      }
+    }
+  }
+
+  .status-content {
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+
+      .status-label {
+        font-size: 12px;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+      }
+
+      .status-badge {
+        padding: 4px 12px;
+        border-radius: 16px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+
+        &.primary {
+          background: #e3f2fd;
+          color: #1976d2;
+        }
+
+        &.accent {
+          background: #f3e5f5;
+          color: #7b1fa2;
+        }
+
+        &.warn {
+          background: #ffebee;
+          color: #d32f2f;
+        }
+      }
+
+      .status-value {
+        font-size: 12px;
+        color: #666;
+
+        &.verified {
+          color: #4caf50;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  .no-status-content {
+    text-align: center;
+    color: #666;
+
+    p {
+      margin: 0;
+      font-size: 14px;
+    }
+  }
+
+  .actions-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .action-button {
+      width: 100%;
+      justify-content: flex-start;
+      text-align: left;
+
+      &.delete-button {
+        color: #f44336;
+        border-color: #f44336;
+
+        &:hover {
+          background-color: rgb(244 67 54 / 4%);
+        }
+      }
+    }
+  }
+
+  .verified-by-card {
+    .verified-by-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+
+      @media (width < 769px) {
+        grid-template-columns: 1fr;
+      }
+
+      .verified-info {
+        text-align: center;
+
+        .verified-label {
+          display: block;
+          font-size: 10px;
+          color: #666;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 4px;
+        }
+
+        .verified-date,
+        .verified-by {
+          font-size: 12px;
+          color: #333;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}
+
+/* Responsive Design */
+@media (width < 769px) {
+  .guarantor-kyc-container {
+    padding: 16px;
+  }
+
+  .guarantor-kyc-header .header-content {
+    padding: 16px;
+
+    .header-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+    }
+
+    .page-title {
+      font-size: 20px;
+    }
+  }
+
+  .details-grid,
+  .documents-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .status-actions-section .verified-by-card .verified-by-content {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}

@@ -102,6 +102,11 @@ export class ExtendBreadcrumbUrlProcessorService extends BreadcrumbUrlProcessorS
       removeGeneralSuffix: true
     },
     {
+      name: 'GuarantorKYC',
+      pathSegments: ['/guarantor-kyc'],
+      removeGeneralSuffix: true
+    },
+    {
       name: 'CreditBureau',
       pathSegments: ['/credit-report'],
       removeGeneralSuffix: true

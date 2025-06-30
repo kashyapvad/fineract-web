@@ -149,7 +149,9 @@ export class ClientKycStatusService {
     const verifiedCount = this.getVerifiedDocumentCount(kycData);
 
     // Check if required documents (PAN and Aadhaar) are verified
-    const hasRequiredDocuments = Boolean(kycData.panVerified && kycData.aadhaarVerified);
+    // Aadhaar is considered verified if ANY of the verification types are true
+    const aadhaarVerified = Boolean(kycData.aadhaarVerified) || Boolean(kycData.aadhaarOtpVerified);
+    const hasRequiredDocuments = Boolean(kycData.panVerified && aadhaarVerified);
 
     // Parse last verified date if available
     let lastVerifiedOn: any | undefined;
@@ -185,9 +187,12 @@ export class ClientKycStatusService {
   private getVerifiedDocumentCount(kycData: any): number {
     if (!kycData) return 0;
 
+    // Aadhaar is considered verified if ANY of the verification types are true
+    const aadhaarVerified = Boolean(kycData.aadhaarVerified) || Boolean(kycData.aadhaarOtpVerified);
+
     return (
       (kycData.panVerified ? 1 : 0) +
-      (kycData.aadhaarVerified ? 1 : 0) +
+      (aadhaarVerified ? 1 : 0) +
       (kycData.drivingLicenseVerified ? 1 : 0) +
       (kycData.voterIdVerified ? 1 : 0) +
       (kycData.passportVerified ? 1 : 0)

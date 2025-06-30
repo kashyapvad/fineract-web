@@ -1,23 +1,43 @@
 import { Component, Input, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subject, timer } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ClientKycStatusService, KycStatusInfo } from '../../services/client-kyc-status.service';
+import { ClientKycStatusService, KycStatusInfo } from '../kyc/services/client-kyc-status.service';
+import {
+  GuarantorKycStatusService,
+  GuarantorKycStatusInfo
+} from '../guarantor-kyc/services/guarantor-kyc-status.service';
+
+// Material Design Components - specific imports only for optimal tree-shaking
+import { MatChip } from '@angular/material/chips';
+import { MatIcon } from '@angular/material/icon';
+import { MatTooltip } from '@angular/material/tooltip';
 
 @Component({
   selector: 'mifosx-kyc-status-badge',
   templateUrl: './kyc-status-badge.component.html',
   styleUrls: ['./kyc-status-badge.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatChip,
+    MatIcon,
+    MatTooltip
+  ],
+  providers: [DatePipe]
 })
 export class KycStatusBadgeComponent implements OnInit, OnDestroy {
-  @Input() clientId!: number;
+  @Input() type: 'client' | 'guarantor' = 'client'; // KYC type
+  @Input() clientId!: number; // Required for both types
+  @Input() guarantorKycId?: number; // Required for guarantor type
+  @Input() guarantorData?: any; // Optional guarantor data object
   @Input() showDetails = false; // Show additional details like document count
   @Input() variant: 'chip' | 'simple' = 'chip'; // Display variant
   @Input() clickable = false; // Enable click navigation to KYC page
 
-  kycStatus: KycStatusInfo | null = null;
+  kycStatus: KycStatusInfo | GuarantorKycStatusInfo | null = null;
   isLoading = false;
   private destroy$ = new Subject<void>();
 
@@ -28,7 +48,8 @@ export class KycStatusBadgeComponent implements OnInit, OnDestroy {
   private _tooltipText = 'KYC status unknown';
 
   constructor(
-    private kycStatusService: ClientKycStatusService,
+    private clientKycStatusService: ClientKycStatusService,
+    private guarantorKycStatusService: GuarantorKycStatusService,
     private datePipe: DatePipe,
     private cdr: ChangeDetectorRef,
     private router: Router
@@ -49,6 +70,13 @@ export class KycStatusBadgeComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Get the appropriate service based on type
+   */
+  private getCurrentService(): ClientKycStatusService | GuarantorKycStatusService {
+    return this.type === 'guarantor' ? this.guarantorKycStatusService : this.clientKycStatusService;
+  }
+
+  /**
    * SIMPLIFIED: Initialize KYC status - no API calls, purely reactive
    */
   private initializeKycStatus(): void {
@@ -58,9 +86,15 @@ export class KycStatusBadgeComponent implements OnInit, OnDestroy {
     this.checkCacheAndUpdate();
 
     // 2. Listen for cache updates (data will be loaded by extension service)
-    this.kycStatusService.cacheUpdates$.pipe(takeUntil(this.destroy$)).subscribe((cacheStatusMap) => {
-      this.checkCacheAndUpdate();
-    });
+    if (this.type === 'guarantor') {
+      this.guarantorKycStatusService.statusUpdates$.pipe(takeUntil(this.destroy$)).subscribe((statusMap: any) => {
+        this.checkCacheAndUpdate();
+      });
+    } else {
+      this.clientKycStatusService.cacheUpdates$.pipe(takeUntil(this.destroy$)).subscribe((cacheStatusMap: any) => {
+        this.checkCacheAndUpdate();
+      });
+    }
 
     // 3. Show loading state initially if no data
     if (!this.kycStatus) {
@@ -83,7 +117,14 @@ export class KycStatusBadgeComponent implements OnInit, OnDestroy {
    * Check cache and update component state
    */
   private checkCacheAndUpdate(): void {
-    const cachedStatus = this.kycStatusService.getKycStatusFromCache(this.clientId);
+    let cachedStatus: any = null;
+
+    if (this.type === 'guarantor' && this.guarantorKycId) {
+      cachedStatus = this.guarantorKycStatusService.getGuarantorKycStatusFromCache(this.guarantorKycId);
+    } else {
+      cachedStatus = this.clientKycStatusService.getKycStatusFromCache(this.clientId);
+    }
+
     if (cachedStatus && (!this.kycStatus || JSON.stringify(this.kycStatus) !== JSON.stringify(cachedStatus))) {
       this.kycStatus = cachedStatus;
       this.isLoading = false;
@@ -96,12 +137,31 @@ export class KycStatusBadgeComponent implements OnInit, OnDestroy {
    * Show unknown status (fallback)
    */
   private showUnknownStatus(): void {
-    this.kycStatus = {
-      isVerified: false,
-      verifiedDocumentCount: 0,
-      totalRequiredDocuments: 2,
-      hasRequiredDocuments: false
-    };
+    if (this.type === 'guarantor') {
+      this.kycStatus = {
+        guarantorKycId: this.guarantorKycId || 0,
+        clientId: this.clientId,
+        isVerified: false,
+        isFullyVerified: false,
+        verifiedDocumentCount: 0,
+        totalRequiredDocuments: 2,
+        verificationMethod: null,
+        lastVerifiedOn: null,
+        verifiedByUsername: null,
+        panVerified: false,
+        aadhaarVerified: false,
+        fullName: '',
+        mobileNumber: '',
+        relationshipToClient: ''
+      };
+    } else {
+      this.kycStatus = {
+        isVerified: false,
+        verifiedDocumentCount: 0,
+        totalRequiredDocuments: 2,
+        hasRequiredDocuments: false
+      };
+    }
     this.isLoading = false;
     this.updateComputedValues();
     this.cdr.markForCheck();
@@ -168,18 +228,20 @@ export class KycStatusBadgeComponent implements OnInit, OnDestroy {
     if (this.isLoading) return 'Loading KYC status...';
     if (!this.kycStatus) return 'KYC status unknown';
 
+    const typeText = this.type === 'guarantor' ? 'Guarantor KYC' : 'KYC';
+
     if (this.kycStatus.isVerified) {
       const dateText = this.kycStatus.lastVerifiedOn
         ? this.datePipe.transform(this.kycStatus.lastVerifiedOn, 'mediumDate')
         : 'recently';
-      return `KYC verified with PAN and Aadhaar documents. Last verified: ${dateText}`;
+      return `${typeText} verified with PAN and Aadhaar documents. Last verified: ${dateText}`;
     } else {
-      return 'KYC verification pending. PAN and Aadhaar documents required for full verification.';
+      return `${typeText} verification pending. PAN and Aadhaar documents required for full verification.`;
     }
   }
 
   /**
-   * Navigate to KYC page for the client
+   * Navigate to appropriate KYC page based on type
    * Following Angular Architecture KB routing patterns
    */
   navigateToKyc(): void {
@@ -187,12 +249,22 @@ export class KycStatusBadgeComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Navigate to client KYC page using the established routing structure
-    this.router.navigate([
-      '/clients',
-      this.clientId,
-      'kyc'
-    ]);
+    if (this.type === 'guarantor' && this.guarantorKycId) {
+      // Navigate to guarantor KYC view page
+      this.router.navigate([
+        '/clients',
+        this.clientId,
+        'guarantor-kyc',
+        this.guarantorKycId
+      ]);
+    } else {
+      // Navigate to client KYC page using the established routing structure
+      this.router.navigate([
+        '/clients',
+        this.clientId,
+        'kyc'
+      ]);
+    }
   }
 
   /**

@@ -33,6 +33,10 @@ import { StatusLookupPipe } from '../../pipes/status-lookup.pipe';
 import { DateFormatPipe } from '../../pipes/date-format.pipe';
 import { FormatNumberPipe } from '../../pipes/format-number.pipe';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
+import { ExtendModule } from '../../extend/extend.module';
+
+// Extension Components & Directives for EIR/KFS functionality
+import { LoanEirMenuExtensionDirective } from '../../extend/loan-eir/directives/loan-eir-menu-extension.directive';
 
 @Component({
   selector: 'mifosx-loans-view',
@@ -40,6 +44,7 @@ import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
   styleUrls: ['./loans-view.component.scss'],
   imports: [
     ...STANDALONE_SHARED_IMPORTS,
+    ExtendModule,
     MatCardHeader,
     MatCardTitleGroup,
     SvgIconComponent,
@@ -62,7 +67,10 @@ import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
     CurrencyPipe,
     StatusLookupPipe,
     DateFormatPipe,
-    FormatNumberPipe
+    FormatNumberPipe,
+    // Extension Components
+    LoanEirMenuExtensionDirective
+    // LoanEirMenuItemsComponent is now available through ExtendModule imported in LoansModule
   ]
 })
 export class LoansViewComponent implements OnInit {

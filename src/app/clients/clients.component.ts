@@ -28,6 +28,7 @@ import { ExternalIdentifierComponent } from '../shared/external-identifier/exter
 import { StatusLookupPipe } from '../pipes/status-lookup.pipe';
 import { STANDALONE_SHARED_IMPORTS } from 'app/standalone-shared.module';
 import { ClientColumnExtensionService } from '../extend/services/client-column-extension.service';
+import { ExtendModule } from '../extend/extend.module';
 
 @Component({
   selector: 'mifosx-clients',
@@ -35,6 +36,7 @@ import { ClientColumnExtensionService } from '../extend/services/client-column-e
   styleUrls: ['./clients.component.scss'],
   imports: [
     ...STANDALONE_SHARED_IMPORTS,
+    ExtendModule,
     MatCheckbox,
     FaIconComponent,
     MatProgressBar,

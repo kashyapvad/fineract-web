@@ -1,0 +1,162 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements. See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership. The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied. See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<div class="container mat-elevation-z8">
+  <mat-card>
+    <mat-card-header class="padding-20">
+      <mat-card-title>
+        <h2>{{ isEditMode ? 'Edit' : 'Add' }} Guarantor KYC Details</h2>
+      </mat-card-title>
+      <mat-card-subtitle>
+        {{ isEditMode ? 'Update guarantor' : 'Add new guarantor' }} information and KYC documents
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-progress-bar mode="indeterminate" *ngIf="isLoading"></mat-progress-bar>
+
+      <form [formGroup]="guarantorKycForm" (ngSubmit)="onSubmit()" class="guarantor-kyc-form">
+        <!-- Personal Information Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>person</mat-icon>
+            Personal Information
+          </h3>
+          <mat-divider></mat-divider>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Full Name</mat-label>
+              <input matInput formControlName="fullName" placeholder="Enter guarantor's full name" required />
+              <mat-icon matSuffix>account_circle</mat-icon>
+              <mat-hint>Complete legal name of the guarantor</mat-hint>
+              <mat-error *ngIf="hasFieldError('fullName')">{{ getFieldErrorMessage('fullName') }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Mobile Number</mat-label>
+              <input matInput formControlName="mobileNumber" placeholder="9876543210" maxlength="10" required />
+              <mat-icon matSuffix>phone</mat-icon>
+              <mat-hint>10-digit mobile number</mat-hint>
+              <mat-error *ngIf="hasFieldError('mobileNumber')">{{ getFieldErrorMessage('mobileNumber') }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Relationship to Client</mat-label>
+              <mat-select formControlName="relationshipToClient">
+                <mat-option *ngFor="let relationship of relationshipOptions" [value]="relationship.value">
+                  {{ relationship.label }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matSuffix>people</mat-icon>
+              <mat-hint>Relationship with the client</mat-hint>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- KYC Documents Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>verified_user</mat-icon>
+            KYC Documents
+          </h3>
+          <mat-divider></mat-divider>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>PAN Number</mat-label>
+              <input
+                matInput
+                formControlName="panNumber"
+                placeholder="ABCDE1234F"
+                maxlength="10"
+                style="text-transform: uppercase"
+                required
+              />
+              <mat-icon matSuffix>credit_card</mat-icon>
+              <mat-hint>10-character PAN format (required)</mat-hint>
+              <mat-error *ngIf="hasFieldError('panNumber')">{{ getFieldErrorMessage('panNumber') }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="form-field">
+              <mat-label>Aadhaar Number</mat-label>
+              <input matInput formControlName="aadhaarNumber" placeholder="123456789012" maxlength="12" required />
+              <mat-icon matSuffix>fingerprint</mat-icon>
+              <mat-hint>12-digit Aadhaar number (required)</mat-hint>
+              <mat-error *ngIf="hasFieldError('aadhaarNumber')">{{ getFieldErrorMessage('aadhaarNumber') }}</mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Status and Settings Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>settings</mat-icon>
+            Status & Settings
+          </h3>
+          <mat-divider></mat-divider>
+
+          <div class="form-row">
+            <mat-checkbox formControlName="isPrimaryGuarantor" class="form-checkbox"> Primary Guarantor </mat-checkbox>
+
+            <mat-checkbox formControlName="isActive" class="form-checkbox"> Active Status </mat-checkbox>
+          </div>
+        </div>
+
+        <!-- Notes Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>note_add</mat-icon>
+            Additional Notes
+          </h3>
+          <mat-divider></mat-divider>
+
+          <mat-form-field appearance="outline" class="form-field-full">
+            <mat-label>Verification Notes</mat-label>
+            <textarea
+              matInput
+              formControlName="verificationNotes"
+              rows="4"
+              placeholder="Enter any additional notes or comments..."
+            ></textarea>
+            <mat-icon matSuffix>note_add</mat-icon>
+            <mat-hint>Optional notes for verification or reference</mat-hint>
+            <mat-error *ngIf="hasFieldError('verificationNotes')">{{
+              getFieldErrorMessage('verificationNotes')
+            }}</mat-error>
+          </mat-form-field>
+        </div>
+      </form>
+    </mat-card-content>
+
+    <!-- Form Actions -->
+    <mat-card-actions class="form-actions">
+      <button mat-button (click)="onCancel()" [disabled]="isLoading">
+        <mat-icon>cancel</mat-icon>
+        Cancel
+      </button>
+      <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="isLoading || guarantorKycForm.invalid">
+        <mat-icon>save</mat-icon>
+        {{ isEditMode ? 'Update' : 'Save' }} Guarantor KYC
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

@@ -72,27 +72,6 @@ import { DeleteDialogComponent } from '../shared/delete-dialog/delete-dialog.com
  * - Reactive forms for user input handling
  */
 @NgModule({
-  declarations: [
-    // Main Components
-    ViewCreditBureauActionComponent,
-    ViewCreditReportDetailsComponent,
-
-    // Dialog Components
-    PullCreditReportDialogComponent,
-    CreateCreditReportDialogComponent,
-    EditCreditReportDialogComponent,
-
-    // Form Components
-    SharedCreditReportFormComponent,
-
-    // Focused Form Components - Following Angular Architecture KB: Component Responsibility Separation
-    CreditScoresFormComponent,
-    CustomerInfoFormComponent,
-    FinancialInfoFormComponent,
-
-    // Shared Components
-    DeleteDialogComponent
-  ],
   imports: [
     // Angular Core
     CommonModule,
@@ -120,7 +99,27 @@ import { DeleteDialogComponent } from '../shared/delete-dialog/delete-dialog.com
     MatTabsModule,
     MatExpansionModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+
+    // Main Components
+    ViewCreditBureauActionComponent,
+    ViewCreditReportDetailsComponent,
+
+    // Dialog Components
+    PullCreditReportDialogComponent,
+    CreateCreditReportDialogComponent,
+    EditCreditReportDialogComponent,
+
+    // Form Components
+    SharedCreditReportFormComponent,
+
+    // Focused Form Components - Following Angular Architecture KB: Component Responsibility Separation
+    CreditScoresFormComponent,
+    CustomerInfoFormComponent,
+    FinancialInfoFormComponent,
+
+    // Shared Components
+    DeleteDialogComponent
   ],
   providers: [
     // Services are provided in root via @Injectable({ providedIn: 'root' })

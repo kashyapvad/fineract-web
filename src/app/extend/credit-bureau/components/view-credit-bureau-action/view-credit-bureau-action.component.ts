@@ -22,9 +22,30 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Subject, forkJoin } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
+
+/** Material Components */
+import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { MatCard, MatCardHeader, MatCardTitle, MatCardSubtitle, MatCardContent } from '@angular/material/card';
+import {
+  MatTable,
+  MatColumnDef,
+  MatHeaderCellDef,
+  MatHeaderCell,
+  MatCellDef,
+  MatCell,
+  MatHeaderRowDef,
+  MatHeaderRow,
+  MatRowDef,
+  MatRow
+} from '@angular/material/table';
+import { MatChip } from '@angular/material/chips';
+import { MatTooltip } from '@angular/material/tooltip';
+import { MatIconButton } from '@angular/material/button';
 
 /** Custom Services */
 import { ClientCreditBureauService, CreditBureauReport } from '../../services/client-credit-bureau.service';
@@ -42,7 +63,7 @@ import { DeleteDialogComponent } from '../../../shared/delete-dialog/delete-dial
  *
  * Main management page for client credit bureau reports.
  * Provides comprehensive CRUD operations following Angular Architecture KB patterns:
- * - Feature module isolation with proper component organization
+ * - Standalone component with specific imports for optimal tree-shaking
  * - Reactive programming with takeUntil for subscription management
  * - Material Design components for consistent UI
  * - Error handling with user-friendly feedback
@@ -50,7 +71,33 @@ import { DeleteDialogComponent } from '../../../shared/delete-dialog/delete-dial
 @Component({
   selector: 'mifosx-view-credit-bureau-action',
   templateUrl: './view-credit-bureau-action.component.html',
-  styleUrls: ['./view-credit-bureau-action.component.scss']
+  styleUrls: ['./view-credit-bureau-action.component.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButton,
+    MatIcon,
+    MatProgressSpinner,
+    MatCard,
+    MatCardHeader,
+    MatCardTitle,
+    MatCardSubtitle,
+    MatCardContent,
+    MatTable,
+    MatColumnDef,
+    MatHeaderCellDef,
+    MatHeaderCell,
+    MatCellDef,
+    MatCell,
+    MatHeaderRowDef,
+    MatHeaderRow,
+    MatRowDef,
+    MatRow,
+    MatChip,
+    MatTooltip,
+    MatIconButton
+  ],
+  providers: [DatePipe]
 })
 export class ViewCreditBureauActionComponent implements OnInit, OnDestroy {
   /** Client ID from route parameters */
@@ -200,7 +247,7 @@ export class ViewCreditBureauActionComponent implements OnInit, OnDestroy {
       CreateCreditReportDialogComponent,
       dialogConfig,
       'Credit report created successfully',
-      (result: any) => result && result.entityId
+      (result: any) => !!result
     );
   }
 
@@ -232,7 +279,7 @@ export class ViewCreditBureauActionComponent implements OnInit, OnDestroy {
       EditCreditReportDialogComponent,
       dialogConfig,
       'Credit report updated successfully',
-      (result: any) => result && result.entityId
+      (result: any) => !!result
     );
   }
 

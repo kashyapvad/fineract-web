@@ -18,11 +18,16 @@
  */
 
 /** Angular Imports */
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 /** Custom Services */
 import { ClientExtendActionsService } from '../services/client-extend-actions.service';
+
+/** Material Design Components - specific imports for menu items */
+import { MatDivider } from '@angular/material/divider';
+import { MatMenuItem } from '@angular/material/menu';
+import { TranslateModule } from '@ngx-translate/core';
 
 /**
  * Client Extended Menu Component
@@ -33,28 +38,16 @@ import { ClientExtendActionsService } from '../services/client-extend-actions.se
  */
 @Component({
   selector: 'mifosx-client-extended-menu',
-  template: `
-    <ng-container *ngIf="hasMenuItems()">
-      <mat-divider></mat-divider>
-
-      <!-- View KYC Extension - Angular-Native Pattern -->
-      <ng-container *mifosxClientInfoKycExtension="clientData">
-        <button mat-menu-item (click)="executeAction('View KYC')">
-          <span>View KYC</span>
-        </button>
-      </ng-container>
-
-      <!-- View Credit Report Extension -->
-      <button mat-menu-item (click)="executeAction('View Credit Report')">
-        <span>View Credit Report</span>
-      </button>
-    </ng-container>
-  `
+  templateUrl: './client-extended-menu.component.html',
+  standalone: true,
+  imports: [
+    MatDivider,
+    MatMenuItem,
+    TranslateModule
+  ]
 })
-export class ClientExtendedMenuComponent implements OnInit, OnChanges {
+export class ClientExtendedMenuComponent {
   @Input() clientData: any;
-
-  private _menuItems: any[] = [];
 
   constructor(
     private extendActionsService: ClientExtendActionsService,
@@ -62,36 +55,12 @@ export class ClientExtendedMenuComponent implements OnInit, OnChanges {
     private route: ActivatedRoute
   ) {}
 
-  ngOnInit(): void {
-    this.updateMenuItems();
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['clientData']) {
-      this.updateMenuItems();
-    }
-  }
-
-  private updateMenuItems(): void {
-    if (!this.clientData) {
-      this._menuItems = [];
-      return;
-    }
-
-    const availableActions = this.extendActionsService.getAvailableActions(this.clientData);
-    this._menuItems = availableActions.map((action) => ({
-      name: action.name,
-      action: () => this.executeAction(action.name)
-    }));
-  }
-
   executeAction(actionName: string): void {
     if (this.clientData?.id) {
+      // Use the extension service for proper navigation
       this.extendActionsService.executeAction(actionName, this.clientData.id, this.route);
+    } else {
+      console.error('Client data or client ID not available');
     }
-  }
-
-  hasMenuItems(): boolean {
-    return this._menuItems.length > 0;
   }
 }
